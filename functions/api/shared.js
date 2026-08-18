@@ -73,6 +73,25 @@ const requireCsrf = (request, session) => {
   return { ok: true };
 };
 
+// 会话级 CSRF 校验：从 cookie 取 mb_sid，查 sessions 表比对 x-csrf-token 头
+// 登录/注册/忘记密码等匿名会话接口也用它（只要前端先 GET /api/csrf 拿过令牌）
+const verifyCsrfRequest = async (request, env) => {
+  const cookies = parseCookies(request.headers.get('cookie'));
+  const sid = cookies.mb_sid || '';
+  if (!sid) return { ok: false, error: '会话缺失，请刷新页面后重试。', status: 403 };
+  const row = await env.DB.prepare(
+    'SELECT csrf FROM sessions WHERE token = ? AND expires_at > ?'
+  ).bind(sid, new Date().toISOString()).first();
+  if (!row || row.csrf === 'pending') {
+    return { ok: false, error: '会话已过期，请刷新页面后重试。', status: 403 };
+  }
+  const headerToken = request.headers.get('x-csrf-token') || '';
+  if (!safeEqual(headerToken, row.csrf)) {
+    return { ok: false, error: '安全令牌校验失败，请刷新页面后重试。', status: 403 };
+  }
+  return { ok: true, sid };
+};
+
 // 统一读取请求体
 const readBody = async (request) => {
   const ct = (request.headers.get('content-type') || '').toLowerCase();
@@ -102,5 +121,5 @@ const cookieAttrs = (maxAgeSec = 30 * 24 * 3600) =>
 export {
   json, randomToken, parseCookies, clientIp, safeEqual,
   bytesToHex, hexToBytes, hashPassword, verifyPassword, pbkdf2,
-  requireCsrf, readBody, issueSession, cookieAttrs,
+  requireCsrf, verifyCsrfRequest, readBody, issueSession, cookieAttrs,
 };

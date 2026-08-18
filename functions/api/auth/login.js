@@ -1,10 +1,12 @@
-import { json, parseCookies, verifyPassword, readBody } from '../shared.js';
+import { json, parseCookies, verifyPassword, readBody, verifyCsrfRequest } from '../shared.js';
 
 // POST /api/auth/login
 // body: { email, password, learningSystem? }
 export async function onRequestPost({ request, env }) {
   if (!env.DB) return json({ ok: false, error: '服务端数据库未配置（缺少 D1 绑定）。' }, 503);
   try {
+    const csrfCheck = await verifyCsrfRequest(request, env);
+    if (!csrfCheck.ok) return json({ ok: false, error: csrfCheck.error }, csrfCheck.status);
     const body = await readBody(request);
     const identifier = String(body.email || body.username || '').trim();
     const password = String(body.password || '');

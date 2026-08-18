@@ -1,10 +1,12 @@
-import { json, randomToken, readBody } from '../shared.js';
+import { json, randomToken, readBody, verifyCsrfRequest } from '../shared.js';
 
 // POST /api/auth/resend-verification
 // body: { email }
 export async function onRequestPost({ request, env }) {
   if (!env.DB) return json({ ok: true, message: '如果该邮箱存在且尚未验证，邮件已经发送。' });
   try {
+    const csrfCheck = await verifyCsrfRequest(request, env);
+    if (!csrfCheck.ok) return json({ ok: false, error: csrfCheck.error }, csrfCheck.status);
     const body = await readBody(request);
     const email = String(body.email || '').trim().toLowerCase();
     if (!email) return json({ ok: true });

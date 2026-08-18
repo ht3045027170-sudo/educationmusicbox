@@ -1,4 +1,4 @@
-import { json, parseCookies, hashPassword, randomToken, readBody } from '../shared.js';
+import { json, parseCookies, hashPassword, randomToken, readBody, verifyCsrfRequest } from '../shared.js';
 
 // POST /api/auth/register
 // 接收 username, email, password, displayName, role（默认 learner）
@@ -8,6 +8,8 @@ const TOKEN_TTL_HOURS = 24;
 export async function onRequestPost({ request, env }) {
   if (!env.DB) return json({ ok: false, error: '服务端数据库未配置（缺少 D1 绑定）。' }, 503);
   try {
+    const csrfCheck = await verifyCsrfRequest(request, env);
+    if (!csrfCheck.ok) return json({ ok: false, error: csrfCheck.error }, csrfCheck.status);
     const body = await readBody(request);
     const username = String(body.username || '').trim();
     const email = String(body.email || '').trim().toLowerCase();
