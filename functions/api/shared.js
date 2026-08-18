@@ -92,6 +92,30 @@ const verifyCsrfRequest = async (request, env) => {
   return { ok: true, sid };
 };
 
+// 从 cookie 会话解析当前登录用户（含角色）；未登录/过期返回 null
+const currentUser = async (request, env) => {
+  const cookies = parseCookies(request.headers.get('cookie'));
+  const sid = cookies.mb_sid || '';
+  if (!sid) return null;
+  const row = await env.DB.prepare(
+    'SELECT u.id, u.username, u.email, u.display_name, u.role, u.learning_system, u.status ' +
+    'FROM sessions s JOIN users u ON u.id = s.user_id ' +
+    'WHERE s.token = ? AND s.expires_at > ?'
+  ).bind(sid, new Date().toISOString()).first();
+  if (!row || row.status !== 'active') return null;
+  return row;
+};
+
+// 教师端鉴权：登录 + teacher/admin 角色
+const requireTeacher = async (request, env) => {
+  const user = await currentUser(request, env);
+  if (!user) return { ok: false, error: '请先登录后再操作。', status: 401 };
+  if (!['teacher', 'admin'].includes(user.role)) {
+    return { ok: false, error: '仅教师或管理员账号可使用教师中心。', status: 403 };
+  }
+  return { ok: true, user };
+};
+
 // 统一读取请求体
 const readBody = async (request) => {
   const ct = (request.headers.get('content-type') || '').toLowerCase();
@@ -122,4 +146,5 @@ export {
   json, randomToken, parseCookies, clientIp, safeEqual,
   bytesToHex, hexToBytes, hashPassword, verifyPassword, pbkdf2,
   requireCsrf, verifyCsrfRequest, readBody, issueSession, cookieAttrs,
+  currentUser, requireTeacher,
 };
