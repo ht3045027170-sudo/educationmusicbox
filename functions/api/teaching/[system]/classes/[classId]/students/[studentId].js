@@ -17,10 +17,14 @@ export async function onRequestDelete({ request, env, params }) {
       return json({ ok: false, error: '只能管理自己创建的班级。' }, 403);
     }
 
+    // 移出名单 + 清掉该生在本班各作业的提交记录
     const info = await env.DB.prepare(
       'DELETE FROM class_students WHERE class_id = ? AND student_id = ?'
     ).bind(classId, studentId).run();
     if (!info.meta?.changes) return json({ ok: false, error: '该学生不在此班级中。' }, 404);
+    await env.DB.prepare(
+      'DELETE FROM homework_submissions WHERE student_id = ? AND assignment_id IN (SELECT id FROM homework_assignments WHERE class_id = ?)'
+    ).bind(studentId, classId).run();
 
     return json({ ok: true });
   } catch (error) {
