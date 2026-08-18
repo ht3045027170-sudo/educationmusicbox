@@ -1,0 +1,9 @@
+Salamander Grand Piano V3
+Recorded by Alexander Holm.
+Licensed under Creative Commons Attribution 3.0 (CC BY 3.0).
+Source: https://archive.org/details/SalamanderGrandPianoV3
+Repository: https://github.com/sfzinstruments/SalamanderGrandPiano
+
+MP3 conversion/package: @audio-samples/piano-mp3-velocity6 1.0.5
+Package wrapper copyright (c) 2019 Jan Forst, MIT License.
+The included package README and LICENSE are preserved in piano-samples/package/.

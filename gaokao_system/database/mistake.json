@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "description": "错题库结构模板。真实错题只写入高考系统独立本地状态，不修改本静态文件。",
+  "recordShape": {"questionId":"","knowledgeId":"","userAnswer":"","correctAnswer":"","wrongCount":0,"lastWrongAt":0,"resolved":false}
+}

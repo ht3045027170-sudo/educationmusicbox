@@ -1,0 +1,49 @@
+.theory-page { overflow: auto; padding: max(18px, env(safe-area-inset-top)) clamp(14px, 3vw, 36px) max(30px, env(safe-area-inset-bottom)); }
+.theory-shell { position: relative; z-index: 1; width: min(1180px, 100%); margin: auto; }
+.theory-head { display:flex; align-items:center; gap:18px; min-height:62px; margin-bottom:18px; padding:9px 16px; border:1px solid rgba(52,88,69,.15); border-radius:18px; background:rgba(252,250,244,.8); }
+.theory-head h1 { flex:1; margin:0; font:600 clamp(24px,4vw,39px) "Songti SC","STSong",serif; }
+.theory-kicker { display:block; color:var(--edu-gold); font:850 11px ui-monospace,Consolas,monospace; letter-spacing:.16em; }
+.theory-hero { display:grid; grid-template-columns:1.15fr .85fr; gap:18px; padding:clamp(24px,5vw,52px); border-radius:24px; color:#edf6ef; background:radial-gradient(circle at 82% 20%,rgba(255,255,255,.15),transparent 25%),linear-gradient(138deg,#1d644a,#123e2e); }
+.theory-hero h2 { margin:8px 0; font:600 clamp(32px,5vw,56px) "Songti SC","STSong",serif; }
+.theory-hero p { max-width:42em; color:rgba(238,246,241,.72); line-height:1.75; }
+.theory-summary { align-self:end; display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.theory-summary div { padding:15px; border:1px solid rgba(255,255,255,.18); border-radius:14px; background:rgba(255,255,255,.08); }
+.theory-summary strong { display:block; font:500 29px Georgia,serif; }
+.theory-summary span { color:rgba(238,246,241,.68); font-size:11px; }
+.theory-map { display:grid; gap:14px; margin-top:18px; }
+.theory-chapter { padding:22px; border:1px solid rgba(47,82,65,.14); border-radius:22px; background:rgba(252,250,244,.88); box-shadow:0 16px 44px rgba(38,61,49,.08); }
+.theory-chapter-head { display:flex; align-items:end; justify-content:space-between; gap:12px; margin-bottom:14px; }
+.theory-chapter-head h3 { margin:5px 0 0; font:600 27px "Songti SC","STSong",serif; }
+.theory-chapter-head p { margin:0; color:var(--edu-muted); font-size:13px; }
+.theory-levels { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+.theory-level { display:grid; align-content:start; min-height:164px; padding:17px; border:1px solid #d6e0d8; border-radius:16px; background:rgba(255,255,255,.6); color:var(--edu-ink); text-align:left; cursor:pointer; }
+.theory-level:hover { transform:translateY(-2px); border-color:#3d8464; }
+.theory-level.locked { cursor:not-allowed; opacity:.5; background:rgba(236,234,226,.7); }
+.theory-level .level-number { color:var(--edu-gold); font:700 11px ui-monospace,Consolas,monospace; }
+.theory-level b { margin-top:19px; font:600 20px "Songti SC","STSong",serif; }
+.theory-level small { margin-top:7px; color:var(--edu-muted); line-height:1.55; }
+.theory-stars { align-self:end; margin-top:15px; color:var(--edu-gold); letter-spacing:2px; }
+.theory-lesson, .theory-question, .theory-result { padding:26px; border:1px solid rgba(47,82,65,.14); border-radius:22px; background:rgba(252,250,244,.94); box-shadow:0 16px 44px rgba(38,61,49,.08); }
+.theory-lesson h2, .theory-question h2, .theory-result h2 { margin:7px 0 10px; font:600 clamp(28px,4vw,40px) "Songti SC","STSong",serif; }
+.theory-lesson p, .theory-question .theory-explanation { color:var(--edu-muted); line-height:1.75; }
+.theory-action-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:22px; }
+.theory-question-top { display:flex; align-items:center; justify-content:space-between; gap:12px; color:var(--edu-muted); }
+.theory-question-visual { display:grid; place-items:center; min-height:160px; margin:22px 0; padding:18px; border:1px solid #d5e0d7; border-radius:18px; background:linear-gradient(#fffdf7,#eef4ed); }
+.theory-staff { width:min(520px,100%); height:130px; }
+.theory-clef { font:62px "Bravura Text","Noto Music","Segoe UI Symbol",serif; fill:var(--edu-ink); }
+.theory-note { fill:var(--edu-jade-dark); stroke:var(--edu-jade-dark); }
+.theory-rhythm { font:46px "Bravura Text","Noto Music","Segoe UI Symbol",serif; color:var(--edu-jade-dark); letter-spacing:.15em; }
+.theory-answer-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+.theory-answer-grid button { min-height:58px; padding:10px; border:1px solid #cfdcd3; border-radius:14px; background:#fffdfa; color:var(--edu-ink); font-weight:750; cursor:pointer; }
+.theory-answer-grid button:hover { border-color:#3d8464; background:#e8f2ea; }
+.theory-answer-grid button.correct { border-color:#2f8060; background:#dcefe2; color:#17583e; }
+.theory-answer-grid button.wrong { border-color:#a74747; background:#f8e5e1; color:#8a3838; }
+.theory-answer-grid button:disabled { cursor:default; }
+.theory-feedback { min-height:28px; margin-top:16px; color:var(--edu-muted); line-height:1.6; }
+.theory-feedback.correct { color:#26704f; }.theory-feedback.wrong { color:#a74747; }
+.theory-progress { height:6px; overflow:hidden; border-radius:9px; background:#e1e7e2; }.theory-progress i { display:block; width:0; height:100%; background:linear-gradient(90deg,var(--edu-jade),#d0ad5e); transition:width .2s; }
+.theory-result-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:18px; }.theory-result-grid div { padding:16px; border-radius:15px; background:#e8eee7; }.theory-result-grid strong { display:block; font:500 31px Georgia,serif; color:var(--edu-jade-dark); }.theory-result-grid span { color:var(--edu-muted); font-size:12px; }
+.theory-chapter-report{margin-top:14px;padding:16px;border:1px solid #d6e0d8;border-radius:15px;background:#f4f7f2}.theory-chapter-report b{display:block;margin-bottom:8px;font:600 19px "Songti SC","STSong",serif}.theory-chapter-report p{margin:5px 0;color:var(--edu-muted);line-height:1.55}
+.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.settings-card{min-height:210px;padding:24px;border:1px solid rgba(47,82,65,.14);border-radius:22px;background:rgba(252,250,244,.94);box-shadow:0 16px 44px rgba(38,61,49,.08)}.settings-card h2{margin:6px 0 10px;font:600 28px "Songti SC","STSong",serif}.settings-card p{color:var(--edu-muted);line-height:1.7}.settings-profile{display:grid;grid-template-columns:110px 1fr;gap:8px;margin:16px 0}.settings-profile dt{color:var(--edu-muted)}.settings-profile dd{margin:0;font-weight:750}.settings-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.settings-code-label{display:grid;gap:7px;color:var(--edu-muted);font-size:13px}.settings-code-label input{height:45px;padding:0 12px;border:1px solid #cfdcd3;border-radius:12px;background:#fffdfa;font:700 16px ui-monospace,Consolas,monospace;letter-spacing:.08em;color:var(--edu-ink)}.settings-card .primary{margin-top:10px}.settings-message{min-height:25px;margin:10px 0 0!important;color:#26704f!important}.settings-message.error{color:#a74747!important}.edu-button.danger{border-color:#c57972;background:#fff3f0;color:#933d37}
+@media(max-width:820px){.theory-hero{grid-template-columns:1fr}.theory-levels{grid-template-columns:repeat(2,minmax(0,1fr))}.theory-answer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.settings-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.theory-head{padding:8px 11px}.theory-head .edu-button{min-height:42px;padding:8px}.theory-hero,.theory-chapter,.theory-lesson,.theory-question,.theory-result{padding:20px 16px}.theory-summary{grid-template-columns:repeat(3,1fr)}.theory-summary div{padding:10px 8px}.theory-summary strong{font-size:23px}.theory-chapter-head{align-items:start;flex-direction:column}.theory-levels{grid-template-columns:1fr}.theory-answer-grid{grid-template-columns:1fr 1fr}}

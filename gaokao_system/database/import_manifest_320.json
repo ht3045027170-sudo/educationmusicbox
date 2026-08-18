@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "source": "广东音乐艺考机考专属题库_320题.docx",
+  "sourceSha256": "6d0042b988e06b839d84e411ab0346d7741cc8fd055eb21154fe2ba421d45ce1",
+  "bankId": "guangdong-music-exam-320-v1",
+  "counts": {
+    "total": 320,
+    "sets": 8,
+    "theory": 128,
+    "dictation": 192
+  },
+  "choiceQuestions": 304,
+  "writtenQuestions": 16,
+  "questionsWithExplanation": 320,
+  "questionsWithAudioScript": 192,
+  "generatedFiles": [
+    "guangdong_320.json",
+    "theory.json",
+    "theory-bank.js",
+    "dictation.json",
+    "mock_exam.json"
+  ]
+}

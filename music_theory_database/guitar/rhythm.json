@@ -1,0 +1,457 @@
+{
+  "schemaVersion": 1,
+  "instrument": "吉他",
+  "category": "rhythm",
+  "questions": [
+    {
+      "id": "guitar_rhythm_note_1",
+      "type": "音符与节奏",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 5,
+      "knowledgeId": "guitar.rhythm.note.1",
+      "question": "在 4/4 拍中，全音符占多少拍？",
+      "options": [
+        "4拍",
+        "1拍",
+        "2拍",
+        "1/2拍"
+      ],
+      "answer": "4拍",
+      "analysis": "全音符的基本时值为 4拍。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_rhythm_rest_1",
+      "type": "休止符",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 5,
+      "knowledgeId": "guitar.rhythm.rest.1",
+      "question": "与全音符等长的休止符应休止多久？",
+      "options": [
+        "4拍",
+        "1拍",
+        "2拍",
+        "1/2拍"
+      ],
+      "answer": "4拍",
+      "analysis": "同名称的音符与休止符时值相等，都是 4拍。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_rhythm_note_2",
+      "type": "音符与节奏",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 5,
+      "knowledgeId": "guitar.rhythm.note.2",
+      "question": "在 4/4 拍中，二分音符占多少拍？",
+      "options": [
+        "2拍",
+        "1拍",
+        "4拍",
+        "1/2拍"
+      ],
+      "answer": "2拍",
+      "analysis": "二分音符的基本时值为 2拍。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_rhythm_rest_2",
+      "type": "休止符",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 5,
+      "knowledgeId": "guitar.rhythm.rest.2",
+      "question": "与二分音符等长的休止符应休止多久？",
+      "options": [
+        "2拍",
+        "1拍",
+        "4拍",
+        "1/2拍"
+      ],
+      "answer": "2拍",
+      "analysis": "同名称的音符与休止符时值相等，都是 2拍。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_rhythm_note_3",
+      "type": "音符与节奏",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 5,
+      "knowledgeId": "guitar.rhythm.note.3",
+      "question": "在 4/4 拍中，四分音符占多少拍？",
+      "options": [
+        "1拍",
+        "2拍",
+        "4拍",
+        "1/2拍"
+      ],
+      "answer": "1拍",
+      "analysis": "四分音符的基本时值为 1拍。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_rhythm_rest_3",
+      "type": "休止符",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 5,
+      "knowledgeId": "guitar.rhythm.rest.3",
+      "question": "与四分音符等长的休止符应休止多久？",
+      "options": [
+        "1拍",
+        "2拍",
+        "4拍",
+        "1/2拍"
+      ],
+      "answer": "1拍",
+      "analysis": "同名称的音符与休止符时值相等，都是 1拍。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_rhythm_note_4",
+      "type": "音符与节奏",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 5,
+      "knowledgeId": "guitar.rhythm.note.4",
+      "question": "在 4/4 拍中，八分音符占多少拍？",
+      "options": [
+        "1/2拍",
+        "1拍",
+        "2拍",
+        "4拍"
+      ],
+      "answer": "1/2拍",
+      "analysis": "八分音符的基本时值为 1/2拍。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_rhythm_rest_4",
+      "type": "休止符",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 5,
+      "knowledgeId": "guitar.rhythm.rest.4",
+      "question": "与八分音符等长的休止符应休止多久？",
+      "options": [
+        "1/2拍",
+        "1拍",
+        "2拍",
+        "4拍"
+      ],
+      "answer": "1/2拍",
+      "analysis": "同名称的音符与休止符时值相等，都是 1/2拍。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_rhythm_note_5",
+      "type": "音符与节奏",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 5,
+      "knowledgeId": "guitar.rhythm.note.5",
+      "question": "在 4/4 拍中，十六分音符占多少拍？",
+      "options": [
+        "1/4拍",
+        "1拍",
+        "2拍",
+        "4拍"
+      ],
+      "answer": "1/4拍",
+      "analysis": "十六分音符的基本时值为 1/4拍。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_rhythm_rest_5",
+      "type": "休止符",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 5,
+      "knowledgeId": "guitar.rhythm.rest.5",
+      "question": "与十六分音符等长的休止符应休止多久？",
+      "options": [
+        "1/4拍",
+        "1拍",
+        "2拍",
+        "4拍"
+      ],
+      "answer": "1/4拍",
+      "analysis": "同名称的音符与休止符时值相等，都是 1/4拍。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_rhythm_note_6",
+      "type": "音符与节奏",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 5,
+      "knowledgeId": "guitar.rhythm.note.6",
+      "question": "在 4/4 拍中，三十二分音符占多少拍？",
+      "options": [
+        "1/8拍",
+        "1拍",
+        "2拍",
+        "4拍"
+      ],
+      "answer": "1/8拍",
+      "analysis": "三十二分音符的基本时值为 1/8拍。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_rhythm_rest_6",
+      "type": "休止符",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 5,
+      "knowledgeId": "guitar.rhythm.rest.6",
+      "question": "与三十二分音符等长的休止符应休止多久？",
+      "options": [
+        "1/8拍",
+        "1拍",
+        "2拍",
+        "4拍"
+      ],
+      "answer": "1/8拍",
+      "analysis": "同名称的音符与休止符时值相等，都是 1/8拍。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_rhythm_combo_001",
+      "type": "时值组合",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 5,
+      "knowledgeId": "guitar.rhythm.combination",
+      "question": "一个四分音符加两个八分音符，在 4/4 拍中共多少拍？",
+      "options": [
+        "2拍",
+        "1拍",
+        "3拍",
+        "4拍"
+      ],
+      "answer": "2拍",
+      "analysis": "四分音符占1拍，两个八分音符合计1拍，总共2拍。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_rhythm_combo_002",
+      "type": "时值组合",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 5,
+      "knowledgeId": "guitar.rhythm.combination",
+      "question": "一个二分音符加两个四分音符，在 4/4 拍中共多少拍？",
+      "options": [
+        "4拍",
+        "3拍",
+        "2拍",
+        "5拍"
+      ],
+      "answer": "4拍",
+      "analysis": "二分音符2拍，加两个四分音符2拍，共4拍。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_rhythm_combo_003",
+      "type": "时值组合",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 5,
+      "knowledgeId": "guitar.rhythm.combination",
+      "question": "四个十六分音符合起来等于什么？",
+      "options": [
+        "一个四分音符",
+        "一个二分音符",
+        "一个八分音符",
+        "一个全音符"
+      ],
+      "answer": "一个四分音符",
+      "analysis": "四个十六分音符的总时值为一拍，等于一个四分音符。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_rhythm_combo_004",
+      "type": "时值组合",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 5,
+      "knowledgeId": "guitar.rhythm.combination",
+      "question": "附点四分音符在 4/4 拍中占多少拍？",
+      "options": [
+        "1又1/2拍",
+        "1拍",
+        "2拍",
+        "3拍"
+      ],
+      "answer": "1又1/2拍",
+      "analysis": "附点增加原时值的一半：1拍加1/2拍。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_meter_1",
+      "type": "拍号",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 6,
+      "knowledgeId": "guitar.meter.2_4",
+      "question": "2/4 拍表示什么？",
+      "options": [
+        "每小节2拍，以四分音符为一拍",
+        "每小节2拍，以八分音符为一拍",
+        "每小节4拍，以二分音符为一拍",
+        "拍号只表示速度"
+      ],
+      "answer": "每小节2拍，以四分音符为一拍",
+      "analysis": "2/4 中上方数字表示每小节的单位拍数量，下方数字表示单位拍的音符种类。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_meter_2",
+      "type": "拍号",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 6,
+      "knowledgeId": "guitar.meter.3_4",
+      "question": "3/4 拍表示什么？",
+      "options": [
+        "每小节3拍，以四分音符为一拍",
+        "每小节2拍，以八分音符为一拍",
+        "每小节4拍，以二分音符为一拍",
+        "拍号只表示速度"
+      ],
+      "answer": "每小节3拍，以四分音符为一拍",
+      "analysis": "3/4 中上方数字表示每小节的单位拍数量，下方数字表示单位拍的音符种类。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_meter_3",
+      "type": "拍号",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 6,
+      "knowledgeId": "guitar.meter.4_4",
+      "question": "4/4 拍表示什么？",
+      "options": [
+        "每小节4拍，以四分音符为一拍",
+        "每小节2拍，以八分音符为一拍",
+        "每小节4拍，以二分音符为一拍",
+        "拍号只表示速度"
+      ],
+      "answer": "每小节4拍，以四分音符为一拍",
+      "analysis": "4/4 中上方数字表示每小节的单位拍数量，下方数字表示单位拍的音符种类。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_meter_4",
+      "type": "拍号",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 6,
+      "knowledgeId": "guitar.meter.3_8",
+      "question": "3/8 拍表示什么？",
+      "options": [
+        "每小节3拍，以八分音符为一拍",
+        "每小节2拍，以八分音符为一拍",
+        "每小节4拍，以二分音符为一拍",
+        "拍号只表示速度"
+      ],
+      "answer": "每小节3拍，以八分音符为一拍",
+      "analysis": "3/8 中上方数字表示每小节的单位拍数量，下方数字表示单位拍的音符种类。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_meter_5",
+      "type": "拍号",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 6,
+      "knowledgeId": "guitar.meter.6_8",
+      "question": "6/8 拍表示什么？",
+      "options": [
+        "每小节6个八分音符，常按两大拍感受",
+        "每小节2拍，以八分音符为一拍",
+        "每小节4拍，以二分音符为一拍",
+        "拍号只表示速度"
+      ],
+      "answer": "每小节6个八分音符，常按两大拍感受",
+      "analysis": "6/8 中上方数字表示每小节的单位拍数量，下方数字表示单位拍的音符种类。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_meter_accent_24",
+      "type": "拍号强弱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 6,
+      "knowledgeId": "guitar.meter.accent",
+      "question": "2/4 拍常见的强弱规律是什么？",
+      "options": [
+        "强—弱",
+        "强—弱—弱",
+        "强—弱—次强—弱",
+        "每拍一样强"
+      ],
+      "answer": "强—弱",
+      "analysis": "2/4 是单拍子，常见重音组织为强、弱。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_meter_accent_34",
+      "type": "拍号强弱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 6,
+      "knowledgeId": "guitar.meter.accent",
+      "question": "3/4 拍常见的强弱规律是什么？",
+      "options": [
+        "强—弱—弱",
+        "强—弱",
+        "强—弱—次强—弱",
+        "弱—强—强"
+      ],
+      "answer": "强—弱—弱",
+      "analysis": "3/4 是单拍子，第一拍为强拍，第二、三拍为弱拍。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_meter_accent_44",
+      "type": "拍号强弱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 6,
+      "knowledgeId": "guitar.meter.accent",
+      "question": "4/4 拍常见的强弱规律是什么？",
+      "options": [
+        "强—弱—次强—弱",
+        "强—弱—弱",
+        "强—强—弱—弱",
+        "每拍一样强"
+      ],
+      "answer": "强—弱—次强—弱",
+      "analysis": "4/4 是复拍子，第一拍强、第三拍次强。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_meter_accent_68",
+      "type": "拍号强弱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 6,
+      "knowledgeId": "guitar.meter.accent",
+      "question": "6/8 拍常见的大拍重音组织是什么？",
+      "options": [
+        "强—弱",
+        "强—弱—弱",
+        "强—弱—次强—弱",
+        "六拍都一样强"
+      ],
+      "answer": "强—弱",
+      "analysis": "6/8 常按两大拍感受，每大拍包含三个八分音符。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    }
+  ]
+}
