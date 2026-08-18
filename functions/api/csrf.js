@@ -1,4 +1,4 @@
-import { json, randomToken, parseCookies, issueSession } from '../shared.js';
+import { json, randomToken, parseCookies, issueSession } from './shared.js';
 
 // GET /api/csrf
 // 1. 如果有 session cookie 复用则返回现有 csrf token

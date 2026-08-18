@@ -1,4 +1,4 @@
-import { json, parseCookies } from '../../shared.js';
+import { json, parseCookies } from '../shared.js';
 
 // GET /api/auth/systems
 // 返回用户关联的两个学习系统的档案（爱好 + 高考）

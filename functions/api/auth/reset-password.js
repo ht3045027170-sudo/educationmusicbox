@@ -1,4 +1,4 @@
-import { json, bytesToHex, readBody } from '../../shared.js';
+import { json, bytesToHex, readBody } from '../shared.js';
 
 // POST /api/auth/reset-password
 // body: { token, password }
