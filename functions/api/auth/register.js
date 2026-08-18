@@ -15,7 +15,8 @@ export async function onRequestPost({ request, env }) {
     const email = String(body.email || '').trim().toLowerCase();
     const password = String(body.password || '');
     const displayName = String(body.displayName || username || '').trim();
-    const role = ['learner', 'teacher', 'admin'].includes(String(body.role || 'learner')) ? String(body.role) : 'learner';
+    // 安全：公开注册一律为 learner，teacher/admin 由管理员在数据库中手动授权
+    const role = 'learner';
     const learningSystem = String(body.learningSystem || body.system || 'hobby');
 
     if (!username || username.length < 2 || username.length > 40) {
