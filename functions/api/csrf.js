@@ -21,7 +21,7 @@ export async function onRequestGet({ request, env }) {
       const token = randomToken(32);
       const expiresAt = new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString();
       await env.DB.prepare(
-        'INSERT INTO sessions (token, user_id, csrf, expires_at) VALUES (?, 0, ?, ?)'
+        'INSERT INTO sessions (token, user_id, csrf, expires_at) VALUES (?, NULL, ?, ?)'
       ).bind(token, csrf, expiresAt).run();
       return json({ csrfToken: csrf, anonymous: true }, 200, {
         'set-cookie': `mb_sid=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 3600}`,
