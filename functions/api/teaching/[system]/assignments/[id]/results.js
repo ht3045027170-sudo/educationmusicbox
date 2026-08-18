@@ -1,4 +1,4 @@
-import { json, requireTeacher } from '../../../shared.js';
+import { json, requireTeacher } from '../../../../shared.js';
 
 // GET /api/teaching/{system}/assignments/{id}/results  作业成绩（含未提交学生）
 export async function onRequestGet({ request, env, params }) {

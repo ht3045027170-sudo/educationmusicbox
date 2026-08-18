@@ -1,4 +1,4 @@
-import { json, readBody, verifyCsrfRequest, requireTeacher } from '../../../shared.js';
+import { json, readBody, verifyCsrfRequest, requireTeacher } from '../../../../shared.js';
 
 // GET  /api/teaching/{system}/classes/{classId}/assignments  班级作业列表
 // POST /api/teaching/{system}/classes/{classId}/assignments  发布作业

@@ -1,4 +1,4 @@
-import { json, requireTeacher } from '../../../shared.js';
+import { json, requireTeacher } from '../../../../shared.js';
 
 // GET /api/teaching/{system}/classes/{classId}/students
 export async function onRequestGet({ request, env, params }) {
