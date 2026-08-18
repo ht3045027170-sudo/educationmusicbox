@@ -1,4 +1,4 @@
-import { json, parseCookies } from '../../_shared.js';
+import { json, parseCookies } from '../../shared.js';
 
 // GET /api/auth/session  -> { user }
 // 仅返回当前登录用户。未登录返回 user: null。

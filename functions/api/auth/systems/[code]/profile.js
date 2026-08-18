@@ -1,4 +1,4 @@
-import { json, parseCookies, safeEqual, readBody } from '../../../_shared.js';
+import { json, parseCookies, safeEqual, readBody } from '../../../shared.js';
 
 // PUT /api/auth/systems/:code/profile
 // body: { profile: { ... } }

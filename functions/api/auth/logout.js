@@ -1,4 +1,4 @@
-import { json, parseCookies } from '../../_shared.js';
+import { json, parseCookies } from '../../shared.js';
 
 // POST /api/auth/logout
 export async function onRequestPost({ request, env }) {

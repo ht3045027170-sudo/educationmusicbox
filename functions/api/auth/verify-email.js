@@ -1,4 +1,4 @@
-import { json, randomToken, readBody } from '../../_shared.js';
+import { json, randomToken, readBody } from '../../shared.js';
 
 // POST /api/auth/verify-email
 // body: { token }

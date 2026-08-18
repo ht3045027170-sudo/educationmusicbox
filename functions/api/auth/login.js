@@ -1,4 +1,4 @@
-import { json, parseCookies, verifyPassword, readBody } from '../../_shared.js';
+import { json, parseCookies, verifyPassword, readBody } from '../../shared.js';
 
 // POST /api/auth/login
 // body: { email, password, learningSystem? }

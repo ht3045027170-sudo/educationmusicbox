@@ -1,4 +1,4 @@
-import { json, parseCookies, hashPassword, randomToken, readBody } from '../../_shared.js';
+import { json, parseCookies, hashPassword, randomToken, readBody } from '../../shared.js';
 
 // POST /api/auth/register
 // 接收 username, email, password, displayName, role（默认 learner）
