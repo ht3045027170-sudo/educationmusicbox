@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>音乐工具箱 · 教师端</title>
+<link rel="stylesheet" href="/admin.css">
+<style>
+.teacher-login-footer{margin-top:18px;font-size:13px;color:#687970;line-height:1.8}
+.teacher-login-footer a{color:#4d9b73;text-decoration:none}
+.teacher-login-footer a:hover{text-decoration:underline}
+.guide-card{background:#f8faf8;border:1px solid #dce5df;border-radius:13px;padding:16px;margin-bottom:16px}
+.guide-card summary{cursor:pointer;font-weight:650;color:#20312a;font-size:15px;user-select:none}
+.guide-card[open] summary{margin-bottom:14px}
+.guide-card h4{margin:14px 0 6px;color:#3a5346;font-size:13px}
+.guide-card table{width:100%;font-size:13px;border-collapse:collapse}
+.guide-card th{background:#eef2ef;padding:8px 10px;text-align:left;border-bottom:1px solid #dce5df;white-space:nowrap}
+.guide-card td{padding:8px 10px;border-bottom:1px solid #eef2ef;vertical-align:top}
+.guide-card code{background:#eef2ef;padding:2px 5px;border-radius:4px;font-size:12px;color:#3a5346}
+.guide-steps{counter-reset:step;list-style:none;padding:0;margin:0}
+.guide-steps li{counter-increment:step;padding:5px 0 5px 30px;position:relative;font-size:13px;line-height:1.5}
+.guide-steps li::before{content:counter(step);position:absolute;left:0;top:5px;width:22px;height:22px;background:#4d9b73;color:#fff;border-radius:50%;text-align:center;line-height:22px;font-size:11px;font-weight:700}
+.q-preview{border:1px solid #dce5df;border-radius:10px;padding:14px;margin:10px 0;background:#f8faf8}
+.q-preview h5{margin:0 0 8px;color:#3a5346;font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+.q-preview .q-option{padding:5px 10px;border:1px solid #dce5df;border-radius:7px;margin:5px 0;font-size:13px}
+.q-preview .q-answer{color:#28723e;font-weight:600;margin-top:8px;font-size:13px}
+.back-link{position:fixed;top:18px;right:20px;font-size:13px;z-index:100}
+.back-link a{color:#687970;text-decoration:none}
+.back-link a:hover{color:#4d9b73}
+</style>
+</head>
+<body>
+<div class="back-link"><a href="/">返回学生端</a></div>
+<main class="shell">
+<section id="loginCard" class="card login">
+<h2>教师登录</h2>
+<form id="loginForm">
+<label>邮箱或用户名<input name="email" autocomplete="username" required></label>
+<label>密码<input name="password" type="password" autocomplete="current-password" required></label>
+<button>登录</button>
+<p id="loginMessage" class="error"></p>
+</form>
+<div class="teacher-login-footer">
+还没有账号？<a href="/">前往主站注册</a>，注册后联系管理员开通教师权限。<br>
+<a href="/">← 返回学生端</a>
+</div>
+</section>
+<div id="dashboard" hidden>
+<header>
+<div><p class="eyebrow">MUSIC TOOLBOX · TEACHER</p><h1>教师工作台</h1></div>
+<div id="adminIdentity"></div>
+</header>
+<nav>
+<button id="logout" class="ghost">退出</button>
+</nav>
+</div>
+</main>
+<script src="/teacher.js" defer></script>
+</body>
+</html>
