@@ -1,0 +1,925 @@
+{
+  "schemaVersion": 1,
+  "instrument": "吉他",
+  "category": "basic",
+  "questions": [
+    {
+      "id": "guitar_tab_001",
+      "type": "六线谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.tab.basic",
+      "question": "TAB谱中的六条横线代表什么？",
+      "options": [
+        "六根琴弦",
+        "六个品位",
+        "六个和弦",
+        "六种节奏"
+      ],
+      "answer": "六根琴弦",
+      "analysis": "六线谱用六条横线对应吉他的六根琴弦。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_tab_002",
+      "type": "六线谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.tab.basic",
+      "question": "TAB线上数字“3”表示什么？",
+      "options": [
+        "弹第3品",
+        "弹第3弦",
+        "弹3次",
+        "休止3拍"
+      ],
+      "answer": "弹第3品",
+      "analysis": "数字写在哪根弦上，就按住那根弦的第3品。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_tab_003",
+      "type": "六线谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.tab.basic",
+      "question": "TAB中的数字“0”表示什么？",
+      "options": [
+        "空弦",
+        "闷音",
+        "泛音",
+        "不弹"
+      ],
+      "answer": "空弦",
+      "analysis": "0 表示不按品，直接弹奏空弦。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_tab_004",
+      "type": "六线谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.tab.basic",
+      "question": "六线谱最上面一条线通常对应哪根弦？",
+      "options": [
+        "第1弦",
+        "第2弦",
+        "第5弦",
+        "第6弦"
+      ],
+      "answer": "第1弦",
+      "analysis": "TAB谱从视觉上像把吉他平放，最上面是最细的第1弦。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_tab_005",
+      "type": "六线谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.tab.basic",
+      "question": "相邻两个品位的音高距离通常是多少？",
+      "options": [
+        "半音",
+        "全音",
+        "小三度",
+        "纯四度"
+      ],
+      "answer": "半音",
+      "analysis": "十二平均律吉他指板上，相邻品位相差一个半音。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_finger_001",
+      "type": "指法代码",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fingering.code",
+      "question": "左手食指通常使用什么代码？",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "answer": "1",
+      "analysis": "左手按弦手指通常用数字表示：食指1、中指2、无名指3、小指4。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_finger_002",
+      "type": "指法代码",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fingering.code",
+      "question": "左手无名指通常使用什么代码？",
+      "options": [
+        "3",
+        "1",
+        "2",
+        "4"
+      ],
+      "answer": "3",
+      "analysis": "左手无名指代码为3。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_finger_003",
+      "type": "指法代码",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fingering.code",
+      "question": "右手拇指通常使用什么代码？",
+      "options": [
+        "p",
+        "i",
+        "m",
+        "a"
+      ],
+      "answer": "p",
+      "analysis": "古典吉他右手拇指用 p 表示。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_finger_004",
+      "type": "指法代码",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fingering.code",
+      "question": "右手食指通常使用什么代码？",
+      "options": [
+        "i",
+        "p",
+        "m",
+        "a"
+      ],
+      "answer": "i",
+      "analysis": "古典吉他右手食指用 i 表示。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_finger_005",
+      "type": "指法代码",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fingering.code",
+      "question": "右手中指通常使用什么代码？",
+      "options": [
+        "m",
+        "p",
+        "i",
+        "a"
+      ],
+      "answer": "m",
+      "analysis": "古典吉他右手中指用 m 表示。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_finger_006",
+      "type": "指法代码",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fingering.code",
+      "question": "右手无名指通常使用什么代码？",
+      "options": [
+        "a",
+        "p",
+        "i",
+        "m"
+      ],
+      "answer": "a",
+      "analysis": "古典吉他右手无名指用 a 表示。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_num_1",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.1",
+      "question": "简谱数字 1 对应哪个音名？",
+      "options": [
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "answer": "C",
+      "analysis": "1 的唱名是 Do，固定唱名对应音名 C。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_name_C",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.1",
+      "question": "音名 C 对应哪个简谱数字？",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "answer": "1",
+      "analysis": "C 的固定唱名是 Do，简谱记作 1。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_solfege_1",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.1",
+      "question": "唱名 Do 对应哪个音名？",
+      "options": [
+        "C",
+        "E",
+        "G",
+        "A"
+      ],
+      "answer": "C",
+      "analysis": "Do、1、C 是同一音级的三种常用表达。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_num_2",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.2",
+      "question": "简谱数字 2 对应哪个音名？",
+      "options": [
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "answer": "D",
+      "analysis": "2 的唱名是 Re，固定唱名对应音名 D。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_name_D",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.2",
+      "question": "音名 D 对应哪个简谱数字？",
+      "options": [
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "answer": "2",
+      "analysis": "D 的固定唱名是 Re，简谱记作 2。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_solfege_2",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.2",
+      "question": "唱名 Re 对应哪个音名？",
+      "options": [
+        "D",
+        "F",
+        "A",
+        "B"
+      ],
+      "answer": "D",
+      "analysis": "Re、2、D 是同一音级的三种常用表达。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_num_3",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.3",
+      "question": "简谱数字 3 对应哪个音名？",
+      "options": [
+        "E",
+        "F",
+        "G",
+        "A"
+      ],
+      "answer": "E",
+      "analysis": "3 的唱名是 Mi，固定唱名对应音名 E。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_name_E",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.3",
+      "question": "音名 E 对应哪个简谱数字？",
+      "options": [
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "answer": "3",
+      "analysis": "E 的固定唱名是 Mi，简谱记作 3。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_solfege_3",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.3",
+      "question": "唱名 Mi 对应哪个音名？",
+      "options": [
+        "E",
+        "G",
+        "B",
+        "C"
+      ],
+      "answer": "E",
+      "analysis": "Mi、3、E 是同一音级的三种常用表达。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_num_4",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.4",
+      "question": "简谱数字 4 对应哪个音名？",
+      "options": [
+        "F",
+        "G",
+        "A",
+        "B"
+      ],
+      "answer": "F",
+      "analysis": "4 的唱名是 Fa，固定唱名对应音名 F。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_name_F",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.4",
+      "question": "音名 F 对应哪个简谱数字？",
+      "options": [
+        "4",
+        "5",
+        "6",
+        "7"
+      ],
+      "answer": "4",
+      "analysis": "F 的固定唱名是 Fa，简谱记作 4。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_solfege_4",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.4",
+      "question": "唱名 Fa 对应哪个音名？",
+      "options": [
+        "F",
+        "A",
+        "C",
+        "D"
+      ],
+      "answer": "F",
+      "analysis": "Fa、4、F 是同一音级的三种常用表达。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_num_5",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.5",
+      "question": "简谱数字 5 对应哪个音名？",
+      "options": [
+        "G",
+        "A",
+        "B",
+        "C"
+      ],
+      "answer": "G",
+      "analysis": "5 的唱名是 Sol，固定唱名对应音名 G。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_name_G",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.5",
+      "question": "音名 G 对应哪个简谱数字？",
+      "options": [
+        "5",
+        "6",
+        "7",
+        "1"
+      ],
+      "answer": "5",
+      "analysis": "G 的固定唱名是 Sol，简谱记作 5。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_solfege_5",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.5",
+      "question": "唱名 Sol 对应哪个音名？",
+      "options": [
+        "G",
+        "B",
+        "D",
+        "E"
+      ],
+      "answer": "G",
+      "analysis": "Sol、5、G 是同一音级的三种常用表达。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_num_6",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.6",
+      "question": "简谱数字 6 对应哪个音名？",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "answer": "A",
+      "analysis": "6 的唱名是 La，固定唱名对应音名 A。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_name_A",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.6",
+      "question": "音名 A 对应哪个简谱数字？",
+      "options": [
+        "6",
+        "7",
+        "1",
+        "2"
+      ],
+      "answer": "6",
+      "analysis": "A 的固定唱名是 La，简谱记作 6。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_solfege_6",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.6",
+      "question": "唱名 La 对应哪个音名？",
+      "options": [
+        "A",
+        "C",
+        "E",
+        "F"
+      ],
+      "answer": "A",
+      "analysis": "La、6、A 是同一音级的三种常用表达。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_num_7",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.7",
+      "question": "简谱数字 7 对应哪个音名？",
+      "options": [
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "answer": "B",
+      "analysis": "7 的唱名是 Si，固定唱名对应音名 B。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_name_B",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.7",
+      "question": "音名 B 对应哪个简谱数字？",
+      "options": [
+        "7",
+        "1",
+        "2",
+        "3"
+      ],
+      "answer": "7",
+      "analysis": "B 的固定唱名是 Si，简谱记作 7。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_simple_solfege_7",
+      "type": "简谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.7",
+      "question": "唱名 Si 对应哪个音名？",
+      "options": [
+        "B",
+        "D",
+        "F",
+        "G"
+      ],
+      "answer": "B",
+      "analysis": "Si、7、B 是同一音级的三种常用表达。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_pitch_dot_001",
+      "type": "简谱音区",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.octave",
+      "question": "简谱数字上方加一个点表示什么？",
+      "options": [
+        "高一个八度",
+        "低一个八度",
+        "升高半音",
+        "延长一拍"
+      ],
+      "answer": "高一个八度",
+      "analysis": "简谱数字上方一个点表示高音区，即比无点音高一个八度。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_pitch_dot_002",
+      "type": "简谱音区",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.octave",
+      "question": "简谱数字下方加一个点表示什么？",
+      "options": [
+        "低一个八度",
+        "高一个八度",
+        "降低半音",
+        "缩短一拍"
+      ],
+      "answer": "低一个八度",
+      "analysis": "简谱数字下方一个点表示低音区，即比无点音低一个八度。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_pitch_dot_003",
+      "type": "简谱音区",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.octave",
+      "question": "简谱数字上方两个点表示什么？",
+      "options": [
+        "高两个八度",
+        "高一个八度",
+        "升高全音",
+        "倍长时值"
+      ],
+      "answer": "高两个八度",
+      "analysis": "上方两个点表示倍高音，比无点音高两个八度。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_pitch_dot_004",
+      "type": "简谱音区",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 2,
+      "knowledgeId": "guitar.simple.octave",
+      "question": "没有上下八度点的简谱数字通常表示什么音区？",
+      "options": [
+        "中音区",
+        "低音区",
+        "高音区",
+        "倍低音区"
+      ],
+      "answer": "中音区",
+      "analysis": "无八度点的数字通常表示中音区。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_equal_001",
+      "type": "十二平均律",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 3,
+      "knowledgeId": "guitar.equal_temperament",
+      "question": "十二平均律把一个纯八度平均分成多少份？",
+      "options": [
+        "12份",
+        "7份",
+        "8份",
+        "24份"
+      ],
+      "answer": "12份",
+      "analysis": "十二平均律把八度平均分为十二个半音。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_equal_002",
+      "type": "十二平均律",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 3,
+      "knowledgeId": "guitar.equal_temperament",
+      "question": "C 到 D 的距离是多少？",
+      "options": [
+        "全音",
+        "半音",
+        "小三度",
+        "纯四度"
+      ],
+      "answer": "全音",
+      "analysis": "C 到 C♯ 为半音，C♯ 到 D 再半音，合计一个全音。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_equal_003",
+      "type": "十二平均律",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 3,
+      "knowledgeId": "guitar.equal_temperament",
+      "question": "E 到 F 的距离是多少？",
+      "options": [
+        "半音",
+        "全音",
+        "大三度",
+        "纯五度"
+      ],
+      "answer": "半音",
+      "analysis": "自然音级 E–F 与 B–C 之间没有黑键，距离为半音。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_equal_004",
+      "type": "十二平均律",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 3,
+      "knowledgeId": "guitar.equal_temperament",
+      "question": "B 到 C 的距离是多少？",
+      "options": [
+        "半音",
+        "全音",
+        "小三度",
+        "增四度"
+      ],
+      "answer": "半音",
+      "analysis": "B 与 C 是相邻半音。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_equal_005",
+      "type": "十二平均律",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 3,
+      "knowledgeId": "guitar.equal_temperament",
+      "question": "一个全音等于几个半音？",
+      "options": [
+        "2个",
+        "1个",
+        "3个",
+        "4个"
+      ],
+      "answer": "2个",
+      "analysis": "两个相邻半音组成一个全音。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_equal_006",
+      "type": "十二平均律",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 3,
+      "knowledgeId": "guitar.equal_temperament",
+      "question": "吉他同一根弦从第2品到第4品相差多少？",
+      "options": [
+        "全音",
+        "半音",
+        "小三度",
+        "纯四度"
+      ],
+      "answer": "全音",
+      "analysis": "跨过两个品位，合计两个半音，也就是一个全音。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_acc_001",
+      "type": "变音记号",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 4,
+      "knowledgeId": "guitar.accidental",
+      "question": "升号 ♯ 的作用是什么？",
+      "options": [
+        "升高半音",
+        "降低半音",
+        "升高全音",
+        "恢复原音"
+      ],
+      "answer": "升高半音",
+      "analysis": "升号把原音升高一个半音。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_acc_002",
+      "type": "变音记号",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 4,
+      "knowledgeId": "guitar.accidental",
+      "question": "降号 ♭ 的作用是什么？",
+      "options": [
+        "降低半音",
+        "升高半音",
+        "降低全音",
+        "恢复原音"
+      ],
+      "answer": "降低半音",
+      "analysis": "降号把原音降低一个半音。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_acc_003",
+      "type": "变音记号",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 4,
+      "knowledgeId": "guitar.accidental",
+      "question": "重升号 𝄪（x）的作用是什么？",
+      "options": [
+        "升高全音",
+        "升高半音",
+        "降低全音",
+        "恢复原音"
+      ],
+      "answer": "升高全音",
+      "analysis": "重升相当于连续升高两个半音。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_acc_004",
+      "type": "变音记号",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 4,
+      "knowledgeId": "guitar.accidental",
+      "question": "重降号 𝄫（bb）的作用是什么？",
+      "options": [
+        "降低全音",
+        "降低半音",
+        "升高全音",
+        "恢复原音"
+      ],
+      "answer": "降低全音",
+      "analysis": "重降相当于连续降低两个半音。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_acc_005",
+      "type": "变音记号",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 4,
+      "knowledgeId": "guitar.accidental",
+      "question": "还原号 ♮ 的作用是什么？",
+      "options": [
+        "取消当前升降变化",
+        "升高半音",
+        "降低半音",
+        "延长时值"
+      ],
+      "answer": "取消当前升降变化",
+      "analysis": "还原号取消本小节中此前对同音名的升降变化。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_acc_006",
+      "type": "变音记号",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 4,
+      "knowledgeId": "guitar.accidental",
+      "question": "F 升高半音后是哪个音？",
+      "options": [
+        "F♯",
+        "G",
+        "E",
+        "E♯"
+      ],
+      "answer": "F♯",
+      "analysis": "升号保留原音名字母并升高半音，所以写作 F♯。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_acc_007",
+      "type": "变音记号",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 4,
+      "knowledgeId": "guitar.accidental",
+      "question": "B 降低半音后是哪个音？",
+      "options": [
+        "B♭",
+        "A",
+        "A♯",
+        "C♭"
+      ],
+      "answer": "B♭",
+      "analysis": "降号保留原音名字母并降低半音，所以写作 B♭。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_enharmonic_001",
+      "type": "等音",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 4,
+      "knowledgeId": "guitar.accidental.enharmonic",
+      "question": "下列哪一组是等音？",
+      "options": [
+        "C♯ 与 D♭",
+        "C 与 D",
+        "E 与 G",
+        "F 与 B"
+      ],
+      "answer": "C♯ 与 D♭",
+      "analysis": "在十二平均律中，C♯ 与 D♭ 音高相同，但记法与调性意义不同。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_enharmonic_002",
+      "type": "等音",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 4,
+      "knowledgeId": "guitar.accidental.enharmonic",
+      "question": "下列哪一组在十二平均律中音高相同？",
+      "options": [
+        "F♯ 与 G♭",
+        "F 与 G",
+        "A 与 B",
+        "C 与 E"
+      ],
+      "answer": "F♯ 与 G♭",
+      "analysis": "F♯ 与 G♭ 是常见等音。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    }
+  ]
+}

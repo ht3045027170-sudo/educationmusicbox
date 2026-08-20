@@ -1,0 +1,763 @@
+{
+  "schemaVersion": 1,
+  "instrument": "吉他",
+  "category": "fretboard",
+  "questions": [
+    {
+      "id": "guitar_fret_open_6",
+      "type": "六线谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.tab.string.6",
+      "question": "标准调弦中，第6弦空弦是什么音？",
+      "options": [
+        "E",
+        "A",
+        "D",
+        "G"
+      ],
+      "answer": "E",
+      "analysis": "从第6弦到第1弦的标准调弦为 E A D G B E；此处是低音E。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_open_5",
+      "type": "六线谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.tab.string.5",
+      "question": "标准调弦中，第5弦空弦是什么音？",
+      "options": [
+        "A",
+        "E",
+        "D",
+        "G"
+      ],
+      "answer": "A",
+      "analysis": "从第6弦到第1弦的标准调弦为 E A D G B E；此处是A。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_open_4",
+      "type": "六线谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.tab.string.4",
+      "question": "标准调弦中，第4弦空弦是什么音？",
+      "options": [
+        "D",
+        "E",
+        "A",
+        "G"
+      ],
+      "answer": "D",
+      "analysis": "从第6弦到第1弦的标准调弦为 E A D G B E；此处是D。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_open_3",
+      "type": "六线谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.tab.string.3",
+      "question": "标准调弦中，第3弦空弦是什么音？",
+      "options": [
+        "G",
+        "E",
+        "A",
+        "D"
+      ],
+      "answer": "G",
+      "analysis": "从第6弦到第1弦的标准调弦为 E A D G B E；此处是G。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_open_2",
+      "type": "六线谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.tab.string.2",
+      "question": "标准调弦中，第2弦空弦是什么音？",
+      "options": [
+        "B",
+        "E",
+        "A",
+        "D"
+      ],
+      "answer": "B",
+      "analysis": "从第6弦到第1弦的标准调弦为 E A D G B E；此处是B。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_open_1",
+      "type": "六线谱",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.tab.string.1",
+      "question": "标准调弦中，第1弦空弦是什么音？",
+      "options": [
+        "E",
+        "A",
+        "D",
+        "G"
+      ],
+      "answer": "E",
+      "analysis": "从第6弦到第1弦的标准调弦为 E A D G B E；此处是高音E。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_6_1",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string6",
+      "question": "标准调弦中，第6弦第1品是什么音？",
+      "options": [
+        "F",
+        "F♯",
+        "G",
+        "E"
+      ],
+      "answer": "F",
+      "analysis": "第6弦空弦为 E，每升一品升高一个半音；第1品得到 F。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_5_1",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string5",
+      "question": "标准调弦中，第5弦第1品是什么音？",
+      "options": [
+        "A♯",
+        "B",
+        "C",
+        "A"
+      ],
+      "answer": "A♯",
+      "analysis": "第5弦空弦为 A，每升一品升高一个半音；第1品得到 A♯。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_4_1",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string4",
+      "question": "标准调弦中，第4弦第1品是什么音？",
+      "options": [
+        "D♯",
+        "E",
+        "F",
+        "D"
+      ],
+      "answer": "D♯",
+      "analysis": "第4弦空弦为 D，每升一品升高一个半音；第1品得到 D♯。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_3_1",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string3",
+      "question": "标准调弦中，第3弦第1品是什么音？",
+      "options": [
+        "G♯",
+        "A",
+        "A♯",
+        "G"
+      ],
+      "answer": "G♯",
+      "analysis": "第3弦空弦为 G，每升一品升高一个半音；第1品得到 G♯。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_2_1",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string2",
+      "question": "标准调弦中，第2弦第1品是什么音？",
+      "options": [
+        "C",
+        "C♯",
+        "D",
+        "B"
+      ],
+      "answer": "C",
+      "analysis": "第2弦空弦为 B，每升一品升高一个半音；第1品得到 C。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_1_1",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string1",
+      "question": "标准调弦中，第1弦第1品是什么音？",
+      "options": [
+        "F",
+        "F♯",
+        "G",
+        "E"
+      ],
+      "answer": "F",
+      "analysis": "第1弦空弦为 E，每升一品升高一个半音；第1品得到 F。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_6_2",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string6",
+      "question": "标准调弦中，第6弦第2品是什么音？",
+      "options": [
+        "F♯",
+        "G",
+        "G♯",
+        "F"
+      ],
+      "answer": "F♯",
+      "analysis": "第6弦空弦为 E，每升一品升高一个半音；第2品得到 F♯。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_5_2",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string5",
+      "question": "标准调弦中，第5弦第2品是什么音？",
+      "options": [
+        "B",
+        "C",
+        "C♯",
+        "A♯"
+      ],
+      "answer": "B",
+      "analysis": "第5弦空弦为 A，每升一品升高一个半音；第2品得到 B。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_4_2",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string4",
+      "question": "标准调弦中，第4弦第2品是什么音？",
+      "options": [
+        "E",
+        "F",
+        "F♯",
+        "D♯"
+      ],
+      "answer": "E",
+      "analysis": "第4弦空弦为 D，每升一品升高一个半音；第2品得到 E。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_3_2",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string3",
+      "question": "标准调弦中，第3弦第2品是什么音？",
+      "options": [
+        "A",
+        "A♯",
+        "B",
+        "G♯"
+      ],
+      "answer": "A",
+      "analysis": "第3弦空弦为 G，每升一品升高一个半音；第2品得到 A。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_2_2",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string2",
+      "question": "标准调弦中，第2弦第2品是什么音？",
+      "options": [
+        "C♯",
+        "D",
+        "D♯",
+        "C"
+      ],
+      "answer": "C♯",
+      "analysis": "第2弦空弦为 B，每升一品升高一个半音；第2品得到 C♯。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_1_2",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string1",
+      "question": "标准调弦中，第1弦第2品是什么音？",
+      "options": [
+        "F♯",
+        "G",
+        "G♯",
+        "F"
+      ],
+      "answer": "F♯",
+      "analysis": "第1弦空弦为 E，每升一品升高一个半音；第2品得到 F♯。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_6_3",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string6",
+      "question": "标准调弦中，第6弦第3品是什么音？",
+      "options": [
+        "G",
+        "G♯",
+        "A",
+        "F♯"
+      ],
+      "answer": "G",
+      "analysis": "第6弦空弦为 E，每升一品升高一个半音；第3品得到 G。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_5_3",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string5",
+      "question": "标准调弦中，第5弦第3品是什么音？",
+      "options": [
+        "C",
+        "C♯",
+        "D",
+        "B"
+      ],
+      "answer": "C",
+      "analysis": "第5弦空弦为 A，每升一品升高一个半音；第3品得到 C。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_4_3",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string4",
+      "question": "标准调弦中，第4弦第3品是什么音？",
+      "options": [
+        "F",
+        "F♯",
+        "G",
+        "E"
+      ],
+      "answer": "F",
+      "analysis": "第4弦空弦为 D，每升一品升高一个半音；第3品得到 F。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_3_3",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string3",
+      "question": "标准调弦中，第3弦第3品是什么音？",
+      "options": [
+        "A♯",
+        "B",
+        "C",
+        "A"
+      ],
+      "answer": "A♯",
+      "analysis": "第3弦空弦为 G，每升一品升高一个半音；第3品得到 A♯。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_2_3",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string2",
+      "question": "标准调弦中，第2弦第3品是什么音？",
+      "options": [
+        "D",
+        "D♯",
+        "E",
+        "C♯"
+      ],
+      "answer": "D",
+      "analysis": "第2弦空弦为 B，每升一品升高一个半音；第3品得到 D。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_1_3",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string1",
+      "question": "标准调弦中，第1弦第3品是什么音？",
+      "options": [
+        "G",
+        "G♯",
+        "A",
+        "F♯"
+      ],
+      "answer": "G",
+      "analysis": "第1弦空弦为 E，每升一品升高一个半音；第3品得到 G。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_6_5",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string6",
+      "question": "标准调弦中，第6弦第5品是什么音？",
+      "options": [
+        "A",
+        "A♯",
+        "B",
+        "G♯"
+      ],
+      "answer": "A",
+      "analysis": "第6弦空弦为 E，每升一品升高一个半音；第5品得到 A。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_5_5",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string5",
+      "question": "标准调弦中，第5弦第5品是什么音？",
+      "options": [
+        "D",
+        "D♯",
+        "E",
+        "C♯"
+      ],
+      "answer": "D",
+      "analysis": "第5弦空弦为 A，每升一品升高一个半音；第5品得到 D。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_4_5",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string4",
+      "question": "标准调弦中，第4弦第5品是什么音？",
+      "options": [
+        "G",
+        "G♯",
+        "A",
+        "F♯"
+      ],
+      "answer": "G",
+      "analysis": "第4弦空弦为 D，每升一品升高一个半音；第5品得到 G。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_3_5",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string3",
+      "question": "标准调弦中，第3弦第5品是什么音？",
+      "options": [
+        "C",
+        "C♯",
+        "D",
+        "B"
+      ],
+      "answer": "C",
+      "analysis": "第3弦空弦为 G，每升一品升高一个半音；第5品得到 C。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_2_5",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string2",
+      "question": "标准调弦中，第2弦第5品是什么音？",
+      "options": [
+        "E",
+        "F",
+        "F♯",
+        "D♯"
+      ],
+      "answer": "E",
+      "analysis": "第2弦空弦为 B，每升一品升高一个半音；第5品得到 E。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_1_5",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string1",
+      "question": "标准调弦中，第1弦第5品是什么音？",
+      "options": [
+        "A",
+        "A♯",
+        "B",
+        "G♯"
+      ],
+      "answer": "A",
+      "analysis": "第1弦空弦为 E，每升一品升高一个半音；第5品得到 A。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_6_7",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string6",
+      "question": "标准调弦中，第6弦第7品是什么音？",
+      "options": [
+        "B",
+        "C",
+        "C♯",
+        "A♯"
+      ],
+      "answer": "B",
+      "analysis": "第6弦空弦为 E，每升一品升高一个半音；第7品得到 B。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_5_7",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string5",
+      "question": "标准调弦中，第5弦第7品是什么音？",
+      "options": [
+        "E",
+        "F",
+        "F♯",
+        "D♯"
+      ],
+      "answer": "E",
+      "analysis": "第5弦空弦为 A，每升一品升高一个半音；第7品得到 E。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_4_7",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string4",
+      "question": "标准调弦中，第4弦第7品是什么音？",
+      "options": [
+        "A",
+        "A♯",
+        "B",
+        "G♯"
+      ],
+      "answer": "A",
+      "analysis": "第4弦空弦为 D，每升一品升高一个半音；第7品得到 A。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_3_7",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string3",
+      "question": "标准调弦中，第3弦第7品是什么音？",
+      "options": [
+        "D",
+        "D♯",
+        "E",
+        "C♯"
+      ],
+      "answer": "D",
+      "analysis": "第3弦空弦为 G，每升一品升高一个半音；第7品得到 D。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_2_7",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string2",
+      "question": "标准调弦中，第2弦第7品是什么音？",
+      "options": [
+        "F♯",
+        "G",
+        "G♯",
+        "F"
+      ],
+      "answer": "F♯",
+      "analysis": "第2弦空弦为 B，每升一品升高一个半音；第7品得到 F♯。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_1_7",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string1",
+      "question": "标准调弦中，第1弦第7品是什么音？",
+      "options": [
+        "B",
+        "C",
+        "C♯",
+        "A♯"
+      ],
+      "answer": "B",
+      "analysis": "第1弦空弦为 E，每升一品升高一个半音；第7品得到 B。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_6_12",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string6",
+      "question": "标准调弦中，第6弦第12品是什么音？",
+      "options": [
+        "E",
+        "F",
+        "F♯",
+        "D♯"
+      ],
+      "answer": "E",
+      "analysis": "第6弦空弦为 E，每升一品升高一个半音；第12品得到 E。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_5_12",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string5",
+      "question": "标准调弦中，第5弦第12品是什么音？",
+      "options": [
+        "A",
+        "A♯",
+        "B",
+        "G♯"
+      ],
+      "answer": "A",
+      "analysis": "第5弦空弦为 A，每升一品升高一个半音；第12品得到 A。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_4_12",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string4",
+      "question": "标准调弦中，第4弦第12品是什么音？",
+      "options": [
+        "D",
+        "D♯",
+        "E",
+        "C♯"
+      ],
+      "answer": "D",
+      "analysis": "第4弦空弦为 D，每升一品升高一个半音；第12品得到 D。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_3_12",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string3",
+      "question": "标准调弦中，第3弦第12品是什么音？",
+      "options": [
+        "G",
+        "G♯",
+        "A",
+        "F♯"
+      ],
+      "answer": "G",
+      "analysis": "第3弦空弦为 G，每升一品升高一个半音；第12品得到 G。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_2_12",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string2",
+      "question": "标准调弦中，第2弦第12品是什么音？",
+      "options": [
+        "B",
+        "C",
+        "C♯",
+        "A♯"
+      ],
+      "answer": "B",
+      "analysis": "第2弦空弦为 B，每升一品升高一个半音；第12品得到 B。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    },
+    {
+      "id": "guitar_fret_1_12",
+      "type": "指板",
+      "instrument": "吉他",
+      "difficulty": "初级",
+      "chapter": 1,
+      "knowledgeId": "guitar.fretboard.string1",
+      "question": "标准调弦中，第1弦第12品是什么音？",
+      "options": [
+        "E",
+        "F",
+        "F♯",
+        "D♯"
+      ],
+      "answer": "E",
+      "analysis": "第1弦空弦为 E，每升一品升高一个半音；第12品得到 E。",
+      "source": "用户提供的《吉他入门乐理必看》三页资料，经人工校对并按规范乐理修订"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "title": "广东音乐统考视唱分类",
+  "status": "framework",
+  "verifiedAgainst": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+  "standard": {"notation":"五线谱","length":"8-16小节","keySignature":"一升或一降","range":"b-e²","attempts":1,"audioPrompt":"仅给首音，视唱中无音响提示","meters":["2/4","3/4","4/4","6/8"]},
+  "categories": [{"id":"staff_sight_singing","name":"五线谱视唱"},{"id":"one_accidental","name":"一升一降调"},{"id":"exam_length","name":"8-16小节旋律"}],
+  "items": []
+}

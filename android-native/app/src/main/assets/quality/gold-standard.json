@@ -1,0 +1,1715 @@
+{
+  "schemaVersion": 1,
+  "title": "和田玉题库金标准 V1",
+  "reviewRule": "逐题核对题干、唯一答案、选项与解析；用于回归，不代表官方真题。",
+  "questions": [
+    {
+      "id": "gd25-pitch-001",
+      "category": "音与音高",
+      "knowledgeId": "gaokao.theory.pitch.enharmonic",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "下列哪一组是十二平均律中的等音？",
+      "options": [
+        "C♯与D♭",
+        "C与D♭",
+        "E与F♯",
+        "B与C♯"
+      ],
+      "answer": "C♯与D♭",
+      "explanation": "C♯与D♭在十二平均律中具有相同的实际音高，但记谱名称不同。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-pitch-002",
+      "category": "音与音高",
+      "knowledgeId": "gaokao.theory.pitch.octave",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "两个同名音相隔一个八度时，较高音的频率是较低音的多少倍？",
+      "options": [
+        "2倍",
+        "1.5倍",
+        "3倍",
+        "4倍"
+      ],
+      "answer": "2倍",
+      "explanation": "纯八度的频率比为2:1。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-pitch-003",
+      "category": "音与音高",
+      "knowledgeId": "gaokao.theory.pitch.standard",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "现代音乐中常用的标准音 a¹ 的频率是？",
+      "options": [
+        "440 Hz",
+        "4420 Hz",
+        "220 Hz",
+        "261.63 Hz"
+      ],
+      "answer": "440 Hz",
+      "explanation": "标准音通常以a¹=440 Hz为参照。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-pitch-004",
+      "category": "音与音高",
+      "knowledgeId": "gaokao.theory.pitch.half_step",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "E到F之间包含几个半音？",
+      "options": [
+        "1个",
+        "2个",
+        "3个",
+        "4个"
+      ],
+      "answer": "1个",
+      "explanation": "自然音级E-F与B-C之间都是自然半音。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-pitch-005",
+      "category": "音与音高",
+      "knowledgeId": "gaokao.theory.pitch.accidental",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "一个重升号会使原音升高多少？",
+      "options": [
+        "两个半音",
+        "一个半音",
+        "三个半音",
+        "一个全音再加半音"
+      ],
+      "answer": "两个半音",
+      "explanation": "重升号使原音升高两个半音，也就是一个全音。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-pitch-006",
+      "category": "音与音高",
+      "knowledgeId": "gaokao.theory.pitch.group",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "钢琴中央C在科学音高记号中通常记作？",
+      "options": [
+        "C4",
+        "C3",
+        "C5",
+        "C1"
+      ],
+      "answer": "C4",
+      "explanation": "国际常用科学音高记号把中央C记作C4。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-rhythm-001",
+      "category": "音长与节奏",
+      "knowledgeId": "gaokao.theory.rhythm.duration",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "一个二分音符等于几个四分音符？",
+      "options": [
+        "2个",
+        "1个",
+        "3个",
+        "4个"
+      ],
+      "answer": "2个",
+      "explanation": "二分音符的时值是四分音符的两倍。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-rhythm-002",
+      "category": "音长与节奏",
+      "knowledgeId": "gaokao.theory.rhythm.dotted",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "以四分音符为一拍时，附点四分音符有几拍？",
+      "options": [
+        "1.5拍",
+        "1拍",
+        "2拍",
+        "0.75拍"
+      ],
+      "answer": "1.5拍",
+      "explanation": "附点增加原时值的一半，因此1拍加0.5拍等于1.5拍。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-rhythm-003",
+      "category": "音长与节奏",
+      "knowledgeId": "gaokao.theory.rhythm.meter",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "3/4拍每小节包含多少个四分音符时值？",
+      "options": [
+        "3个",
+        "2个",
+        "4个",
+        "6个"
+      ],
+      "answer": "3个",
+      "explanation": "3/4表示每小节三拍，以四分音符为一拍。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-rhythm-004",
+      "category": "音长与节奏",
+      "knowledgeId": "gaokao.theory.rhythm.compound_meter",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "在6/8拍中，通常以哪种音符作为一个大拍？",
+      "options": [
+        "附点四分音符",
+        "四分音符",
+        "二分音符",
+        "附点八分音符"
+      ],
+      "answer": "附点四分音符",
+      "explanation": "6/8通常分成两个大拍，每个大拍包含三个八分音符。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-rhythm-005",
+      "category": "音长与节奏",
+      "knowledgeId": "gaokao.theory.rhythm.combine",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "一个四分音符加两个八分音符，总时值等于？",
+      "options": [
+        "一个二分音符",
+        "一个附点四分音符",
+        "一个全音符",
+        "三个四分音符"
+      ],
+      "answer": "一个二分音符",
+      "explanation": "两个八分音符等于一个四分音符，总共等于两个四分音符，即一个二分音符。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-rhythm-006",
+      "category": "音长与节奏",
+      "knowledgeId": "gaokao.theory.rhythm.triplet",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "一组八分音符三连音通常在一个四分音符拍内平均演奏几个音？",
+      "options": [
+        "3个",
+        "2个",
+        "4个",
+        "6个"
+      ],
+      "answer": "3个",
+      "explanation": "三连音把通常分为两等份的时值平均分为三等份。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-sign-001",
+      "category": "乐谱符号",
+      "knowledgeId": "gaokao.theory.sign.dynamics",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "力度记号 mf 表示什么？",
+      "options": [
+        "中强",
+        "很强",
+        "中弱",
+        "渐强"
+      ],
+      "answer": "中强",
+      "explanation": "mf是mezzo forte的缩写，表示中强。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-sign-002",
+      "category": "乐谱符号",
+      "knowledgeId": "gaokao.theory.sign.crescendo",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "术语 crescendo 表示？",
+      "options": [
+        "渐强",
+        "渐弱",
+        "渐慢",
+        "渐快"
+      ],
+      "answer": "渐强",
+      "explanation": "crescendo表示力度逐渐增强。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-sign-003",
+      "category": "乐谱符号",
+      "knowledgeId": "gaokao.theory.sign.tempo",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "速度术语 Allegro 通常表示？",
+      "options": [
+        "快板",
+        "慢板",
+        "行板",
+        "广板"
+      ],
+      "answer": "快板",
+      "explanation": "Allegro通常译为快板。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-sign-004",
+      "category": "乐谱符号",
+      "knowledgeId": "gaokao.theory.sign.natural",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "还原号的主要作用是？",
+      "options": [
+        "取消本小节内此前对该音的升降变化",
+        "升高一个半音",
+        "降低一个半音",
+        "延长一倍时值"
+      ],
+      "answer": "取消本小节内此前对该音的升降变化",
+      "explanation": "还原号将受临时升降记号影响的音恢复到调号规定或自然音状态。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-sign-005",
+      "category": "乐谱符号",
+      "knowledgeId": "gaokao.theory.sign.fermata",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "延长记号通常表示演奏者应怎样处理？",
+      "options": [
+        "适当延长该音或休止的时值",
+        "缩短一半",
+        "立即渐弱",
+        "提高八度"
+      ],
+      "answer": "适当延长该音或休止的时值",
+      "explanation": "延长记号表示时值可根据音乐表现适当延长。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-sign-006",
+      "category": "乐谱符号",
+      "knowledgeId": "gaokao.theory.sign.articulation",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "记在音符上方或下方的小圆点通常表示？",
+      "options": [
+        "断音",
+        "延音",
+        "重音",
+        "滑音"
+      ],
+      "answer": "断音",
+      "explanation": "小圆点是常见断音记号，演奏时应缩短并分离。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-interval-001",
+      "category": "音程",
+      "knowledgeId": "gaokao.theory.interval.major_third",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "大三度包含几个半音？",
+      "options": [
+        "4个",
+        "3个",
+        "5个",
+        "6个"
+      ],
+      "answer": "4个",
+      "explanation": "大三度包含四个半音。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-interval-002",
+      "category": "音程",
+      "knowledgeId": "gaokao.theory.interval.perfect_fifth",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "纯五度包含几个半音？",
+      "options": [
+        "7个",
+        "5个",
+        "6个",
+        "8个"
+      ],
+      "answer": "7个",
+      "explanation": "纯五度包含七个半音。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-interval-003",
+      "category": "音程",
+      "knowledgeId": "gaokao.theory.interval.tritone",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "增四度包含几个半音？",
+      "options": [
+        "6个",
+        "5个",
+        "7个",
+        "8个"
+      ],
+      "answer": "6个",
+      "explanation": "增四度与减五度都包含六个半音，属于三全音。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-interval-004",
+      "category": "音程",
+      "knowledgeId": "gaokao.theory.interval.inversion",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "大三度转位后成为？",
+      "options": [
+        "小六度",
+        "大六度",
+        "小三度",
+        "纯六度"
+      ],
+      "answer": "小六度",
+      "explanation": "音程转位后度数相加为九，大音程变小音程，因此大三度转为小六度。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-interval-005",
+      "category": "音程",
+      "knowledgeId": "gaokao.theory.interval.consonance",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "下列哪一个属于完全协和音程？",
+      "options": [
+        "纯五度",
+        "大三度",
+        "小六度",
+        "大二度"
+      ],
+      "answer": "纯五度",
+      "explanation": "纯一度、纯八度、纯四度和纯五度属于完全协和音程。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-interval-006",
+      "category": "音程",
+      "knowledgeId": "gaokao.theory.interval.natural",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "下列哪一个属于自然音程？",
+      "options": [
+        "增四度",
+        "增五度",
+        "减三度",
+        "倍增四度"
+      ],
+      "answer": "增四度",
+      "explanation": "自然音程包括大小二、三、六、七度，纯一、四、五、八度以及增四度、减五度。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-chord-001",
+      "category": "和弦",
+      "knowledgeId": "gaokao.theory.chord.major_triad",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "大三和弦原位的音程结构是？",
+      "options": [
+        "大三度加小三度",
+        "小三度加大三度",
+        "两个小三度",
+        "两个大三度"
+      ],
+      "answer": "大三度加小三度",
+      "explanation": "大三和弦由根音上方的大三度与纯五度构成，叠置结构为大三度加小三度。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-chord-002",
+      "category": "和弦",
+      "knowledgeId": "gaokao.theory.chord.minor_triad",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "小三和弦原位的半音结构是？",
+      "options": [
+        "0-3-7",
+        "0-4-7",
+        "0-3-6",
+        "0-4-8"
+      ],
+      "answer": "0-3-7",
+      "explanation": "小三和弦由小三度与纯五度构成。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-chord-003",
+      "category": "和弦",
+      "knowledgeId": "gaokao.theory.chord.diminished_triad",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "减三和弦由哪两个叠置音程构成？",
+      "options": [
+        "小三度加小三度",
+        "大三度加小三度",
+        "小三度加大三度",
+        "大三度加大三度"
+      ],
+      "answer": "小三度加小三度",
+      "explanation": "减三和弦由两个小三度叠置而成。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-chord-004",
+      "category": "和弦",
+      "knowledgeId": "gaokao.theory.chord.augmented_triad",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "增三和弦原位的半音结构是？",
+      "options": [
+        "0-4-8",
+        "0-4-7",
+        "0-3-7",
+        "0-3-6"
+      ],
+      "answer": "0-4-8",
+      "explanation": "增三和弦由两个大三度叠置。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-chord-005",
+      "category": "和弦",
+      "knowledgeId": "gaokao.theory.chord.inversion",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "三和弦第一转位通常称为？",
+      "options": [
+        "六和弦",
+        "四六和弦",
+        "五六和弦",
+        "二和弦"
+      ],
+      "answer": "六和弦",
+      "explanation": "三和弦第一转位以三音为低音，低音到根音形成六度，因此称六和弦。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-chord-006",
+      "category": "和弦",
+      "knowledgeId": "gaokao.theory.chord.second_inversion",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "三和弦第二转位通常称为？",
+      "options": [
+        "四六和弦",
+        "六和弦",
+        "五六和弦",
+        "三四和弦"
+      ],
+      "answer": "四六和弦",
+      "explanation": "第二转位以五音为低音，低音上方形成四度和六度。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-key-001",
+      "category": "调式调性",
+      "knowledgeId": "gaokao.theory.key.G_major",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "G大调的调号包含哪个升号？",
+      "options": [
+        "F♯",
+        "C♯",
+        "G♯",
+        "D♯"
+      ],
+      "answer": "F♯",
+      "explanation": "G大调有一个升号F♯。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-key-002",
+      "category": "调式调性",
+      "knowledgeId": "gaokao.theory.key.F_major",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "F大调的调号包含哪个降号？",
+      "options": [
+        "B♭",
+        "E♭",
+        "A♭",
+        "D♭"
+      ],
+      "answer": "B♭",
+      "explanation": "F大调有一个降号B♭。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-key-003",
+      "category": "调式调性",
+      "knowledgeId": "gaokao.theory.key.relative",
+      "difficulty": 1,
+      "type": "single_choice",
+      "prompt": "C大调的关系小调是？",
+      "options": [
+        "a小调",
+        "c小调",
+        "e小调",
+        "d小调"
+      ],
+      "answer": "a小调",
+      "explanation": "关系大小调使用相同调号，C大调的关系小调是a小调。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-key-004",
+      "category": "调式调性",
+      "knowledgeId": "gaokao.theory.scale.harmonic_minor",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "和声小调相对于自然小调的主要变化是？",
+      "options": [
+        "升高第七级",
+        "升高第六级",
+        "降低第七级",
+        "升高第四级"
+      ],
+      "answer": "升高第七级",
+      "explanation": "和声小调升高第七级，形成导音。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-key-005",
+      "category": "调式调性",
+      "knowledgeId": "gaokao.theory.scale.melodic_minor",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "传统旋律小调上行时通常升高哪些音级？",
+      "options": [
+        "第六级和第七级",
+        "第四级和第七级",
+        "第二级和第六级",
+        "第三级和第七级"
+      ],
+      "answer": "第六级和第七级",
+      "explanation": "旋律小调上行升高第六、七级，下行通常还原为自然小调。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd25-key-006",
+      "category": "调式调性",
+      "knowledgeId": "gaokao.theory.key.D_major",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "D大调的两个升号是？",
+      "options": [
+        "F♯、C♯",
+        "F♯、G♯",
+        "C♯、G♯",
+        "B♭、E♭"
+      ],
+      "answer": "F♯、C♯",
+      "explanation": "升号调号顺序从F♯、C♯开始，D大调有两个升号。",
+      "source": {
+        "verifiedYear": 2025,
+        "document": "广东省2025年普通高校招生艺术类专业省统考科目考试要求",
+        "scope": [
+          "音与音高",
+          "音长与节奏",
+          "常用乐谱符号",
+          "音程",
+          "和弦",
+          "调式调性"
+        ],
+        "note2026": "2026分类先按已核验的2025官方范围建立；未取得2026官方原文前，不宣称题量或细则不变。"
+      },
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd320-s1-q03",
+      "mockSet": 1,
+      "number": 3,
+      "domain": "theory",
+      "category": "音长与节奏",
+      "sourceSection": "音长节奏·术语综合",
+      "knowledgeId": "gaokao.theory.rhythm.4ad2be04",
+      "knowledgeName": "音长节奏·术语综合",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "按常规重音组织，6/8拍属于哪一种拍子？",
+      "options": [
+        "单二拍子",
+        "单三拍子",
+        "复二拍子",
+        "复三拍子"
+      ],
+      "answer": "复二拍子",
+      "answerLetter": "C",
+      "explanation": "6/8拍以附点四分音符为一拍，每小节两拍，因此属于复二拍子。",
+      "audioId": "",
+      "audioScript": "",
+      "source": "广东音乐艺考机考专属题库_320题.docx",
+      "sourceTag": "广东艺考模拟",
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd320-s1-q04",
+      "mockSet": 1,
+      "number": 4,
+      "domain": "theory",
+      "category": "音程",
+      "sourceSection": "音程与解决",
+      "knowledgeId": "gaokao.theory.interval.40884bba",
+      "knowledgeName": "音程与解决",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "音程F4-B4的准确名称是",
+      "options": [
+        "纯四度",
+        "小六度",
+        "增四度",
+        "减五度"
+      ],
+      "answer": "增四度",
+      "answerLetter": "C",
+      "explanation": "音级数和半音数须同时满足；三全音的两种拼写有不同名称。",
+      "audioId": "",
+      "audioScript": "",
+      "source": "广东音乐艺考机考专属题库_320题.docx",
+      "sourceTag": "广东艺考模拟",
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd320-s1-q05",
+      "mockSet": 1,
+      "number": 5,
+      "domain": "theory",
+      "category": "音程",
+      "sourceSection": "音程与解决",
+      "knowledgeId": "gaokao.theory.interval.40884bba",
+      "knowledgeName": "音程与解决",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "将F4-B4的下方音移高八度，所得转位音程为",
+      "options": [
+        "小六度",
+        "大三度",
+        "减五度",
+        "纯五度"
+      ],
+      "answer": "减五度",
+      "answerLetter": "C",
+      "explanation": "音程转位后度数相加为9，增音程与减音程互换。",
+      "audioId": "",
+      "audioScript": "",
+      "source": "广东音乐艺考机考专属题库_320题.docx",
+      "sourceTag": "广东艺考模拟",
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd320-s1-q08",
+      "mockSet": 1,
+      "number": 8,
+      "domain": "theory",
+      "category": "和弦",
+      "sourceSection": "七和弦与解决",
+      "knowledgeId": "gaokao.theory.chord.e6444f30",
+      "knowledgeName": "七和弦与解决",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "C大调的V₇（G-B-D-F）解决到主和弦时，两个最明确的倾向音进行是",
+      "options": [
+        "B下行；F上行",
+        "两个倾向音都上行大二度",
+        "两个倾向音都保持",
+        "B上行到C；F下行到E"
+      ],
+      "answer": "B上行到C；F下行到E",
+      "answerLetter": "D",
+      "explanation": "属七和弦三音是导音，通常上行至主音；和弦七音通常下行级进。",
+      "audioId": "",
+      "audioScript": "",
+      "source": "广东音乐艺考机考专属题库_320题.docx",
+      "sourceTag": "广东艺考模拟",
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd320-s1-q09",
+      "mockSet": 1,
+      "number": 9,
+      "domain": "theory",
+      "category": "和弦",
+      "sourceSection": "七和弦与解决",
+      "knowledgeId": "gaokao.theory.chord.e6444f30",
+      "knowledgeName": "七和弦与解决",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "在a小调和声小调中，音组G#-B-D-F构成",
+      "options": [
+        "二级七和弦（ii₇）",
+        "属七和弦（V₇）",
+        "导七减七和弦（vii°₇）",
+        "导七半减七和弦（viiø₇）"
+      ],
+      "answer": "导七减七和弦（vii°₇）",
+      "answerLetter": "C",
+      "explanation": "和声小调升高第七级，导音上叠三个小三度形成全减七和弦。",
+      "audioId": "",
+      "audioScript": "",
+      "source": "广东音乐艺考机考专属题库_320题.docx",
+      "sourceTag": "广东艺考模拟",
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd320-s1-q10",
+      "mockSet": 1,
+      "number": 10,
+      "domain": "theory",
+      "category": "和弦",
+      "sourceSection": "七和弦与解决",
+      "knowledgeId": "gaokao.theory.chord.e6444f30",
+      "knowledgeName": "七和弦与解决",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "解决a小调的vii°₇（G#-B-D-F）时，导音G#与和弦七音F最规范的进行是",
+      "options": [
+        "两音反向跳进四度",
+        "导音下行、七音上行",
+        "两音原位保持",
+        "G#上行到A；F下行级进"
+      ],
+      "answer": "G#上行到A；F下行级进",
+      "answerLetter": "D",
+      "explanation": "导音上行至主音；七和弦的和弦七音按规范下行级进。",
+      "audioId": "",
+      "audioScript": "",
+      "source": "广东音乐艺考机考专属题库_320题.docx",
+      "sourceTag": "广东艺考模拟",
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd320-s1-q14",
+      "mockSet": 1,
+      "number": 14,
+      "domain": "theory",
+      "category": "调式调性",
+      "sourceSection": "西洋大小调分析",
+      "knowledgeId": "gaokao.theory.key.6a864f71",
+      "knowledgeName": "西洋大小调分析",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "分析音阶A-B-C-D-E-F-G#-A，其调式调性是",
+      "options": [
+        "a和声小调",
+        "同主音旋律小调下行",
+        "C大调",
+        "同主音自然小调"
+      ],
+      "answer": "a和声小调",
+      "answerLetter": "A",
+      "explanation": "检查第3、6、7级的变化，可区分自然、和声、旋律大小调。",
+      "audioId": "",
+      "audioScript": "",
+      "source": "广东音乐艺考机考专属题库_320题.docx",
+      "sourceTag": "广东艺考模拟",
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd320-s2-q03",
+      "mockSet": 2,
+      "number": 3,
+      "domain": "theory",
+      "category": "音长与节奏",
+      "sourceSection": "音长节奏·术语综合",
+      "knowledgeId": "gaokao.theory.rhythm.4ad2be04",
+      "knowledgeName": "音长节奏·术语综合",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "3/4拍属于哪一种拍子？",
+      "options": [
+        "复二拍子",
+        "单三拍子",
+        "单二拍子",
+        "复三拍子"
+      ],
+      "answer": "单三拍子",
+      "answerLetter": "B",
+      "explanation": "3/4拍以四分音符为一拍，每小节三拍，属于单三拍子。",
+      "audioId": "",
+      "audioScript": "",
+      "source": "广东音乐艺考机考专属题库_320题.docx",
+      "sourceTag": "广东艺考模拟",
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd320-s2-q04",
+      "mockSet": 2,
+      "number": 4,
+      "domain": "theory",
+      "category": "音程",
+      "sourceSection": "音程与解决",
+      "knowledgeId": "gaokao.theory.interval.40884bba",
+      "knowledgeName": "音程与解决",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "音程B3-F4的准确名称是",
+      "options": [
+        "增四度",
+        "纯四度",
+        "减五度",
+        "小六度"
+      ],
+      "answer": "减五度",
+      "answerLetter": "C",
+      "explanation": "音级数和半音数须同时满足；三全音的两种拼写有不同名称。",
+      "audioId": "",
+      "audioScript": "",
+      "source": "广东音乐艺考机考专属题库_320题.docx",
+      "sourceTag": "广东艺考模拟",
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd320-s2-q06",
+      "mockSet": 2,
+      "number": 6,
+      "domain": "theory",
+      "category": "音程",
+      "sourceSection": "音程与解决",
+      "knowledgeId": "gaokao.theory.interval.40884bba",
+      "knowledgeName": "音程与解决",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "按导音上行、和弦七音下行的传统功能和声规则，B3-F4作为三全音最典型的解决是",
+      "options": [
+        "两音均保持不动",
+        "B3上行到C4，F4下行到E4",
+        "两音同向上行二度",
+        "下方音上行三度、上方音下行三度"
+      ],
+      "answer": "B3上行到C4，F4下行到E4",
+      "answerLetter": "B",
+      "explanation": "两倾向音级进解决，解决后形成大三度。",
+      "audioId": "",
+      "audioScript": "",
+      "source": "广东音乐艺考机考专属题库_320题.docx",
+      "sourceTag": "广东艺考模拟",
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd320-s2-q14",
+      "mockSet": 2,
+      "number": 14,
+      "domain": "theory",
+      "category": "调式调性",
+      "sourceSection": "西洋大小调分析",
+      "knowledgeId": "gaokao.theory.key.6a864f71",
+      "knowledgeName": "西洋大小调分析",
+      "difficulty": 2,
+      "type": "single_choice",
+      "prompt": "分析音阶E-F#-G-A-B-C#-D#-E，其调式调性是",
+      "options": [
+        "同主音自然小调",
+        "e旋律小调上行",
+        "G大调",
+        "同主音旋律小调下行"
+      ],
+      "answer": "e旋律小调上行",
+      "answerLetter": "B",
+      "explanation": "检查第3、6、7级的变化，可区分自然、和声、旋律大小调。",
+      "audioId": "",
+      "audioScript": "",
+      "source": "广东音乐艺考机考专属题库_320题.docx",
+      "sourceTag": "广东艺考模拟",
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd320-s3-q03",
+      "mockSet": 3,
+      "number": 3,
+      "domain": "theory",
+      "category": "音长与节奏",
+      "sourceSection": "音长节奏·术语综合",
+      "knowledgeId": "gaokao.theory.rhythm.4ad2be04",
+      "knowledgeName": "音长节奏·术语综合",
+      "difficulty": 3,
+      "type": "single_choice",
+      "prompt": "2/4拍属于哪一种拍子？",
+      "options": [
+        "复二拍子",
+        "单三拍子",
+        "单二拍子",
+        "复三拍子"
+      ],
+      "answer": "单二拍子",
+      "answerLetter": "C",
+      "explanation": "2/4拍以四分音符为一拍，每小节两拍，属于单二拍子。",
+      "audioId": "",
+      "audioScript": "",
+      "source": "广东音乐艺考机考专属题库_320题.docx",
+      "sourceTag": "广东艺考模拟",
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd320-s3-q04",
+      "mockSet": 3,
+      "number": 4,
+      "domain": "theory",
+      "category": "音程",
+      "sourceSection": "音程与解决",
+      "knowledgeId": "gaokao.theory.interval.40884bba",
+      "knowledgeName": "音程与解决",
+      "difficulty": 3,
+      "type": "single_choice",
+      "prompt": "音程C#4-G4的准确名称是",
+      "options": [
+        "小六度",
+        "减五度",
+        "增四度",
+        "纯四度"
+      ],
+      "answer": "减五度",
+      "answerLetter": "B",
+      "explanation": "音级数和半音数须同时满足；三全音的两种拼写有不同名称。",
+      "audioId": "",
+      "audioScript": "",
+      "source": "广东音乐艺考机考专属题库_320题.docx",
+      "sourceTag": "广东艺考模拟",
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    },
+    {
+      "id": "gd320-s3-q05",
+      "mockSet": 3,
+      "number": 5,
+      "domain": "theory",
+      "category": "音程",
+      "sourceSection": "音程与解决",
+      "knowledgeId": "gaokao.theory.interval.40884bba",
+      "knowledgeName": "音程与解决",
+      "difficulty": 3,
+      "type": "single_choice",
+      "prompt": "将C#4-G4的下方音移高八度，所得转位音程为",
+      "options": [
+        "增四度",
+        "小六度",
+        "大三度",
+        "纯五度"
+      ],
+      "answer": "增四度",
+      "answerLetter": "A",
+      "explanation": "音程转位后度数相加为9，增音程与减音程互换。",
+      "audioId": "",
+      "audioScript": "",
+      "source": "广东音乐艺考机考专属题库_320题.docx",
+      "sourceTag": "广东艺考模拟",
+      "reviewStatus": "approved",
+      "reviewedBy": "和田玉题库结构化审校",
+      "reviewedAt": "2026-08-12",
+      "version": 1,
+      "difficultyEvidence": "music-theory-rule-review",
+      "deprecatedReason": ""
+    }
+  ]
+}

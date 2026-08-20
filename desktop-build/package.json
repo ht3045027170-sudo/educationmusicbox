@@ -1,0 +1,12 @@
+{
+  "name": "hetian-music-education-desktop",
+  "version": "0.0.1",
+  "private": true,
+  "main": "main.cjs",
+  "productName": "和田玉音乐教育工具箱",
+  "devDependencies": {
+    "@electron/asar": "^3.4.1",
+    "@electron/packager": "^18.4.4",
+    "electron": "37.10.3"
+  }
+}

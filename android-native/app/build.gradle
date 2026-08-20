@@ -1,0 +1,42 @@
+plugins { id 'com.android.application' }
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('signing/keystore.properties')
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+}
+
+android {
+    namespace 'com.hetian.musictoolbox'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.hetian.musictoolbox.edu'
+        minSdk 23
+        targetSdk 35
+        versionCode 16
+        versionName '0.0.1'
+    }
+
+    signingConfigs {
+        releaseKey {
+            storeFile file('../signing/release-key.jks')
+            storePassword System.getenv('HETIAN_KEYSTORE_PASSWORD') ?: keystoreProperties['storePassword']
+            keyAlias System.getenv('HETIAN_KEY_ALIAS') ?: keystoreProperties['keyAlias']
+            keyPassword System.getenv('HETIAN_KEY_PASSWORD') ?: keystoreProperties['keyPassword']
+        }
+    }
+
+    buildTypes {
+        debug { signingConfig signingConfigs.releaseKey }
+        release {
+            signingConfig signingConfigs.releaseKey
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.12.1'
+}
