@@ -336,7 +336,10 @@
   $('eduOpenToolbox').addEventListener('click', () => App.showPage('menu'));
   $('eduSwitchGaokao').addEventListener('click', () => window.GaokaoApp?.enterGaokao?.());
   $('eduOpenSettings').addEventListener('click', openSettings);
-  $('eduSettingsBack').addEventListener('click', goEducationHome);
+  $('eduSettingsBack').addEventListener('click', () => {
+    if (window.HetianSettings?.getMode?.() === 'gaokao' && window.GaokaoApp?.openDashboard) window.GaokaoApp.openDashboard();
+    else goEducationHome();
+  });
   $('eduSettingsEditProfile').addEventListener('click', () => openOnboarding(true));
   $('eduSettingsExport').addEventListener('click', () => { Education.exportEducationState(); showToast('学习数据备份已导出。'); });
   $('eduSettingsImport').addEventListener('click', () => $('eduSettingsImportFile').click());

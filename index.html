@@ -736,14 +736,93 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
 <section id="eduSettings" class="page education-page theory-page hidden" aria-labelledby="settingsTitle">
   <main class="theory-shell settings-shell">
     <header class="theory-head"><button id="eduSettingsBack" class="edu-button text" type="button">← 学习首页</button><h1 id="settingsTitle">设置</h1><span class="theory-kicker">LOCAL · SETTINGS</span></header>
-    <div class="settings-grid">
-      <section class="settings-card"><span class="theory-kicker">ACCOUNT</span><h2>账户与登录</h2><div id="eduSettingsAccount"><p class="settings-muted">正在获取登录状态…</p></div></section>
-      <section class="settings-card"><span class="theory-kicker">SOUND &amp; THEME</span><h2>声音与外观</h2><label class="settings-slider"><span>音量</span><input id="settingsVolume" type="range" min="0" max="100" value="100"><b id="settingsVolumeText">100%</b></label><label class="settings-theme-label">界面颜色</label><div id="settingsThemes" class="settings-theme-row"><button type="button" data-theme="jade">玉石绿</button><button type="button" data-theme="ocean">湖水蓝</button><button type="button" data-theme="dark">墨玉黑</button></div><p class="settings-muted">主题与音量仅保存在当前设备。</p></section>
-      <section class="settings-card"><span class="theory-kicker">MODE</span><h2>学习模式</h2><p id="settingsCurrentMode">当前：音乐爱好者</p><p class="settings-muted">高考训练与日常学习使用独立档案与记录，随时可切换。</p><div class="settings-actions"><button id="settingsSwitchMode" class="edu-button primary" type="button">切换到高考音乐生</button></div></section>
-      <section class="settings-card"><span class="theory-kicker">PROFILE</span><h2>用户信息</h2><dl id="eduSettingsProfile" class="settings-profile"></dl><button id="eduSettingsEditProfile" class="edu-button ghost" type="button">编辑学习档案</button></section>
-      <section class="settings-card"><span class="theory-kicker">DATA</span><h2>学习数据管理</h2><p>数据默认仅保存在当前设备。</p><div class="settings-actions"><button id="eduSettingsExport" class="edu-button ghost" type="button">导出学习数据</button><button id="eduSettingsImport" class="edu-button ghost" type="button">导入学习数据</button><button id="eduSettingsClearRecords" class="edu-button ghost" type="button">清除学习记录</button><button id="eduSettingsReset" class="edu-button danger" type="button">重置学习进度</button></div></section>
-      <section class="settings-card"><span class="theory-kicker">ACTIVATION</span><h2>兑换码与权限</h2><p id="eduUnlockStatus">尚未激活额外权限。</p><label class="settings-code-label">请输入兑换码<input id="eduRedeemCode" autocomplete="off" inputmode="numeric" maxlength="32" placeholder="请输入兑换码"></label><button id="eduRedeemButton" class="edu-button primary" type="button">立即兑换</button><p id="eduRedeemMessage" class="settings-message" role="status"></p></section>
-      <section class="settings-card"><span class="theory-kicker">ABOUT</span><h2>关于软件</h2><p><b>音乐爱好者</b><br>和田玉音乐学习系统 · 内测0.0.1<br>音乐工具箱作为辅助功能保留。</p></section>
+    <div class="settings-list">
+      <section class="settings-section">
+        <h2 class="settings-section-label">账户</h2>
+        <div class="settings-group" id="eduSettingsAccount"><p class="settings-muted">正在获取登录状态…</p></div>
+      </section>
+      <section class="settings-section">
+        <h2 class="settings-section-label">外观</h2>
+        <div class="settings-group">
+          <div class="settings-theme-row" id="settingsThemes" role="group" aria-label="界面主题">
+            <button type="button" data-theme="jade"><span class="theme-swatch" style="--swatch:#2f7d5f"></span>玉石绿</button>
+            <button type="button" data-theme="ocean"><span class="theme-swatch" style="--swatch:#3a7ca5"></span>湖水蓝</button>
+            <button type="button" data-theme="dark"><span class="theme-swatch" style="--swatch:#252b33"></span>墨玉黑</button>
+          </div>
+          <p class="settings-hint">主题仅保存在当前设备。</p>
+        </div>
+      </section>
+      <section class="settings-section">
+        <h2 class="settings-section-label">声音</h2>
+        <div class="settings-group">
+          <div class="settings-row">
+            <div class="settings-row-main"><span class="settings-row-title">整体音量</span><span class="settings-row-sub">对听音、节拍器、视唱、制谱等所有发声功能生效</span></div>
+            <b class="settings-value" id="settingsVolumeText">100%</b>
+          </div>
+          <label class="settings-slider"><input id="settingsVolume" type="range" min="0" max="100" value="100" aria-label="整体音量"></label>
+        </div>
+      </section>
+      <section class="settings-section">
+        <h2 class="settings-section-label">学习模式</h2>
+        <div class="settings-group">
+          <div class="settings-row">
+            <div class="settings-row-main"><span class="settings-row-title" id="settingsCurrentMode">当前：音乐爱好者</span><span class="settings-row-sub">高考训练与日常学习使用独立档案与记录</span></div>
+            <button id="settingsSwitchMode" class="settings-row-btn" type="button">切换到高考音乐生</button>
+          </div>
+        </div>
+      </section>
+      <section class="settings-section">
+        <h2 class="settings-section-label">学习档案</h2>
+        <div class="settings-group">
+          <dl id="eduSettingsProfile" class="settings-profile"></dl>
+          <div class="settings-row"><button id="eduSettingsEditProfile" class="settings-row-btn wide" type="button">编辑学习档案</button></div>
+        </div>
+      </section>
+      <section class="settings-section">
+        <h2 class="settings-section-label">数据</h2>
+        <div class="settings-group">
+          <div class="settings-row">
+            <div class="settings-row-main"><span class="settings-row-title">导出学习数据</span><span class="settings-row-sub">保存为 JSON 备份文件</span></div>
+            <button id="eduSettingsExport" class="settings-row-btn" type="button">导出</button>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-main"><span class="settings-row-title">导入学习数据</span><span class="settings-row-sub">从之前导出的备份文件恢复</span></div>
+            <button id="eduSettingsImport" class="settings-row-btn" type="button">导入</button>
+          </div>
+        </div>
+      </section>
+      <section class="settings-section">
+        <h2 class="settings-section-label">兑换码</h2>
+        <div class="settings-group">
+          <div class="settings-redeem">
+            <input id="eduRedeemCode" autocomplete="off" inputmode="numeric" maxlength="32" placeholder="输入兑换码">
+            <button id="eduRedeemButton" class="edu-button primary" type="button">兑换</button>
+          </div>
+          <p id="eduUnlockStatus" class="settings-hint">尚未激活额外权限。</p>
+          <p id="eduRedeemMessage" class="settings-message" role="status"></p>
+        </div>
+      </section>
+      <section class="settings-section">
+        <h2 class="settings-section-label">关于</h2>
+        <div class="settings-group">
+          <div class="settings-row">
+            <div class="settings-row-main"><span class="settings-row-title">和田玉音乐学习系统</span><span class="settings-row-sub">内测 0.0.1 · 音乐工具箱作为辅助功能保留</span></div>
+          </div>
+        </div>
+      </section>
+      <section class="settings-section settings-section-danger">
+        <h2 class="settings-section-label danger">危险操作</h2>
+        <div class="settings-group">
+          <div class="settings-row">
+            <div class="settings-row-main"><span class="settings-row-title">清除学习记录</span><span class="settings-row-sub">删除答题与练习记录，保留个人档案</span></div>
+            <button id="eduSettingsClearRecords" class="settings-row-btn danger" type="button">清除</button>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-main"><span class="settings-row-title">重置学习进度</span><span class="settings-row-sub">删除档案与全部进度，从零开始</span></div>
+            <button id="eduSettingsReset" class="settings-row-btn danger" type="button">重置</button>
+          </div>
+        </div>
+      </section>
     </div>
     <input id="eduSettingsImportFile" class="hidden" type="file" accept="application/json,.json">
   </main>
@@ -1359,12 +1438,13 @@ function performPageChange(id){stopAllAppAudio('pagechange');stopMic();if(id!=='
 function showPage(id){return window.HetianCore?.router?.go?window.HetianCore.router.go(id,{source:'legacy'}):performPageChange(id)}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(b)showPage(b.dataset.page)});
 /* ===== [设置面板：音量 / 主题 / 模式] ===== */
-const settingsVolume=$('settingsVolume'),settingsVolumeText=$('settingsVolumeText'),settingsThemes=$('settingsThemes'),settingsCurrentMode=$('settingsCurrentMode'),settingsSwitchMode=$('settingsSwitchMode');
+const settingsVolume=$('settingsVolume'),settingsVolumeText=$('settingsVolumeText'),settingsThemes=$('settingsThemes'),settingsCurrentMode=$('settingsCurrentMode'),settingsSwitchMode=$('settingsSwitchMode'),settingsBack=$('eduSettingsBack');
 function renderSettingsPrefs(){
   if(settingsVolume){const pct=Math.round(window.HetianSettings.getVolume()*100);settingsVolume.value=pct;if(settingsVolumeText)settingsVolumeText.textContent=pct+'%'}
   if(settingsThemes){const current=window.HetianSettings.getTheme();settingsThemes.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.theme===current))}
   if(settingsCurrentMode){settingsCurrentMode.textContent='当前：'+(window.HetianSettings.getMode()==='gaokao'?'高考音乐生':'音乐爱好者')}
   if(settingsSwitchMode){const isGaokao=window.HetianSettings.getMode()==='gaokao';settingsSwitchMode.textContent=isGaokao?'切换到音乐爱好者':'切换到高考音乐生'}
+  if(settingsBack){settingsBack.textContent=window.HetianSettings.getMode()==='gaokao'?'← 训练首页':'← 学习首页'}
 }
 if(settingsVolume){settingsVolume.addEventListener('input',e=>{window.HetianSettings.setVolume(e.target.value/100);if(settingsVolumeText)settingsVolumeText.textContent=e.target.value+'%'})}
 if(settingsThemes){settingsThemes.addEventListener('click',e=>{const btn=e.target.closest('button[data-theme]');if(!btn)return;window.HetianSettings.applyTheme(btn.dataset.theme);renderSettingsPrefs()})}
