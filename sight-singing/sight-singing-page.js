@@ -620,7 +620,7 @@
     master.connect(filter);
     filter.connect(context.destination);
     master.gain.setValueAtTime(.0001, start);
-    master.gain.exponentialRampToValueAtTime(.26, start + .012);
+    master.gain.exponentialRampToValueAtTime(.26 * (window.HetianSettings?.getVolume?.() ?? 1), start + .012);
     master.gain.exponentialRampToValueAtTime(.0001, start + Math.max(.2, duration * .88));
     const voice = { context, gain: master, oscillators: [], sources: [], ended: 0 };
     playbackVoices.add(voice);

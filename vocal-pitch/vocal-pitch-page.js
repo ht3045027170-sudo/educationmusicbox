@@ -322,7 +322,7 @@
         const osc = context.createOscillator(), gain = context.createGain();
         osc.frequency.value = accent ? 1320 : 880;
         gain.gain.setValueAtTime(.0001, context.currentTime);
-        gain.gain.exponentialRampToValueAtTime(accent ? .22 : .11, context.currentTime + .004);
+        gain.gain.exponentialRampToValueAtTime((accent ? .22 : .11) * (window.HetianSettings?.getVolume?.() ?? 1), context.currentTime + .004);
         gain.gain.exponentialRampToValueAtTime(.0001, context.currentTime + .055);
         osc.connect(gain); gain.connect(context.destination);
         osc.start(); osc.stop(context.currentTime + .065);

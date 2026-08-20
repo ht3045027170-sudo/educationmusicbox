@@ -88,18 +88,17 @@
   const field = (label, name, value = '', type = 'text', extra = '') => `<label>${label}<input name="${name}" type="${type}" value="${escapeHtml(value)}" ${extra}></label>`;
 
   function activateOffline() {
-    const oldBar = document.querySelector('.account-bar');
-    const bar = oldBar ? oldBar.cloneNode(false) : Object.assign(document.createElement('div'), { className: 'account-bar' });
-    if (oldBar) oldBar.replaceWith(bar); else document.body.append(bar);
     const serverDialog = document.querySelector('.auth-dialog');
     serverDialog?.remove();
     const dialog = document.createElement('dialog');
     dialog.className = 'auth-dialog';
     document.body.append(dialog);
+    const box = document.getElementById('eduSettingsAccount');
 
     const render = () => {
+      if (!box) return;
       const account = getAccount();
-      bar.innerHTML = `<span class="account-name">${account ? `离线 · ${escapeHtml(account.name)}` : '离线优先模式'}</span><button class="quiet" data-action="profile">${account ? '本机档案' : '创建本机档案'}</button><button class="quiet" data-action="backup">数据备份</button>`;
+      box.innerHTML = `<div class="account-inline"><span class="account-name">${account ? `离线 · ${escapeHtml(account.name)}` : '离线优先模式'}</span><div class="settings-actions"><button class="edu-button primary" type="button" data-action="profile">${account ? '本机档案' : '创建本机档案'}</button><button class="edu-button ghost" type="button" data-action="backup">数据备份</button></div></div>`;
     };
     const closeButton = '<button class="account-close" type="button" aria-label="关闭">×</button>';
     const openCreate = () => {
@@ -143,7 +142,10 @@
       };
       dialog.showModal();
     };
-    bar.onclick = event => ({ profile: openProfiles, backup: openBackup }[event.target.dataset.action]?.());
+    box.addEventListener('click', event => {
+      const action = event.target.closest('[data-action]')?.dataset.action;
+      if (action) ({ profile: openProfiles, backup: openBackup }[action]?.());
+    });
     render();
   }
 

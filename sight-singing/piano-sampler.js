@@ -40,6 +40,7 @@
   }
 
   function createVoice(context, midi, velocity = .72, when = context.currentTime) {
+    velocity *= window.HetianSettings?.getVolume?.() ?? 1;
     const root = nearestRoot(midi);
     if (nativeReady) {
       const audio = new Audio(nativeSamples.get(root.midi));

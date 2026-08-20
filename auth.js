@@ -3,11 +3,9 @@
   let csrfToken = '', user = null;
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   const roleName = { learner: '学习者', teacher: '教师', admin: '管理员' };
-  const bar = document.createElement('div');
-  bar.className = 'account-bar';
-  bar.innerHTML = '<span class="account-name">访客模式</span><button class="quiet" data-auth="account" hidden>账户中心</button><button class="quiet" data-auth="homework" hidden>我的作业</button><button data-auth="login">登录</button><button class="quiet" data-auth="register">注册</button>';
-  document.body.append(bar);
   const dialog = document.createElement('dialog'); dialog.className = 'auth-dialog'; document.body.append(dialog);
+  const accountBox = () => document.getElementById('eduSettingsAccount');
+
   async function csrf() { if (csrfToken) return csrfToken; const r = await fetch('/api/csrf'); csrfToken = (await r.json()).csrfToken; return csrfToken; }
   async function api(url, options = {}) {
     const method = options.method || 'GET', headers = { ...(options.headers || {}) };
@@ -16,13 +14,41 @@
     const body = response.status === 204 ? null : await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(body?.message || body?.error || '请求失败'); return body;
   }
-  function renderBar() {
-    bar.querySelector('.account-name').textContent = user ? `你好，${user.username}` : '访客模式';
-    bar.querySelector('[data-auth="login"]').textContent = user ? '退出' : '登录';
-    bar.querySelector('[data-auth="register"]').hidden = Boolean(user);
-    bar.querySelector('[data-auth="account"]').hidden = !user;
-    bar.querySelector('[data-auth="homework"]').hidden = !user;
+
+  function toast(message, error = false) {
+    const fn = window.HetianEducationUI?.showToast;
+    if (typeof fn === 'function') return fn(message, error);
+    window.alert(message);
   }
+
+  function renderAccountUI() {
+    const box = accountBox(); if (!box) return;
+    if (!user) {
+      box.innerHTML = '<p class="settings-muted">当前为访客模式，学习数据仅保存在本机。登录后可跨设备同步作业与学习档案。</p><div class="settings-actions"><button class="edu-button primary" type="button" data-auth="login">登录</button><button class="edu-button ghost" type="button" data-auth="register">注册</button></div>';
+    } else {
+      const initial = esc((user.username || user.email || '?').charAt(0).toUpperCase());
+      box.innerHTML = `<div class="account-status"><div class="account-avatar">${initial}</div><div><b>${esc(user.username || '')}</b><small>${esc(user.email || '')} · ${roleName[user.role] || user.role}</small></div></div><div class="settings-actions"><button class="edu-button ghost" type="button" data-auth="account">账户中心</button><button class="edu-button ghost" type="button" data-auth="homework">我的作业</button><button class="edu-button danger" type="button" data-auth="logout">退出登录</button></div>`;
+    }
+    box.querySelectorAll('[data-auth]').forEach(button => button.addEventListener('click', onAuthAction));
+  }
+
+  async function onAuthAction(event) {
+    const mode = event.currentTarget.dataset.auth;
+    try {
+      if (mode === 'login') return open('login');
+      if (mode === 'register') return open('register');
+      if (mode === 'account') return openAccount().catch(error => toast(error.message, true));
+      if (mode === 'homework') return window.MusicHomework?.open();
+      if (mode === 'logout') {
+        try { await api('/api/auth/logout', { method: 'POST' }); } finally { user = null; csrfToken = ''; }
+        renderAccountUI();
+        toast('已退出登录');
+      }
+    } catch (error) {
+      toast(error.message, true);
+    }
+  }
+
   function open(mode) {
     const registering = mode === 'register';
     const forgot = mode === 'forgot';
@@ -30,7 +56,7 @@
     const form = dialog.querySelector('form');
     form.addEventListener('submit', async (event) => {
       if (event.submitter?.value !== 'submit') return; event.preventDefault(); const message = form.querySelector('.auth-message'); message.textContent = '';
-      try { const data = Object.fromEntries(new FormData(form)); const endpoint=registering?'register':forgot?'forgot-password':'login'; const body = await api(`/api/auth/${endpoint}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) }); if(registering||forgot){message.className='auth-message success';message.innerHTML=body.mail?.devLink?`本机测试链接：<a href="${esc(body.mail.devLink)}">打开</a>`:body.devLink?`本机测试链接：<a href="${esc(body.devLink)}">打开</a>`:registering?'验证邮件已发送，请查收。':'如果邮箱存在，重置邮件已经发送。';return;} user = body.user; csrfToken = body.csrfToken; renderBar(); dialog.close(); } catch (error) { message.textContent = error.message; }
+      try { const data = Object.fromEntries(new FormData(form)); const endpoint=registering?'register':forgot?'forgot-password':'login'; const body = await api(`/api/auth/${endpoint}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) }); if(registering||forgot){message.className='auth-message success';message.innerHTML=body.mail?.devLink?`本机测试链接：<a href="${esc(body.mail.devLink)}">打开</a>`:body.devLink?`本机测试链接：<a href="${esc(body.devLink)}">打开</a>`:registering?'验证邮件已发送，请查收。':'如果邮箱存在，重置邮件已经发送。';return;} user = body.user; csrfToken = body.csrfToken; renderAccountUI(); dialog.close(); toast('登录成功'); } catch (error) { message.textContent = error.message; }
     }); dialog.showModal();
     form.querySelector('[data-forgot]')?.addEventListener('click',()=>open('forgot'));
     form.querySelector('[data-resend]')?.addEventListener('click',async()=>{const email=form.elements.email.value,message=form.querySelector('.auth-message');if(!email)return message.textContent='请先输入注册邮箱';const body=await api('/api/auth/resend-verification',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email})});message.className='auth-message success';message.innerHTML=body.devLink?`本机测试链接：<a href="${esc(body.devLink)}">打开</a>`:'如果邮箱存在且尚未验证，邮件已经发送。';});
@@ -59,12 +85,6 @@
     });
     dialog.showModal();
   }
-  bar.addEventListener('click', async (event) => {
-    const mode = event.target.dataset.auth; if (!mode) return;
-    if (mode === 'account') return openAccount().catch((error) => alert(error.message));
-    if (mode === 'homework') return window.MusicHomework?.open();
-    if (mode === 'login' && user) { try { await api('/api/auth/logout', { method: 'POST' }); } finally { user = null; csrfToken = ''; renderBar(); } } else open(mode);
-  });
   async function handleAccountAction(){
     const params=new URLSearchParams(location.search),action=params.get('accountAction'),token=params.get('token');if(!action||!token)return;
     if(action==='verify'){
@@ -74,7 +94,16 @@
       dialog.innerHTML='<form class="auth-card"><h2>设置新密码</h2><label>新密码</label><input name="password" type="password" minlength="10" autocomplete="new-password" required><div class="auth-message"></div><div class="auth-actions"><button class="submit">保存新密码</button></div></form>';dialog.showModal();dialog.querySelector('form').onsubmit=async event=>{event.preventDefault();const message=event.currentTarget.querySelector('.auth-message');try{await api('/api/auth/reset-password',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token,password:event.currentTarget.elements.password.value})});message.className='auth-message success';message.textContent='密码已重置，请重新登录。';history.replaceState({},'',location.pathname);setTimeout(()=>open('login'),700);}catch(error){message.textContent=error.message;}};
     }
   }
-  api('/api/auth/session').then((body) => { user = body.user; renderBar(); }).catch(() => {});
+  window.HetianAuth = {
+    getUser: () => user,
+    renderAccountUI,
+    openLogin: () => open('login'),
+    openRegister: () => open('register'),
+    openAccount: () => openAccount(),
+    openHomework: () => window.MusicHomework?.open(),
+    logout: () => onAuthAction({ currentTarget: { dataset: { auth: 'logout' } } })
+  };
+  api('/api/auth/session').then((body) => { user = body.user; renderAccountUI(); }).catch(() => {});
   handleAccountAction();
   import('/homework.js').catch(() => {});
 })();

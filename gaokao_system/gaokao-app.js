@@ -104,6 +104,7 @@
   }
 
   function enterGaokao() {
+    window.HetianSettings?.setMode?.('gaokao');
     if (Store.profileExists()) openDashboard();
     else openProfile(false);
   }
@@ -376,6 +377,12 @@
   $('gkProfileSwitchHobby')?.addEventListener('click', switchToHobby);
   $('gkSwitchHobby')?.addEventListener('click', switchToHobby);
   $('gkTheorySwitchHobby')?.addEventListener('click', switchToHobby);
+  document.querySelectorAll('#gkOpenSettings').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (window.HetianEducationUI?.openSettings) window.HetianEducationUI.openSettings();
+      else App.showPage('eduSettings');
+    });
+  });
   $('gkStartTraining')?.addEventListener('click', openTheory);
   $('gkOpenTheory')?.addEventListener('click', openTheory);
   $('gkOpenDictation')?.addEventListener('click', () => window.GaokaoDictation?.open?.());
@@ -397,6 +404,7 @@
   const previousBack = App.handleBack;
   App.handleBack = () => {
     const current = App.getCurrentPage();
+    if (current === 'eduSettings') { openDashboard(); return true; }
     if (current === 'gaokaoTheory' || current === 'gaokaoProfile') { openDashboard(); return true; }
     if (current === 'gaokaoDashboard') { App.showPage('modeSelect'); return true; }
     if (current === 'modeSelect') return false;

@@ -54,7 +54,7 @@
     }
     play(score, fromBeat = this.offsetBeat) {
       this.stop(false); this.score = score; this.ensure();
-      this.master.gain.value = score.settings.masterVolume ?? .82;
+      this.master.gain.value = (score.settings.masterVolume ?? .82) * (window.HetianSettings?.getVolume?.() ?? 1);
       this.events = this.buildEvents(score); this.offsetBeat = Math.max(0, fromBeat);
       this.startedAt = this.context.currentTime; this.nextIndex = this.events.findIndex(event => event.beat >= this.offsetBeat);
       if (this.nextIndex < 0) this.nextIndex = this.events.length;

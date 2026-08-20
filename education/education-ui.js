@@ -297,6 +297,7 @@
   }
 
   function goEducationHome() {
+    window.HetianSettings?.setMode?.('hobby');
     if (Education.profileExists()) {
       renderDashboard();
       App.showPage('eduDashboard');
@@ -322,7 +323,14 @@
   });
 
   document.addEventListener('click', event => {
-    if (event.target.closest('[data-education-home]')) App.showPage('modeSelect');
+    const homeBtn = event.target.closest('[data-education-home]');
+    if (!homeBtn) return;
+    // 工具箱返回：回到当前模式的首页（学习首页 / 高考训练首页），不再回退到模式选择页
+    if (App.getCurrentPage() === 'menu' && window.HetianSettings?.getMode?.() === 'gaokao') {
+      window.GaokaoApp?.openDashboard?.();
+      return;
+    }
+    goEducationHome();
   });
 
   $('eduOpenToolbox').addEventListener('click', () => App.showPage('menu'));
@@ -374,7 +382,8 @@
     renderDashboard,
     goEducationHome,
     showToast,
-    labelForKnowledge
+    labelForKnowledge,
+    openSettings
   };
   App.handleBack = () => {
     const current = App.getCurrentPage();
@@ -400,7 +409,11 @@
       return true;
     }
     if (current === 'menu') {
-      App.showPage('modeSelect');
+      if (window.HetianSettings?.getMode?.() === 'gaokao') {
+        window.GaokaoApp?.openDashboard?.();
+      } else {
+        goEducationHome();
+      }
       return true;
     }
     App.showPage('menu');
