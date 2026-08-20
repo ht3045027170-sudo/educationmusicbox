@@ -1,0 +1,6 @@
+Guitar string samples: tonejs-instrument-guitar-acoustic-wav 1.1.0
+- Source package: https://www.npmjs.com/package/tonejs-instrument-guitar-acoustic-wav
+- Samples license: CC-BY 3.0
+- Code license: MIT
+Only the six open-string samples used by the tuner are included:
+E2, A2, D3, G3, B3, E4.

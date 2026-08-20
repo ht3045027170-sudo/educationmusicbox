@@ -387,6 +387,11 @@
   $('gkOpenTheory')?.addEventListener('click', openTheory);
   $('gkOpenDictation')?.addEventListener('click', () => window.GaokaoDictation?.open?.());
   $('gkOpenSight')?.addEventListener('click', () => App.showPage('sightSinging'));
+  $('gkOpenTools')?.addEventListener('click', () => App.showPage('gkTools'));
+  $('gkToolsBack')?.addEventListener('click', openDashboard);
+  document.querySelectorAll('#gkTools .gk-tool-card').forEach(card => {
+    card.addEventListener('click', () => App.showPage(card.dataset.tool));
+  });
   $('gkMockExam')?.addEventListener('click', showBlueprint);
   $('gkTheoryDashboard')?.addEventListener('click', openDashboard);
   $('gkPrevQuestion')?.addEventListener('click', () => { if (session && session.index > 0) { session.index -= 1; renderQuestion(); } });
