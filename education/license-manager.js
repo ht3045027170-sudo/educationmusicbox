@@ -33,8 +33,13 @@
     return [...new Set([...(base || []), ...(license.features || [])])];
   }
 
+  function hasAdminUnlock() {
+    return window.HetianAuth?.getUser?.()?.role === 'admin';
+  }
+
   function canAccess(feature) {
     if (!feature) return true;
+    if (hasAdminUnlock()) return true;
     const features = featuresFor();
     return features.includes('*') || features.includes(feature);
   }
@@ -70,9 +75,10 @@
   }
 
   function label() {
+    if (hasAdminUnlock()) return '管理员权限（全部解锁）';
     const type = getLicense().type;
     return ({ free:'免费版', student_pro:'学生专业版', ai_teacher:'AI 教师版', teacher:'教师版', developer:'开发者测试权限' })[type] || '免费版';
   }
 
-  window.LicenseManager = { LICENSES, getLicense, isActive, featuresFor, canAccess, canUse, activateCode, deactivate, toggleTestCode, label };
+  window.LicenseManager = { LICENSES, getLicense, isActive, featuresFor, canAccess, canUse, activateCode, deactivate, toggleTestCode, label, hasAdminUnlock };
 })();

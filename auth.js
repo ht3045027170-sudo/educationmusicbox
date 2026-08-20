@@ -21,6 +21,10 @@
     window.alert(message);
   }
 
+  function notifyAccessChange() {
+    window.dispatchEvent(new CustomEvent('hetian:auth-changed', { detail: { user } }));
+  }
+
   function renderAccountUI() {
     const box = accountBox(); if (!box) return;
     if (!user) {
@@ -42,6 +46,7 @@
       if (mode === 'logout') {
         try { await api('/api/auth/logout', { method: 'POST' }); } finally { user = null; csrfToken = ''; }
         renderAccountUI();
+        notifyAccessChange();
         toast('已退出登录');
       }
     } catch (error) {
@@ -56,7 +61,7 @@
     const form = dialog.querySelector('form');
     form.addEventListener('submit', async (event) => {
       if (event.submitter?.value !== 'submit') return; event.preventDefault(); const message = form.querySelector('.auth-message'); message.textContent = '';
-      try { const data = Object.fromEntries(new FormData(form)); const endpoint=registering?'register':forgot?'forgot-password':'login'; const body = await api(`/api/auth/${endpoint}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) }); if(registering||forgot){message.className='auth-message success';message.innerHTML=body.mail?.devLink?`本机测试链接：<a href="${esc(body.mail.devLink)}">打开</a>`:body.devLink?`本机测试链接：<a href="${esc(body.devLink)}">打开</a>`:registering?'验证邮件已发送，请查收。':'如果邮箱存在，重置邮件已经发送。';return;} user = body.user; csrfToken = body.csrfToken; renderAccountUI(); dialog.close(); toast('登录成功'); } catch (error) { message.textContent = error.message; }
+      try { const data = Object.fromEntries(new FormData(form)); const endpoint=registering?'register':forgot?'forgot-password':'login'; const body = await api(`/api/auth/${endpoint}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) }); if(registering||forgot){message.className='auth-message success';message.innerHTML=body.mail?.devLink?`本机测试链接：<a href="${esc(body.mail.devLink)}">打开</a>`:body.devLink?`本机测试链接：<a href="${esc(body.devLink)}">打开</a>`:registering?'验证邮件已发送，请查收。':'如果邮箱存在，重置邮件已经发送。';return;} user = body.user; csrfToken = body.csrfToken; renderAccountUI(); notifyAccessChange(); dialog.close(); toast('登录成功'); } catch (error) { message.textContent = error.message; }
     }); dialog.showModal();
     form.querySelector('[data-forgot]')?.addEventListener('click',()=>open('forgot'));
     form.querySelector('[data-resend]')?.addEventListener('click',async()=>{const email=form.elements.email.value,message=form.querySelector('.auth-message');if(!email)return message.textContent='请先输入注册邮箱';const body=await api('/api/auth/resend-verification',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email})});message.className='auth-message success';message.innerHTML=body.devLink?`本机测试链接：<a href="${esc(body.devLink)}">打开</a>`:'如果邮箱存在且尚未验证，邮件已经发送。';});
@@ -103,7 +108,7 @@
     openHomework: () => window.MusicHomework?.open(),
     logout: () => onAuthAction({ currentTarget: { dataset: { auth: 'logout' } } })
   };
-  api('/api/auth/session').then((body) => { user = body.user; renderAccountUI(); }).catch(() => {});
+  api('/api/auth/session').then((body) => { user = body.user; renderAccountUI(); notifyAccessChange(); }).catch(() => {});
   handleAccountAction();
   import('/homework.js').catch(() => {});
 })();

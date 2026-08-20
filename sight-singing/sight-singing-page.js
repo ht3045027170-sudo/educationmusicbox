@@ -558,13 +558,59 @@
   }
 
   function buildManualDraft() {
-    if (!project?.source.dataUrl) {
-      showStatus('sightScanStatus', '请先导入图片，再建立校对稿。', true);
-      return;
-    }
+    if (!project) return startBlankPractice();
     if (!project.score.notes.length) project.score.notes = [];
     project.review.confirmed = false;
     showStep('review', true);
+  }
+
+  function blankStaffRows() {
+    const perLine = Math.max(2, Number(project?.practice?.measuresPerLine) || 4);
+    const maxMeasure = (project?.score?.notes || []).reduce((max, note) => Math.max(max, Number(note.measure) || 1), 1);
+    return Math.max(1, Math.ceil(maxMeasure / perLine));
+  }
+
+  function blankStaffDataUrl() {
+    const rows = blankStaffRows();
+    const canvas = document.createElement('canvas');
+    const rowHeight = 340, margin = 80, gap = 26;
+    canvas.width = 1600;
+    canvas.height = margin * 2 + rowHeight * rows;
+    const context = canvas.getContext('2d');
+    context.fillStyle = '#fffdf8';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.strokeStyle = '#b3a488';
+    context.lineWidth = 2;
+    for (let row = 0; row < rows; row += 1) {
+      const center = margin + rowHeight * (row + .5);
+      for (let line = -2; line <= 2; line += 1) {
+        const y = center + line * gap;
+        context.beginPath();
+        context.moveTo(90, y);
+        context.lineTo(canvas.width - 90, y);
+        context.stroke();
+      }
+    }
+    return canvas.toDataURL('image/png');
+  }
+
+  function startBlankPractice() {
+    project = Store.createProject();
+    project.title = '空白视唱练习';
+    project.status = 'review';
+    Store.saveSettings({ lastProjectId: project.id });
+    originalImage = null;
+    staffGeometry = [];
+    $('sightWelcome').classList.add('hidden');
+    $('sightHistoryPanel').classList.add('hidden');
+    $('sightWorkspace').classList.remove('hidden');
+    $('sightEmptyCanvas').classList.add('hidden');
+    $('sightSourceCanvas').width = 0;
+    $('sightSourceCanvas').height = 0;
+    $('sightReferenceImage').src = blankStaffDataUrl();
+    setText('sightFileMeta', '空白练习 · 手动输入音符，无需图片');
+    showStep('review', true);
+    persist(false).catch(() => {});
   }
 
   function confirmReview() {
@@ -665,7 +711,8 @@
     if (canvas?.width && canvas?.height) {
       try { return canvas.toDataURL('image/png'); } catch (_) {}
     }
-    return project?.source?.dataUrl || '';
+    if (project?.source?.dataUrl) return project.source.dataUrl;
+    return blankStaffDataUrl();
   }
 
   function followPosition(note, globalIndex, notes) {
@@ -869,21 +916,30 @@
     const saved = await Store.getProject(id);
     if (!saved) return;
     project = saved;
-    try {
-      originalImage = await loadImage(saved.source.dataUrl);
-      $('sightReferenceImage').src = saved.source.dataUrl;
-      $('sightWelcome').classList.add('hidden');
-      $('sightHistoryPanel').classList.add('hidden');
-      $('sightWorkspace').classList.remove('hidden');
+    $('sightWelcome').classList.add('hidden');
+    $('sightHistoryPanel').classList.add('hidden');
+    $('sightWorkspace').classList.remove('hidden');
+    if (saved.source?.dataUrl) {
+      try {
+        originalImage = await loadImage(saved.source.dataUrl);
+      } catch (error) {
+        alert(`历史项目的源图无法打开：${error.message}`);
+        return;
+      }
       $('sightEmptyCanvas').classList.add('hidden');
+      $('sightReferenceImage').src = saved.source.dataUrl;
       setText('sightFileMeta', `${saved.source.name || saved.title} · ${saved.source.width} × ${saved.source.height}`);
       $('sightContrast').value = saved.preprocessing.contrast;
       $('sightThreshold').value = saved.preprocessing.threshold;
       renderSource();
-      showStep(saved.review.confirmed ? 'practice' : (saved.status === 'prepare' ? 'prepare' : 'review'), true);
-    } catch (error) {
-      alert(`历史项目的源图无法打开：${error.message}`);
+    } else {
+      originalImage = null;
+      staffGeometry = [];
+      $('sightEmptyCanvas').classList.remove('hidden');
+      $('sightReferenceImage').src = blankStaffDataUrl();
+      setText('sightFileMeta', `${saved.title} · 空白练习`);
     }
+    showStep(saved.review.confirmed ? 'practice' : (saved.status === 'prepare' && saved.source?.dataUrl ? 'prepare' : 'review'), true);
   }
 
   async function showHistory() {
@@ -927,6 +983,10 @@
   $('sightCameraInput').addEventListener('change', event => importImage(event.target.files[0]));
   $('sightImageInput').addEventListener('change', event => importImage(event.target.files[0]));
   $('sightPdfInput').addEventListener('change', event => importPdf(event.target.files[0]));
+  $('sightBlankButton').addEventListener('click', () => {
+    if (project && !confirm('新建会离开当前页面；已保存的项目仍会保留。继续吗？')) return;
+    startBlankPractice();
+  });
   $('sightHistoryButton').addEventListener('click', showHistory);
   $('sightRemoteButton').addEventListener('click', openRemoteDialog);
   $('sightRemoteSave').addEventListener('click', saveRemoteConnection);

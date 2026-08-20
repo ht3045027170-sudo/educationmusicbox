@@ -874,11 +874,12 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
         <div class="sight-welcome-copy">
           <span class="sight-eyebrow">PRINTED SCORE · V1.0</span>
           <h2>让一页乐谱，<br>成为可反复练习的声音。</h2>
-          <p>选择清晰的印刷五线谱。识别、校对和练习全程在当前设备完成，不上传图片。</p>
+          <p>选择清晰的印刷五线谱。识别、校对和练习全程在当前设备完成，不上传图片。没有谱面图片时，也可以直接新建空白练习，手动输入音符。</p>
           <div class="sight-import-actions">
             <button id="sightCameraButton" class="sight-primary" type="button"><span>拍照扫描</span><small>适合 Android 手机</small></button>
             <button id="sightImageButton" class="sight-secondary" type="button"><span>导入图片</span><small>JPG、PNG、WEBP</small></button>
             <button id="sightPdfButton" class="sight-secondary" type="button"><span>导入 PDF</span><small>离线单页导入</small></button>
+            <button id="sightBlankButton" class="sight-secondary" type="button"><span>空白练习</span><small>手动输入音符 · 无需图片</small></button>
           </div>
           <input id="sightCameraInput" type="file" accept="image/*" capture="environment" hidden>
           <input id="sightImageInput" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" hidden>

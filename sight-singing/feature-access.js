@@ -20,12 +20,16 @@
     return sessionStorage.getItem(ADMIN_SESSION_KEY) === '1';
   }
 
+  function hasCloudAdmin() {
+    return window.HetianAuth?.getUser?.()?.role === 'admin';
+  }
+
   function hasCreatorUnlock() {
     return Boolean(window.LicenseManager?.canAccess?.('advanced_level'));
   }
 
   function hasProfessionalAccess() {
-    return isAdmin() || hasCreatorUnlock();
+    return isAdmin() || hasCloudAdmin() || hasCreatorUnlock();
   }
 
   function syncAdminClass() {
@@ -103,6 +107,7 @@
   });
 
   window.addEventListener('hetian:education-state', syncAdminClass);
+  window.addEventListener('hetian:auth-changed', syncAdminClass);
   window.addEventListener('load', syncAdminClass, { once:true });
   window.HetianFeatureAccess = { isAdmin: hasProfessionalAccess, showLocked, sync:syncAdminClass };
   syncAdminClass();
