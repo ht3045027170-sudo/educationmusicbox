@@ -23,5 +23,5 @@ assert.deepEqual(resolve('haitang-music.educationmusicbox.pages.dev', '?product=
 });
 assert.equal(resolve('haitang-exam.educationmusicbox.pages.dev', '?product=music').product, 'exam');
 assert.equal(resolve('educationmusicbox.pages.dev', '?product=exam').product, 'exam');
-assert.equal(resolve('127.0.0.1').product, '');
+assert.equal(resolve('127.0.0.1').product, 'music');
 console.log('product context isolation: ok');

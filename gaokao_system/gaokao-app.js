@@ -352,11 +352,7 @@
 
   function showBlueprint() { window.GaokaoDictation?.openIntro?.('guangdong_mock'); }
 
-  $('portalEducation')?.addEventListener('click', () => {
-    location.assign('?product=music');
-  });
   $('portalToolbox')?.addEventListener('click', () => App.showPage('menu'));
-  $('portalGaokao')?.addEventListener('click', () => location.assign('?product=exam'));
   $('gkProfileForm')?.addEventListener('submit', event => {
     event.preventDefault();
     const form = event.currentTarget;
@@ -417,11 +413,7 @@
     const current = App.getCurrentPage();
     if (current === 'eduSettings') { openDashboard(); return true; }
     if (current === 'gaokaoTheory' || current === 'gaokaoProfile') { openDashboard(); return true; }
-    if (current === 'gaokaoDashboard') {
-      if (window.HAITANG_PRODUCT === 'exam') return false;
-      App.showPage('modeSelect'); return true;
-    }
-    if (current === 'modeSelect') return false;
+    if (current === 'gaokaoDashboard') return false;
     return previousBack ? previousBack() : false;
   };
 
@@ -434,6 +426,5 @@
     if (bankStatus === 'fallback') toast('当前为直接打开HTML模式，已启用内置最小题库。');
   });
   renderCategoryList();
-  App.showPage('modeSelect');
   window.GaokaoApp = { enterGaokao, openDashboard, openTheory, startTheorySession, getBankStatus: () => bankStatus };
 })();

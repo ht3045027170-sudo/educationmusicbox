@@ -20,11 +20,8 @@
 [data-theme="ocean"] .education-page{--edu-ink:#22384a;--edu-muted:#6e8296;--edu-jade:#2f6f96;--edu-jade-dark:#1d4a64;--edu-jade-pale:#e0edf7;--edu-paper:#f2f7fb;--edu-gold:#a58136}
 [data-theme="dark"] .education-page{--edu-ink:#dde5ec;--edu-muted:#8b97a3;--edu-jade:#4fa98a;--edu-jade-dark:#2e6b52;--edu-jade-pale:#20342c;--edu-paper:#161b21;--edu-gold:#c9a458;color:var(--edu-ink);background:radial-gradient(circle at 10% 0%,rgba(255,255,255,.04),transparent 34%),radial-gradient(circle at 88% 100%,rgba(79,169,138,.14),transparent 38%),#0f1318}
 [data-theme="dark"] .education-page::before{opacity:.15}
-[data-theme="ocean"] .portal-page,[data-theme="ocean"] .gk-page{--gk-ink:#22384a;--gk-ink-soft:#2b3f52;--gk-paper:#eef4fa;--gk-paper-strong:#ffffff;--gk-accent:#d95b3d;--gk-gold:#a58136;--gk-line:rgba(34,56,74,.18);--gk-muted:#6e8296}
-[data-theme="dark"] .portal-page,[data-theme="dark"] .gk-page{--gk-ink:#dde5ec;--gk-ink-soft:#9fb2c2;--gk-paper:#0f1318;--gk-paper-strong:#191f26;--gk-accent:#e8895f;--gk-gold:#c9a458;--gk-line:rgba(221,229,236,.18);--gk-muted:#8b97a3}
-[data-theme="dark"] .portal-card.gaokao{background:#0a0e12;border-color:#0a0e12}
-[data-theme="dark"] .portal-card.gaokao p{color:#aeb9c4}
-[data-theme="dark"] .portal-card:not(.gaokao){background:#191f26}
+[data-theme="ocean"] .gk-page{--gk-ink:#22384a;--gk-ink-soft:#2b3f52;--gk-paper:#eef4fa;--gk-paper-strong:#ffffff;--gk-accent:#d95b3d;--gk-gold:#a58136;--gk-line:rgba(34,56,74,.18);--gk-muted:#6e8296}
+[data-theme="dark"] .gk-page{--gk-ink:#dde5ec;--gk-ink-soft:#9fb2c2;--gk-paper:#0f1318;--gk-paper-strong:#191f26;--gk-accent:#e8895f;--gk-gold:#c9a458;--gk-line:rgba(221,229,236,.18);--gk-muted:#8b97a3}
 [data-theme="dark"] .gk-button.secondary{color:var(--gk-ink);border-color:var(--gk-line)}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"PingFang SC","Segoe UI",sans-serif;color:var(--ink);background:var(--bg)}
 button,input,select{font:inherit}button{touch-action:manipulation}.hidden{display:none!important}.page{min-height:100vh;padding:calc(18px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom))}
@@ -285,7 +282,6 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
 .product-login-copy{padding:clamp(34px,7vw,82px);display:flex;flex-direction:column;justify-content:center;min-height:620px}.product-login-copy h1{font:700 clamp(48px,8vw,88px)/.95 Georgia,"Songti SC",serif;margin:18px 0 25px;letter-spacing:-.04em}.product-login-copy p{max-width:560px;font-size:17px;line-height:1.9;color:#52675f}.product-login-kicker{font-size:12px;font-weight:800;letter-spacing:.22em;color:#b44f32}.product-login-actions{display:flex;gap:11px;flex-wrap:wrap;margin-top:24px}.product-login-actions button{border-radius:999px;padding:13px 24px;font-weight:800;cursor:pointer}.product-login-primary{border:0;background:#183e32;color:#fff}.product-login-secondary{border:1px solid rgba(24,62,50,.24);background:transparent;color:#183e32}.product-login-status{min-height:24px;margin-top:18px;color:#7b3325}
 .product-login-rail{padding:38px;background:#173a30;color:#eef3ed;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}.product-login-rail:before{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-80px;top:-70px;border:1px solid rgba(255,255,255,.18);box-shadow:0 0 0 34px rgba(255,255,255,.035),0 0 0 68px rgba(255,255,255,.025)}.product-login-rail h2{font:600 30px/1.3 Georgia,"Songti SC",serif;position:relative}.product-login-list{display:grid;gap:14px;position:relative}.product-login-list div{padding:16px 0;border-top:1px solid rgba(255,255,255,.16)}.product-login-list b{display:block;margin-bottom:5px}.product-login-list span{font-size:13px;color:#b7c7c0}
 .gk-teacher-entry.hidden,.gk-teacher-page.hidden{display:none!important}.gk-teacher-frame{width:100%;height:calc(100vh - 120px);min-height:680px;border:1px solid var(--gk-line);border-radius:22px;background:#fff}.gk-teacher-page .gk-shell{max-width:1500px}
-body.product-music #modeSelect,body.product-exam #modeSelect{display:none!important}
 @media(max-width:720px){.product-login-shell{grid-template-columns:1fr}.product-login-copy{min-height:auto;padding:44px 26px}.product-login-rail{padding:28px;min-height:270px}.product-login-copy h1{font-size:52px}.gk-teacher-frame{height:calc(100vh - 96px);min-height:560px}}
 </style>
 <link rel="stylesheet" href="education/education.css">
@@ -297,30 +293,6 @@ body.product-music #modeSelect,body.product-exam #modeSelect{display:none!import
 </head>
 <body>
 <div id="runtimeError"></div>
-<section id="modeSelect" class="page portal-page">
-  <main class="portal-shell">
-    <header class="portal-head">
-      <div><span class="portal-brand">HAITANG · MUSIC EDUCATION</span><h1>今天，为音乐走哪条路？</h1></div>
-      <p>两个独立产品、两套独立账号与学习记录。通用音乐工具在两边完整保留。</p>
-    </header>
-    <div class="portal-grid">
-      <article class="portal-card education">
-        <span class="portal-number">01 / MUSIC LOVER</span>
-        <h2>海棠音乐</h2>
-        <p>按乐器建立独立学习路线。第一阶段开放吉他乐理，音乐工具箱继续作为辅助功能保留。</p>
-        <div class="portal-audience"><span>吉他学习</span><span>乐器乐理</span><span>进度与复习建议</span></div>
-        <button id="portalEducation" class="portal-button" type="button">进入海棠音乐</button>
-      </article>
-      <article class="portal-card gaokao">
-        <span class="portal-number">02 / EXAM TRAINING</span>
-        <h2>海棠艺考</h2>
-        <p>面向音乐艺考、音乐教育和音乐表演方向考生。训练、错题与报告使用独立数据。</p>
-        <div class="portal-audience"><span>广东音乐统考</span><span>乐理与听写</span><span>视唱训练</span></div>
-        <button id="portalGaokao" class="portal-button" type="button">进入海棠艺考</button>
-      </article>
-    </div>
-  </main>
-</section>
 <section id="gaokaoLogin" class="page product-login hidden" aria-labelledby="gaokaoLoginTitle">
   <main class="product-login-shell">
     <section class="product-login-copy">
