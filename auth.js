@@ -2,7 +2,7 @@
   'use strict';
   let csrfToken = '', user = null, resolveReady;
   const ready = new Promise((resolve) => { resolveReady = resolve; });
-  const product = new URLSearchParams(location.search).get('product') === 'exam' ? 'exam' : 'music';
+  const product = window.HaitangProduct?.product === 'exam' ? 'exam' : 'music';
   const systemCode = product === 'exam' ? 'gaokao' : 'hobby';
   const productName = product === 'exam' ? '海棠艺考' : '海棠音乐';
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));

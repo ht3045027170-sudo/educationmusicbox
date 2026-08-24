@@ -1,9 +1,7 @@
 (() => {
   'use strict';
 
-  const params = new URLSearchParams(location.search);
-  const requested = params.get('product');
-  const product = requested === 'exam' ? 'exam' : requested === 'music' ? 'music' : '';
+  const product = window.HaitangProduct?.product || '';
   const $ = (id) => document.getElementById(id);
 
   if (!product) return;

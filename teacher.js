@@ -1,5 +1,9 @@
 (() => {
   'use strict';
+  if (window.HaitangProduct?.fixed && window.HaitangProduct.product !== 'exam') {
+    location.replace('/');
+    return;
+  }
   const $ = (id) => document.getElementById(id);
   let csrfToken = '';
 
