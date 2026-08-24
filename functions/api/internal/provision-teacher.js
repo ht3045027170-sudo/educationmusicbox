@@ -1,4 +1,4 @@
-import { json, safeEqual } from '../../shared.js';
+import { json, safeEqual } from '../shared.js';
 
 const ONE_TIME_TOKEN_HASH = '9e73a62bee1f64b334a0d9fefaa6e6f9da8638572e599229332b562c44c60a17';
 
