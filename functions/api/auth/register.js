@@ -28,6 +28,9 @@ export async function onRequestPost({ request, env }) {
     if (password.length < 10) {
       return json({ ok: false, error: '密码至少 10 位，请用大小写字母加数字组合。' }, 400);
     }
+    if (!['hobby', 'gaokao'].includes(learningSystem)) {
+      return json({ ok: false, error: '注册产品无效。' }, 400);
+    }
 
     const exists = await env.DB.prepare('SELECT id FROM users WHERE username = ? OR email = ?').bind(username, email).first();
     if (exists) return json({ ok: false, error: '该用户名或邮箱已被注册。' }, 409);
@@ -47,7 +50,8 @@ export async function onRequestPost({ request, env }) {
 
     // 简易 devLink（内测阶段不接邮件服务时使用，链接里直接带 token）
     const origin = new URL(request.url).origin;
-    const devLink = `${origin}/?accountAction=verify&token=${verifyToken}`;
+    const product = learningSystem === 'gaokao' ? 'exam' : 'music';
+    const devLink = `${origin}/?product=${product}&accountAction=verify&token=${verifyToken}`;
     return json({ ok: true, userId, devLink });
   } catch (error) {
     return json({ ok: false, error: '注册失败：' + (error.message || String(error)) }, 500);

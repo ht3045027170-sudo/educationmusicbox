@@ -21,14 +21,16 @@
   }
 
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const roleName = { learner: '学习者', teacher: '教师', admin: '管理员' };
-  const systemName = (code) => code === 'hobby' ? '音乐爱好者' : '高考音乐生';
+  const roleName = { learner: '学生', teacher: '教师' };
+  const systemName = () => '海棠艺考';
 
   function enter(manager) {
+    manager.systems = (manager.systems || []).filter((item) => item.system_code === 'gaokao');
+    if (!manager.systems.length) manager.systems = [{ system_code: 'gaokao', role: 'teacher' }];
     $('loginCard').hidden = true;
     $('dashboard').hidden = false;
     window.CONTENT_MANAGER = manager;
-    const label = manager.platform ? '平台管理员' : (roleName[manager.role] || '教师');
+    const label = roleName[manager.role] || '教师';
     $('adminIdentity').textContent = `${label}：${manager.username}`;
     document.body.classList.add('content-manager');
 
@@ -59,6 +61,7 @@
     $('loginMessage').textContent = '';
     try {
       const data = Object.fromEntries(new FormData(event.currentTarget));
+      data.learningSystem = 'gaokao';
       const body = await api('/api/auth/login', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -66,9 +69,9 @@
       });
       csrfToken = body.csrfToken;
 
-      // Role gate: only teacher/admin can use this portal
-      if (!['teacher', 'admin'].includes(body.user.role)) {
-        $('loginMessage').textContent = `此账号角色为「${roleName[body.user.role] || body.user.role}」，没有教师权限。请联系管理员开通。`;
+      // 海棠艺考教师中心只接受教师账号。
+      if (body.user.role !== 'teacher') {
+        $('loginMessage').textContent = `此账号角色为「${roleName[body.user.role] || body.user.role}」，没有教师权限。请联系项目负责人开通。`;
         // Log them back out since they can't use this portal
         await api('/api/auth/logout', { method: 'POST' }).catch(() => {});
         csrfToken = '';
@@ -81,7 +84,6 @@
         username: body.user.displayName || body.user.username,
         role: body.user.role,
         systems: [
-          { system_code: 'hobby', role: body.user.role },
           { system_code: 'gaokao', role: body.user.role },
         ],
       });
@@ -99,6 +101,6 @@
 
   // Check existing session on load
   api('/api/admin/session').then((body) => {
-    if (body.manager) enter(body.manager);
+    if (body.manager?.role === 'teacher') enter(body.manager);
   }).catch(() => {});
 })();

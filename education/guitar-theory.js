@@ -136,7 +136,7 @@
   }
 
   function exportNotes() {
-    const lines = ['# 吉他入门乐理', '', '> 和田玉音乐爱好者 · 离线导出', ''];
+    const lines = ['# 吉他入门乐理', '', '> 海棠音乐 · 离线导出', ''];
     bank.lessons.forEach(item => {
       lines.push(`## ${item.chapter}. ${item.title}`, '', item.intro, '', ...item.bullets.map(text => `- ${text}`), '');
       (item.applications || []).forEach(chord => lines.push(`### ${chord.name}`, `- 公式：${chord.formula}`, `- 组成音：${chord.tones}`, `- 吉他按法：${chord.fingering}`, ''));

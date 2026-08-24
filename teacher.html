@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>音乐工具箱 · 教师端</title>
+<title>海棠艺考 · 教师中心</title>
 <link rel="stylesheet" href="/admin.css">
 <style>
 .teacher-login-footer{margin-top:18px;font-size:13px;color:#687970;line-height:1.8}
@@ -27,10 +27,11 @@
 .back-link{position:fixed;top:18px;right:20px;font-size:13px;z-index:100}
 .back-link a{color:#687970;text-decoration:none}
 .back-link a:hover{color:#4d9b73}
+body.embedded .back-link,body.embedded #dashboard>header{display:none}body.embedded .shell{max-width:none;padding:18px}body.embedded #dashboard{padding-top:0}
 </style>
 </head>
 <body>
-<div class="back-link"><a href="/">返回学生端</a></div>
+<div class="back-link"><a href="/?product=exam">返回海棠艺考</a></div>
 <main class="shell">
 <section id="loginCard" class="card login">
 <h2>教师登录</h2>
@@ -41,13 +42,13 @@
 <p id="loginMessage" class="error"></p>
 </form>
 <div class="teacher-login-footer">
-还没有账号？<a href="/">前往主站注册</a>，注册后联系管理员开通教师权限。<br>
-<a href="/">← 返回学生端</a>
+还没有账号？<a href="/?product=exam">前往海棠艺考注册</a>，注册后联系项目负责人开通教师权限。<br>
+<a href="/?product=exam">← 返回海棠艺考</a>
 </div>
 </section>
 <div id="dashboard" hidden>
 <header>
-<div><p class="eyebrow">MUSIC TOOLBOX · TEACHER</p><h1>教师工作台</h1></div>
+<div><p class="eyebrow">HAITANG EXAM · TEACHER</p><h1>海棠艺考教师中心</h1></div>
 <div id="adminIdentity"></div>
 </header>
 <nav>
@@ -57,6 +58,7 @@
 </main>
 <script src="/sight-singing/piano-sampler.js" defer></script>
 <script src="/admin-music-editor.js" defer></script>
+<script>if(new URLSearchParams(location.search).get('embedded')==='1')document.body.classList.add('embedded')</script>
 <script src="/teacher.js" defer></script>
 </body>
 </html>

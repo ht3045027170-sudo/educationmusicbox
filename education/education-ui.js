@@ -99,7 +99,7 @@
       username: form.elements.nickname.value.trim(),
       age: Number(form.elements.age.value),
       grade: '',
-      examDirection: ['音乐爱好者'],
+      examDirection: ['海棠音乐'],
       primaryMajor: form.elements.instrument.value,
       dailyMinutes: Number(form.elements.dailyMinutes.value),
       examDate: '',
@@ -253,7 +253,7 @@
   }
 
   function resetHobbyData() {
-    const phrase = window.prompt('将清除爱好者档案、训练记录、关卡进度和设置，但不会删除高考音乐生档案，也不会删除制谱、MIDI 或自制题库。请输入“确认删除”继续。');
+    const phrase = window.prompt('将清除海棠音乐档案、训练记录、关卡进度和设置，但不会删除制谱、MIDI 或自制题库。请输入“确认删除”继续。');
     if (phrase !== '确认删除') return;
     Education.resetEducationState();
     const reset = Education.getState();
@@ -263,7 +263,7 @@
     }
     fillForm(reset);
     App.showPage('home');
-    showToast('音乐爱好者档案与学习数据已清除，高考档案不受影响。');
+    showToast('海棠音乐档案与学习数据已清除。');
   }
 
   function redeemCode() {
@@ -308,7 +308,7 @@
 
   $('eduCreateProfile').addEventListener('click', () => openOnboarding(false));
   $('eduGuestEntry').addEventListener('click', () => App.showPage('menu'));
-  $('eduWelcomeSwitchGaokao').addEventListener('click', () => window.GaokaoApp?.enterGaokao?.());
+  $('eduWelcomeSwitchGaokao')?.addEventListener('click', () => location.assign('?product=exam'));
   $('eduWelcomeGuitar')?.addEventListener('click', () => window.GuitarAcademy?.open?.());
   $('eduOnboardingClose').addEventListener('click', goEducationHome);
   $('eduPrevStep').addEventListener('click', () => setStep(step - 1));
@@ -334,7 +334,7 @@
   });
 
   $('eduOpenToolbox').addEventListener('click', () => App.showPage('menu'));
-  $('eduSwitchGaokao').addEventListener('click', () => window.GaokaoApp?.enterGaokao?.());
+  $('eduSwitchGaokao')?.addEventListener('click', () => location.assign('?product=exam'));
   $('eduOpenSettings').addEventListener('click', openSettings);
   $('eduSettingsBack').addEventListener('click', () => {
     if (window.HetianSettings?.getMode?.() === 'gaokao' && window.GaokaoApp?.openDashboard) window.GaokaoApp.openDashboard();
@@ -391,7 +391,10 @@
   App.handleBack = () => {
     const current = App.getCurrentPage();
     if (current === 'modeSelect') return false;
-    if (current === 'home' || current === 'eduDashboard') { App.showPage('modeSelect'); return true; }
+    if (current === 'home' || current === 'eduDashboard') {
+      if (window.HAITANG_PRODUCT === 'music') return false;
+      App.showPage('modeSelect'); return true;
+    }
     if (current === 'eduSettings') { goEducationHome(); return true; }
     if (current === 'theoryAcademy') {
       renderDashboard();

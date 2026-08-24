@@ -81,7 +81,7 @@ export async function onRequestPost({ request, env }) {
 
     const body = await readBody(request);
     const systemCode = ['hobby', 'gaokao'].includes(String(body.systemCode || '')) ? String(body.systemCode) : '';
-    if (!systemCode) return json({ ok: false, error: '请选择题目所属系统（音乐爱好者 / 高考音乐生）。' }, 400);
+    if (!systemCode) return json({ ok: false, error: '请选择题目所属产品（海棠音乐 / 海棠艺考）。' }, 400);
     const subject = ['theory', 'dictation', 'sight_singing'].includes(String(body.subject || '')) ? String(body.subject) : 'theory';
     const questionType = ['single_choice', 'multi_choice', 'true_false', 'text_input'].includes(String(body.questionType || ''))
       ? String(body.questionType) : 'single_choice';

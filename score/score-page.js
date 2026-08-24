@@ -26,7 +26,7 @@
   document.head.appendChild(style);
 
   page.innerHTML = `<div class="sc-app">
-    <div class="sc-menubar"><b class="sc-brand">和田玉 · 制谱</b>
+    <div class="sc-menubar"><b class="sc-brand">海棠 · 制谱</b>
       ${menu('文件',[['score.home','乐谱选择',''],['score.new','新建乐谱','Ctrl+N'],['score.open','打开最近','Ctrl+O'],['score.save','保存','Ctrl+S'],['score.saveAs','另存为','Ctrl+Shift+S'],['score.import','导入 JSON',''],['score.export','导出 JSON',''],['score.exportSvg','导出 SVG',''],['score.print','打印 / PDF','Ctrl+P']])}
       ${menu('编辑',[['edit.undo','撤销','Ctrl+Z'],['edit.redo','重做','Ctrl+Shift+Z'],['edit.delete','删除选中','Delete'],['edit.copy','复制音符','Ctrl+C'],['edit.paste','粘贴音符','Ctrl+V']])}
       ${menu('视图',[['view.page','页面视图',''],['view.width','适合宽度',''],['panel.palette','音符面板',''],['panel.properties','属性面板',''],['panel.piano','虚拟钢琴','']])}
@@ -60,7 +60,7 @@
     <div id="scBottom" class="sc-bottom-panel hidden"></div>
     <input id="scImportFile" type="file" accept=".json,application/json" hidden>
   </div>
-  <div id="scStart" class="sc-start"><div class="sc-start-shell"><div class="sc-start-head"><div><h1>选择一份乐谱</h1><p>新建乐谱、继续最近作品，或者导入已有工程。</p></div><button class="sc-btn" data-page="menu">← 返回工具箱</button></div><div class="sc-start-actions"><button class="sc-start-card" data-score-start="new"><span class="sc-start-icon">𝄞</span><strong>新建乐谱</strong><span>选择谱式、乐器、调号、拍号和小节数。</span></button><button class="sc-start-card" data-score-start="continue"><span class="sc-start-icon">↗</span><strong>继续上次乐谱</strong><span>打开本机自动保存的上一份作品。</span></button><button class="sc-start-card" data-score-start="import"><span class="sc-start-icon">⇧</span><strong>导入乐谱</strong><span>打开和田玉乐谱 JSON 工程文件。</span></button></div><section class="sc-start-recent"><h2>最近乐谱</h2><div id="scStartList" class="sc-start-list"></div></section></div></div>
+  <div id="scStart" class="sc-start"><div class="sc-start-shell"><div class="sc-start-head"><div><h1>选择一份乐谱</h1><p>新建乐谱、继续最近作品，或者导入已有工程。</p></div><button class="sc-btn" data-page="menu">← 返回工具箱</button></div><div class="sc-start-actions"><button class="sc-start-card" data-score-start="new"><span class="sc-start-icon">𝄞</span><strong>新建乐谱</strong><span>选择谱式、乐器、调号、拍号和小节数。</span></button><button class="sc-start-card" data-score-start="continue"><span class="sc-start-icon">↗</span><strong>继续上次乐谱</strong><span>打开本机自动保存的上一份作品。</span></button><button class="sc-start-card" data-score-start="import"><span class="sc-start-icon">⇧</span><strong>导入乐谱</strong><span>打开海棠乐谱 JSON 工程文件。</span></button></div><section class="sc-start-recent"><h2>最近乐谱</h2><div id="scStartList" class="sc-start-list"></div></section></div></div>
   <div id="scWizard" class="sc-dialog hidden"></div><div id="scRecentDialog" class="sc-dialog hidden"></div>`;
 
   function menu(label, items) {
@@ -259,7 +259,7 @@
     'play.toggle':()=>playback.playing?playback.pause():playback.play(score),'play.stop':()=>playback.stop(true),'play.metronome':()=>{score.settings.metronome=!score.settings.metronome;$('scMetro').classList.toggle('on',score.settings.metronome);markDirty()},
     'note.rest':()=>{restMode=!restMode;renderDurationButtons()},'note.dot':toggleDot,
     'panel.piano':()=>toggleBottom('piano'),'panel.palette':()=>{$('scLeft').hidden=!$('scLeft').hidden},'panel.properties':()=>{$('scRight').hidden=!$('scRight').hidden},'view.page':()=>{score.settings.viewMode=score.settings.viewMode==='continuous'?'page':'continuous';markDirty();render()},'view.width':()=>{score.settings.zoom=Math.max(60,Math.min(125,Math.floor(($('scCanvas').clientWidth-30)/1060*100)));render()},
-    'help.shortcuts':()=>alert('A–G 输入音名｜1–7 切换时值｜R 休止符｜Delete 删除｜Ctrl+Z 撤销｜Ctrl+Shift+Z 重做｜Space 播放/暂停'),'help.about':()=>alert('和田玉音乐工具箱 · 制谱核心版\\n统一数据驱动五线谱、简谱与六线谱。')
+    'help.shortcuts':()=>alert('A–G 输入音名｜1–7 切换时值｜R 休止符｜Delete 删除｜Ctrl+Z 撤销｜Ctrl+Shift+Z 重做｜Space 播放/暂停'),'help.about':()=>alert('海棠音乐工具 · 制谱核心版\\n统一数据驱动五线谱、简谱与六线谱。')
   };
   function executeCommand(id){if(id.startsWith('duration.')){duration=+id.slice(9);restMode=false;renderDurationButtons();return}commands[id]?.()}
   function renderDurationButtons(){$('scDurations').querySelectorAll('button').forEach(button=>button.classList.toggle('on',String(button.dataset.duration)===String(restMode?'rest':duration)))}

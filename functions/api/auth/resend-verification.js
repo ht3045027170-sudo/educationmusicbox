@@ -9,8 +9,10 @@ export async function onRequestPost({ request, env }) {
     if (!csrfCheck.ok) return json({ ok: false, error: csrfCheck.error }, csrfCheck.status);
     const body = await readBody(request);
     const email = String(body.email || '').trim().toLowerCase();
+    const product = body.learningSystem === 'gaokao' ? 'exam' : 'music';
     if (!email) return json({ ok: true });
-    const user = await env.DB.prepare('SELECT id, email_verified FROM users WHERE email = ?').bind(email).first();
+    const system = product === 'exam' ? 'gaokao' : 'hobby';
+    const user = await env.DB.prepare('SELECT id, email_verified FROM users WHERE email = ? AND learning_system = ?').bind(email, system).first();
     if (!user || user.email_verified) {
       return json({ ok: true, message: '如果该邮箱存在且尚未验证，邮件已经发送。' });
     }
@@ -20,7 +22,7 @@ export async function onRequestPost({ request, env }) {
       "INSERT INTO sessions (token, user_id, csrf, expires_at) VALUES (?, ?, 'pending', ?)"
     ).bind('verify:' + token, user.id, expiresAt).run();
     const origin = new URL(request.url).origin;
-    return json({ ok: true, devLink: `${origin}/?accountAction=verify&token=${token}` });
+    return json({ ok: true, devLink: `${origin}/?product=${product}&accountAction=verify&token=${token}` });
   } catch (error) {
     return json({ ok: true, message: '如果该邮箱存在且尚未验证，邮件已经发送。' });
   }

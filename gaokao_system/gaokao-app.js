@@ -164,7 +164,7 @@
     const state = Store.getState();
     const profile = state.profile;
     $('gkAvatar').textContent = (profile.name || '音').trim().slice(0, 1);
-    $('gkStudentName').textContent = profile.name || '高考音乐生';
+    $('gkStudentName').textContent = profile.name || '艺考生';
     $('gkProfileSummary').textContent = [profile.province, profile.direction, profile.primarySubject && `主项：${profile.primarySubject}`, profile.secondarySubject && `副项：${profile.secondarySubject}`].filter(Boolean).join(' · ');
     const countdown = daysUntilExam(profile.examDate);
     $('gkExamCountdown').textContent = countdown === null
@@ -353,11 +353,10 @@
   function showBlueprint() { window.GaokaoDictation?.openIntro?.('guangdong_mock'); }
 
   $('portalEducation')?.addEventListener('click', () => {
-    if (window.HetianEducationUI?.goEducationHome) window.HetianEducationUI.goEducationHome();
-    else App.showPage('home');
+    location.assign('?product=music');
   });
   $('portalToolbox')?.addEventListener('click', () => App.showPage('menu'));
-  $('portalGaokao')?.addEventListener('click', enterGaokao);
+  $('portalGaokao')?.addEventListener('click', () => location.assign('?product=exam'));
   $('gkProfileForm')?.addEventListener('submit', event => {
     event.preventDefault();
     const form = event.currentTarget;
@@ -388,6 +387,13 @@
   $('gkOpenDictation')?.addEventListener('click', () => window.GaokaoDictation?.open?.());
   $('gkOpenSight')?.addEventListener('click', () => App.showPage('sightSinging'));
   $('gkOpenTools')?.addEventListener('click', () => App.showPage('gkTools'));
+  $('gkOpenTeacherCenter')?.addEventListener('click', () => {
+    if (window.HetianAuth?.getUser?.()?.role !== 'teacher') return;
+    const frame = $('gkTeacherFrame');
+    if (frame && !frame.src) frame.src = 'teacher.html?embedded=1';
+    App.showPage('gkTeacherCenter');
+  });
+  $('gkTeacherBack')?.addEventListener('click', openDashboard);
   $('gkToolsBack')?.addEventListener('click', openDashboard);
   document.querySelectorAll('#gkTools .gk-tool-card').forEach(card => {
     card.addEventListener('click', () => App.showPage(card.dataset.tool));
@@ -411,7 +417,10 @@
     const current = App.getCurrentPage();
     if (current === 'eduSettings') { openDashboard(); return true; }
     if (current === 'gaokaoTheory' || current === 'gaokaoProfile') { openDashboard(); return true; }
-    if (current === 'gaokaoDashboard') { App.showPage('modeSelect'); return true; }
+    if (current === 'gaokaoDashboard') {
+      if (window.HAITANG_PRODUCT === 'exam') return false;
+      App.showPage('modeSelect'); return true;
+    }
     if (current === 'modeSelect') return false;
     return previousBack ? previousBack() : false;
   };
