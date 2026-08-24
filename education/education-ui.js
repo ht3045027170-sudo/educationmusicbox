@@ -390,11 +390,7 @@
   };
   App.handleBack = () => {
     const current = App.getCurrentPage();
-    if (current === 'modeSelect') return false;
-    if (current === 'home' || current === 'eduDashboard') {
-      if (window.HAITANG_PRODUCT === 'music') return false;
-      App.showPage('modeSelect'); return true;
-    }
+    if (current === 'home' || current === 'eduDashboard') return false;
     if (current === 'eduSettings') { goEducationHome(); return true; }
     if (current === 'theoryAcademy') {
       renderDashboard();
@@ -428,5 +424,4 @@
 
   fillForm(Education.getState());
   if (Education.profileExists()) renderDashboard();
-  App.showPage('modeSelect');
 })();

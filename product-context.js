@@ -9,7 +9,7 @@
       : '';
   const requested = new URLSearchParams(location.search).get('product');
   const queryProduct = requested === 'music' || requested === 'exam' ? requested : '';
-  const product = hostProduct || queryProduct;
+  const product = hostProduct || queryProduct || 'music';
 
   window.HaitangProduct = Object.freeze({ product, fixed: Boolean(hostProduct), hostname });
   window.HAITANG_PRODUCT = product;
