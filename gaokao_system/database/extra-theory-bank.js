@@ -1,6 +1,6 @@
 window.GAOKAO_EXTRA_THEORY_BANK = (() => {
   const questions = [];
-  const add = (id, category, knowledgeId, prompt, options, answer, explanation, difficulty = 2) => questions.push({ id:`gk-extra-${id}`, category, knowledgeId, difficulty, prompt, options, answer, explanation, source:'和田玉原创扩充题库' });
+  const add = (id, category, knowledgeId, prompt, options, answer, explanation, difficulty = 2) => questions.push({ id:`gk-extra-${id}`, category, knowledgeId, difficulty, prompt, options, answer, explanation, source:'海棠艺考原创扩充题库' });
   const distract = (values, index) => [values[index], values[(index + 3) % values.length], values[(index + 6) % values.length], values[(index + 9) % values.length]];
 
   const intervals = [['纯一度',0],['小二度',1],['大二度',2],['小三度',3],['大三度',4],['纯四度',5],['三全音',6],['纯五度',7],['小六度',8],['大六度',9],['小七度',10],['大七度',11],['纯八度',12]];

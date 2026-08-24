@@ -67,7 +67,7 @@
     gaokao: read(GAOKAO_KEY)
   });
   const restoreBackup = (backup) => {
-    if (!backup || backup.format !== FORMAT || backup.version !== 1) throw new Error('这不是有效的和田玉离线备份');
+    if (!backup || backup.format !== FORMAT || backup.version !== 1) throw new Error('这不是有效的海棠离线备份');
     write(LAST_BACKUP_KEY, makeBackup());
     if (backup.account) write(ACCOUNT_KEY, backup.account);
     if (backup.education) write(EDUCATION_KEY, backup.education);
@@ -88,6 +88,16 @@
   const field = (label, name, value = '', type = 'text', extra = '') => `<label>${label}<input name="${name}" type="${type}" value="${escapeHtml(value)}" ${extra}></label>`;
 
   function activateOffline() {
+    if (window.HAITANG_PRODUCT === 'exam') {
+      window.HAITANG_OFFLINE = true;
+      const status = document.getElementById('gaokaoLoginStatus');
+      if (status) status.textContent = '当前无法连接账号服务，请联网后再登录海棠艺考。';
+      ['gaokaoLoginButton', 'gaokaoRegisterButton'].forEach(id => {
+        const button = document.getElementById(id);
+        if (button) button.disabled = true;
+      });
+      return;
+    }
     const serverDialog = document.querySelector('.auth-dialog');
     serverDialog?.remove();
     const dialog = document.createElement('dialog');
@@ -115,8 +125,8 @@
       if (!getAccount()) return openCreate();
       const { hobby, gaokao } = getProfiles();
       dialog.innerHTML = `<div class="auth-card account-center">${closeButton}<h2>本机学习档案</h2><p>两个系统的档案独立保存，刷新或下次打开无需重新填写。</p>
-        <form data-system="hobby"><h3>音乐爱好者</h3>${field('姓名', 'name', hobby.name)}${field('乐器', 'instrument', hobby.instrument)}${field('年龄', 'age', hobby.age, 'number', 'min="3" max="120"')}${field('每天学习时间（分钟）', 'dailyMinutes', hobby.dailyMinutes, 'number', 'min="5" max="480"')}<button class="submit">保存爱好者档案</button><div class="auth-message"></div></form>
-        <form data-system="gaokao"><h3>高考音乐生</h3>${field('姓名', 'name', gaokao.name)}${field('考试日期', 'examDate', gaokao.examDate, 'date')}${field('未来方向', 'direction', gaokao.direction)}${field('主项', 'primaryMajor', gaokao.primaryMajor)}${field('副项', 'secondaryMajor', gaokao.secondaryMajor)}${field('考试省份', 'province', gaokao.province)}<button class="submit">保存高考档案</button><div class="auth-message"></div></form></div>`;
+        <form data-system="hobby"><h3>海棠音乐</h3>${field('姓名', 'name', hobby.name)}${field('乐器', 'instrument', hobby.instrument)}${field('年龄', 'age', hobby.age, 'number', 'min="3" max="120"')}${field('每天学习时间（分钟）', 'dailyMinutes', hobby.dailyMinutes, 'number', 'min="5" max="480"')}<button class="submit">保存海棠音乐档案</button><div class="auth-message"></div></form>
+        <form data-system="gaokao"><h3>海棠艺考</h3>${field('姓名', 'name', gaokao.name)}${field('考试日期', 'examDate', gaokao.examDate, 'date')}${field('未来方向', 'direction', gaokao.direction)}${field('主项', 'primaryMajor', gaokao.primaryMajor)}${field('副项', 'secondaryMajor', gaokao.secondaryMajor)}${field('考试省份', 'province', gaokao.province)}<button class="submit">保存艺考档案</button><div class="auth-message"></div></form></div>`;
       dialog.querySelector('.account-close').onclick = () => dialog.close();
       dialog.querySelectorAll('form[data-system]').forEach(form => form.onsubmit = event => {
         event.preventDefault();
@@ -132,7 +142,7 @@
     const openBackup = () => {
       dialog.innerHTML = `<div class="auth-card">${closeButton}<h2>离线数据备份</h2><p>备份包含两套个人档案、答题记录、掌握度与学习进度。导入前会在本机保留一次恢复点。</p><input type="file" accept="application/json,.json" hidden><div class="auth-message"></div><div class="auth-actions"><button class="quiet" data-import>导入备份</button><button class="submit" data-export>导出备份</button></div></div>`;
       dialog.querySelector('.account-close').onclick = () => dialog.close();
-      dialog.querySelector('[data-export]').onclick = () => download(`和田玉学习数据-${new Date().toISOString().slice(0, 10)}.json`, makeBackup());
+      dialog.querySelector('[data-export]').onclick = () => download(`海棠学习数据-${new Date().toISOString().slice(0, 10)}.json`, makeBackup());
       const input = dialog.querySelector('input[type=file]');
       dialog.querySelector('[data-import]').onclick = () => input.click();
       input.onchange = async () => {

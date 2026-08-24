@@ -9,7 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="format-detection" content="telephone=no">
-<title>和田玉音乐学习系统 · 内测0.0.1</title>
+<title>海棠音乐教育 · 内测0.0.1</title>
 <link rel="stylesheet" href="auth.css">
 <style>
 :root{--bg:#f5f7f4;--card:#fff;--ink:#20312a;--muted:#718078;--line:#dce5df;--jade:#4d9b73;--jade2:#e4f2ea;--blue:#497da1;--red:#c55757;--gold:#a58136;--shadow:0 14px 42px rgba(35,62,48,.1)}
@@ -38,7 +38,7 @@ h1,h2,h3,p{margin-top:0}.hero h1{font-size:clamp(29px,6vw,44px);margin-bottom:7p
 .meterbar{height:12px;margin:18px 5px;position:relative;border-radius:9px;background:linear-gradient(90deg,#db8d8d,#ead99b 40%,#79c798 48%,#79c798 52%,#ead99b 60%,#db8d8d)}.needle{position:absolute;left:50%;top:-7px;width:3px;height:26px;background:#26352e;border-radius:3px;transition:left .1s}
 .row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}.bpm{font-size:68px;font-weight:800;text-align:center}.range{width:min(480px,100%);accent-color:var(--jade)}.beat-dots{display:flex;justify-content:center;gap:11px;margin:20px}.beat-dot{width:20px;height:20px;border:2px solid #aab8b0;border-radius:50%}.beat-dot.on{background:var(--jade);border-color:var(--jade);box-shadow:0 0 14px rgba(77,155,115,.4)}
 /* ===== [原调音器界面恢复] ===== */
-.instrument-page{background:#0b110e;color:#f1eee5}.instrument-page .panel{background:#111a15;border-color:#26342c}.instrument-page .outline{background:#17231c;border-color:#33443a;color:#cbd5cf}.instrument-stage{display:flex;justify-content:center;align-items:center;min-height:480px}.headstock-wrap{position:relative;width:340px;height:480px}.headstock{position:absolute;inset:50px 40px 60px;background:linear-gradient(175deg,#5c3a28 0%,#3d2416 30%,#2e1a0e 60%,#4a3020 100%);border-radius:24px 24px 16px 16px;box-shadow:inset 0 2px 4px rgba(255,255,255,.04),inset 0 -4px 8px rgba(0,0,0,.5),0 8px 32px rgba(0,0,0,.5),0 0 0 2px #1f1008;overflow:hidden}.headstock:before{content:"和田玉\A †";white-space:pre;position:absolute;inset:0;display:grid;place-content:center;text-align:center;font-size:12px;line-height:2.2;letter-spacing:3px;color:rgba(200,168,78,.48);background:repeating-linear-gradient(2deg,transparent,transparent 3px,rgba(255,255,255,.012) 3px,rgba(255,255,255,.012) 4px)}.nut-bar{position:absolute;left:40px;right:40px;bottom:52px;height:8px;background:linear-gradient(#ede8d8,#b8b0a0);border-radius:1px;box-shadow:0 2px 4px rgba(0,0,0,.5);z-index:3}.peg{position:absolute;width:54px;height:54px;border-radius:50%;border:2px solid #555;background:radial-gradient(circle at 40% 35%,#eee 0%,#b0b0ba 42%,#74747d 100%);box-shadow:0 3px 9px rgba(0,0,0,.6),inset 0 2px 3px rgba(255,255,255,.45);color:#242b27;font-weight:800;cursor:pointer;z-index:4;transition:.15s}.peg:hover{transform:scale(1.08)}.peg.active{outline:3px solid #7ec8a0;box-shadow:0 0 24px rgba(126,200,160,.58)}.peg small{display:block;font-size:10px;opacity:.75}.peg.l{left:7px}.peg.r{right:7px}.peg.p1{top:60px}.peg.p2{top:160px}.peg.p3{top:260px}.tuner-guide{text-align:center;margin-top:-18px}.tuner-guide b{color:#d8c084}.tuner-guide span{display:block;margin-top:5px;color:#86978e;font-size:12px}
+.instrument-page{background:#0b110e;color:#f1eee5}.instrument-page .panel{background:#111a15;border-color:#26342c}.instrument-page .outline{background:#17231c;border-color:#33443a;color:#cbd5cf}.instrument-stage{display:flex;justify-content:center;align-items:center;min-height:480px}.headstock-wrap{position:relative;width:340px;height:480px}.headstock{position:absolute;inset:50px 40px 60px;background:linear-gradient(175deg,#5c3a28 0%,#3d2416 30%,#2e1a0e 60%,#4a3020 100%);border-radius:24px 24px 16px 16px;box-shadow:inset 0 2px 4px rgba(255,255,255,.04),inset 0 -4px 8px rgba(0,0,0,.5),0 8px 32px rgba(0,0,0,.5),0 0 0 2px #1f1008;overflow:hidden}.headstock:before{content:"海棠\A †";white-space:pre;position:absolute;inset:0;display:grid;place-content:center;text-align:center;font-size:12px;line-height:2.2;letter-spacing:3px;color:rgba(200,168,78,.48);background:repeating-linear-gradient(2deg,transparent,transparent 3px,rgba(255,255,255,.012) 3px,rgba(255,255,255,.012) 4px)}.nut-bar{position:absolute;left:40px;right:40px;bottom:52px;height:8px;background:linear-gradient(#ede8d8,#b8b0a0);border-radius:1px;box-shadow:0 2px 4px rgba(0,0,0,.5);z-index:3}.peg{position:absolute;width:54px;height:54px;border-radius:50%;border:2px solid #555;background:radial-gradient(circle at 40% 35%,#eee 0%,#b0b0ba 42%,#74747d 100%);box-shadow:0 3px 9px rgba(0,0,0,.6),inset 0 2px 3px rgba(255,255,255,.45);color:#242b27;font-weight:800;cursor:pointer;z-index:4;transition:.15s}.peg:hover{transform:scale(1.08)}.peg.active{outline:3px solid #7ec8a0;box-shadow:0 0 24px rgba(126,200,160,.58)}.peg small{display:block;font-size:10px;opacity:.75}.peg.l{left:7px}.peg.r{right:7px}.peg.p1{top:60px}.peg.p2{top:160px}.peg.p3{top:260px}.tuner-guide{text-align:center;margin-top:-18px}.tuner-guide b{color:#d8c084}.tuner-guide span{display:block;margin-top:5px;color:#86978e;font-size:12px}
 .erhu-stage{position:relative;width:260px;height:490px;margin:auto}.erhu-neck{position:absolute;top:32px;bottom:96px;left:50%;width:24px;transform:translateX(-50%);border-radius:10px;background:linear-gradient(90deg,#3b1d0c,#995636 48%,#3a1b0b);box-shadow:0 8px 24px rgba(0,0,0,.5)}.erhu-body{position:absolute;bottom:28px;left:50%;width:94px;height:82px;transform:translateX(-50%);border-radius:32% 32% 48% 48%;background:linear-gradient(#3c2416,#170d07);border:2px solid #5d3822}.erhu-line{position:absolute;top:38px;bottom:45px;width:1px;background:rgba(224,196,112,.45)}.erhu-line.a{left:123px}.erhu-line.b{left:137px}.erhu-peg{position:absolute;z-index:3;border:0;background:none;color:#f1eee5;cursor:pointer;font-weight:750}.erhu-peg:before{content:"";display:block;width:75px;height:18px;border-radius:10px;background:linear-gradient(#dedee4,#777980);box-shadow:0 3px 8px rgba(0,0,0,.5);margin-bottom:5px}.erhu-peg.inner{top:132px;left:28px}.erhu-peg.outer{top:240px;right:24px}.erhu-keybar{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:6px}.erhu-keybar button{border:1px solid #384a40;background:#17231c;color:#aebdb4;border-radius:999px;padding:6px 11px;cursor:pointer}.erhu-keybar button.on{background:#755b28;color:#fff;border-color:#aa8b47}
 .tuner-overlay{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.78);backdrop-filter:blur(8px)}.tuner-box{position:relative;width:min(440px,100%);background:#121b16;color:#f2eee4;border:1px solid rgba(126,200,160,.2);border-radius:22px;padding:30px 28px 24px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.72)}.tuner-close{position:absolute;right:13px;top:10px;border:0;background:none;color:#8e9b94;font-size:27px;cursor:pointer}.tuner-heading{font-size:12px;letter-spacing:.18em;color:#809087}.tuner-target-row{display:flex;align-items:baseline;justify-content:center;gap:10px;margin:3px 0}.tuner-target-row .big-note{font-size:54px}.tuner-target-row .freq{color:#d8c084}.tuner-scale{height:145px;position:relative;margin:8px 0 7px;border-bottom:2px solid #33463a;overflow:hidden;background:radial-gradient(ellipse at 50% 110%,rgba(126,200,160,.13),transparent 58%);border-radius:180px 180px 0 0}.tuner-scale:before{content:"-50        -25       ±2       +25        +50";position:absolute;left:0;right:0;bottom:9px;font:10px monospace;color:#83948a;word-spacing:8px}.tuner-scale:after{content:"";position:absolute;left:48%;right:48%;top:12px;bottom:0;background:rgba(90,221,143,.22);border-left:1px solid #72d59b;border-right:1px solid #72d59b}.tuner-dial-needle{position:absolute;left:50%;bottom:0;width:3px;height:122px;background:#ff7777;transform:translateX(-50%) rotate(0deg);transform-origin:50% 100%;transition:transform .1s;z-index:2;box-shadow:0 0 8px currentColor}.tuner-readings{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:13px 0}.tuner-reading{padding:9px;border:1px solid #2b3d33;border-radius:10px;background:#0d1511}.tuner-reading small{display:block;color:#77877e;margin-bottom:4px}.tuner-reading b{font:600 15px 'SF Mono',Consolas,monospace}.tuner-center{color:#72d59b;font-weight:750;font-size:13px}.tuner-status.intune{color:#72d59b;font-size:17px;font-weight:800}.tuner-success-tip{margin-top:8px;font-size:11px;color:#6f8076}
 /* ===== [原节拍器界面恢复] ===== */
@@ -248,6 +248,13 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
   body.device-tablet .maker-grid{grid-template-columns:240px minmax(0,1fr)}
   body.device-tablet .daw-workspace{grid-template-columns:200px minmax(0,1fr)}
 }
+.product-login{background:radial-gradient(circle at 14% 8%,rgba(210,94,53,.12),transparent 33%),linear-gradient(135deg,#f7f1e6,#f3f5ef 58%,#e4ece4);color:#18362d}
+.product-login-shell{width:min(1040px,100%);margin:auto;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.72fr);border:1px solid rgba(29,67,54,.18);border-radius:30px;overflow:hidden;background:rgba(255,255,255,.78);box-shadow:0 28px 80px rgba(33,62,49,.13)}
+.product-login-copy{padding:clamp(34px,7vw,82px);display:flex;flex-direction:column;justify-content:center;min-height:620px}.product-login-copy h1{font:700 clamp(48px,8vw,88px)/.95 Georgia,"Songti SC",serif;margin:18px 0 25px;letter-spacing:-.04em}.product-login-copy p{max-width:560px;font-size:17px;line-height:1.9;color:#52675f}.product-login-kicker{font-size:12px;font-weight:800;letter-spacing:.22em;color:#b44f32}.product-login-actions{display:flex;gap:11px;flex-wrap:wrap;margin-top:24px}.product-login-actions button{border-radius:999px;padding:13px 24px;font-weight:800;cursor:pointer}.product-login-primary{border:0;background:#183e32;color:#fff}.product-login-secondary{border:1px solid rgba(24,62,50,.24);background:transparent;color:#183e32}.product-login-status{min-height:24px;margin-top:18px;color:#7b3325}
+.product-login-rail{padding:38px;background:#173a30;color:#eef3ed;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}.product-login-rail:before{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-80px;top:-70px;border:1px solid rgba(255,255,255,.18);box-shadow:0 0 0 34px rgba(255,255,255,.035),0 0 0 68px rgba(255,255,255,.025)}.product-login-rail h2{font:600 30px/1.3 Georgia,"Songti SC",serif;position:relative}.product-login-list{display:grid;gap:14px;position:relative}.product-login-list div{padding:16px 0;border-top:1px solid rgba(255,255,255,.16)}.product-login-list b{display:block;margin-bottom:5px}.product-login-list span{font-size:13px;color:#b7c7c0}
+.gk-teacher-entry.hidden,.gk-teacher-page.hidden{display:none!important}.gk-teacher-frame{width:100%;height:calc(100vh - 120px);min-height:680px;border:1px solid var(--gk-line);border-radius:22px;background:#fff}.gk-teacher-page .gk-shell{max-width:1500px}
+body.product-music #modeSelect,body.product-exam #modeSelect{display:none!important}
+@media(max-width:720px){.product-login-shell{grid-template-columns:1fr}.product-login-copy{min-height:auto;padding:44px 26px}.product-login-rail{padding:28px;min-height:270px}.product-login-copy h1{font-size:52px}.gk-teacher-frame{height:calc(100vh - 96px);min-height:560px}}
 </style>
 <link rel="stylesheet" href="education/education.css">
 <link rel="stylesheet" href="education/education-learning.css">
@@ -261,25 +268,43 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
 <section id="modeSelect" class="page portal-page">
   <main class="portal-shell">
     <header class="portal-head">
-      <div><span class="portal-brand">HETIAN JADE · LEARNING</span><h1>今天，为音乐走哪条路？</h1></div>
-      <p>高考训练与日常音乐学习使用不同档案、不同记录；进入后可随时切换，工具箱作为学习辅助继续保留。</p>
+      <div><span class="portal-brand">HAITANG · MUSIC EDUCATION</span><h1>今天，为音乐走哪条路？</h1></div>
+      <p>两个独立产品、两套独立账号与学习记录。通用音乐工具在两边完整保留。</p>
     </header>
     <div class="portal-grid">
       <article class="portal-card education">
         <span class="portal-number">01 / MUSIC LOVER</span>
-        <h2>音乐爱好者</h2>
+        <h2>海棠音乐</h2>
         <p>按乐器建立独立学习路线。第一阶段开放吉他乐理，音乐工具箱继续作为辅助功能保留。</p>
         <div class="portal-audience"><span>吉他学习</span><span>乐器乐理</span><span>进度与复习建议</span></div>
-        <button id="portalEducation" class="portal-button" type="button">进入音乐爱好者</button>
+        <button id="portalEducation" class="portal-button" type="button">进入海棠音乐</button>
       </article>
       <article class="portal-card gaokao">
         <span class="portal-number">02 / EXAM TRAINING</span>
-        <h2>高考音乐生</h2>
+        <h2>海棠艺考</h2>
         <p>面向音乐艺考、音乐教育和音乐表演方向考生。训练、错题与报告使用独立数据。</p>
         <div class="portal-audience"><span>广东音乐统考</span><span>乐理与听写</span><span>视唱训练</span></div>
-        <button id="portalGaokao" class="portal-button" type="button">进入专业训练系统</button>
+        <button id="portalGaokao" class="portal-button" type="button">进入海棠艺考</button>
       </article>
     </div>
+  </main>
+</section>
+<section id="gaokaoLogin" class="page product-login hidden" aria-labelledby="gaokaoLoginTitle">
+  <main class="product-login-shell">
+    <section class="product-login-copy">
+      <span class="product-login-kicker">HAITANG EXAM · ACCOUNT</span>
+      <h1 id="gaokaoLoginTitle">海棠<br>艺考</h1>
+      <p>登录后进入个人训练主页。学生与教师使用同一套学习界面；教师账号会在主页额外获得“教师中心”入口。</p>
+      <div class="product-login-actions">
+        <button id="gaokaoLoginButton" class="product-login-primary" type="button">登录账号</button>
+        <button id="gaokaoRegisterButton" class="product-login-secondary" type="button">注册学生账号</button>
+      </div>
+      <p id="gaokaoLoginStatus" class="product-login-status" role="status">正在确认登录状态…</p>
+    </section>
+    <aside class="product-login-rail" aria-label="海棠艺考功能">
+      <h2>听见、写下，<br>再把旋律唱准。</h2>
+      <div class="product-login-list"><div><b>乐理</b><span>分区限时训练与高考模拟</span></div><div><b>听记</b><span>钢琴采样、五线谱作答与错题复习</span></div><div><b>视唱</b><span>识谱校对、跟随播放与练习辅助</span></div></div>
+    </aside>
   </main>
 </section>
 <!-- ===== [原有功能重构：封面、菜单、调音器、节拍器] ===== -->
@@ -287,18 +312,17 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
 <section id="home" class="page education-page education-welcome hidden">
   <main class="edu-welcome-shell" aria-labelledby="eduWelcomeTitle">
     <div class="edu-welcome-copy">
-      <span class="edu-kicker">HETIAN JADE · MUSIC LOVER</span>
+      <span class="edu-kicker">HAITANG · MUSIC</span>
       <h1 id="eduWelcomeTitle">选一件乐器，<span>走自己的学习路线。</span></h1>
-      <p class="edu-lead">音乐爱好者按乐器组织乐理、听记与视唱。第一阶段先把吉他乐理做完整，其他乐器逐步开放。</p>
+      <p class="edu-lead">海棠音乐按乐器组织乐理、听记与视唱。第一阶段先把吉他乐理做完整，其他乐器逐步开放。</p>
       <div class="edu-subject-strip" aria-label="选择乐器">
         <button id="eduWelcomeGuitar" type="button"><b>🎸 吉他</b><span>六线谱、节奏、和弦、音程与指板</span><i>已开放</i></button>
         <button type="button" disabled><b>🎹 钢琴</b><span>独立学习路线</span><i>敬请期待</i></button>
         <button type="button" disabled><b>🎻 小提琴 · 🎷 管乐</b><span>更多乐器持续加入</span><i>敬请期待</i></button>
       </div>
       <div class="edu-welcome-actions">
-        <button id="eduCreateProfile" class="edu-button primary" type="button">创建爱好者档案</button>
+        <button id="eduCreateProfile" class="edu-button primary" type="button">创建学习档案</button>
         <button id="eduGuestEntry" class="edu-button text" type="button">进入音乐工具</button>
-        <button id="eduWelcomeSwitchGaokao" class="edu-button text" type="button">切换到高考音乐生</button>
       </div>
       <p class="edu-signature">离线处理 · 原图与校正稿只保存在本机</p>
     </div>
@@ -311,9 +335,9 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
 
 <section id="gaokaoProfile" class="page gk-page hidden" aria-labelledby="gkProfileTitle">
   <main class="gk-shell">
-    <nav class="gk-topbar"><div class="gk-brand">和田玉艺考<small>PROFESSIONAL EXAM TRAINING</small></div><div class="gk-actions"><button id="gkOpenSettings" class="gk-button secondary" type="button">⚙️ 设置</button><button id="gkProfileSwitchHobby" class="gk-button secondary" type="button">切换到音乐爱好者</button></div></nav>
+    <nav class="gk-topbar"><div class="gk-brand">海棠艺考<small>PROFESSIONAL EXAM TRAINING</small></div><div class="gk-actions"><button id="gkOpenSettings" class="gk-button secondary" type="button">⚙️ 设置</button></div></nav>
     <div class="gk-profile-layout">
-      <aside class="gk-intro-panel"><span class="gk-eyebrow">STUDENT PROFILE / 01</span><h1 id="gkProfileTitle">建立你的<br>艺考训练档案</h1><p>档案只属于高考音乐生系统，不会与爱好者档案混合。训练与报告将围绕考试时间、未来方向和专业主副项生成。</p><div class="gk-index">HETIAN JADE EXAM<br>LOCAL-FIRST DATA</div></aside>
+      <aside class="gk-intro-panel"><span class="gk-eyebrow">STUDENT PROFILE / 01</span><h1 id="gkProfileTitle">建立你的<br>艺考训练档案</h1><p>档案只属于海棠艺考。训练与报告将围绕考试时间、未来方向和专业主副项生成。</p><div class="gk-index">HAITANG EXAM<br>LOCAL-FIRST DATA</div></aside>
       <form id="gkProfileForm" class="gk-form-card" novalidate>
         <span class="gk-eyebrow">BASIC INFORMATION</span><h2>学生信息</h2><p>带 * 的项目用于生成训练首页。</p>
         <div class="gk-form-grid">
@@ -333,10 +357,10 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
 
 <section id="gaokaoDashboard" class="page gk-page hidden" aria-labelledby="gkStudentName">
   <main class="gk-shell">
-    <nav class="gk-topbar"><div class="gk-brand">和田玉艺考<small>GUANGDONG EXAM TRAINING DESK</small></div><div class="gk-actions"><button id="gkOpenSettings" class="gk-button secondary" type="button">⚙️ 设置</button><button id="gkEditProfile" class="gk-button secondary" type="button">编辑档案</button><button id="gkSwitchHobby" class="gk-button dark" type="button">切换到音乐爱好者</button></div></nav>
+    <nav class="gk-topbar"><div class="gk-brand">海棠艺考<small>GUANGDONG EXAM TRAINING DESK</small></div><div class="gk-actions"><button id="gkOpenSettings" class="gk-button secondary" type="button">⚙️ 设置</button><button id="gkEditProfile" class="gk-button secondary" type="button">编辑档案</button></div></nav>
     <header class="gk-dashboard-head">
-      <div class="gk-person"><div id="gkAvatar" class="gk-avatar">音</div><div><span class="gk-eyebrow">TODAY'S TRAINING</span><div class="gk-name-line"><h1 id="gkStudentName">高考音乐生</h1><span id="gkExamCountdown" class="gk-exam-countdown">尚未设置考试时间</span></div><p id="gkProfileSummary">广东省 · 音乐教育</p></div></div>
-      <div><span class="gk-eyebrow">DATA ISOLATED</span><p>高考训练记录与普通工具箱完全分离</p></div>
+      <div class="gk-person"><div id="gkAvatar" class="gk-avatar">音</div><div><span class="gk-eyebrow">TODAY'S TRAINING</span><div class="gk-name-line"><h1 id="gkStudentName">海棠艺考</h1><span id="gkExamCountdown" class="gk-exam-countdown">尚未设置考试时间</span></div><p id="gkProfileSummary">广东省 · 音乐教育</p></div></div>
+      <div><span class="gk-eyebrow">PERSONAL RECORD</span><p>训练记录仅属于当前海棠艺考账号</p></div>
     </header>
     <div class="gk-dashboard-grid">
       <section class="gk-panel">
@@ -351,6 +375,7 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
           <button id="gkOpenDictation" class="gk-module" type="button"><b>听记训练</b><span>五类限时训练 · 已开放</span></button>
           <button id="gkOpenSight" class="gk-module" type="button"><b>AI 视唱辅助</b><span>离线识谱、校对与播放 · 已开放</span></button>
           <button id="gkOpenTools" class="gk-module" type="button"><b>通用工具箱</b><span>调音器、节拍器、钢琴、听音、和弦查询等</span></button>
+          <button id="gkOpenTeacherCenter" class="gk-module gk-teacher-entry hidden" type="button"><b>教师中心</b><span>题库、班级、作业与学习结果</span></button>
         </div>
       </section>
       <aside class="gk-panel"><span class="gk-eyebrow">TODAY'S TASKS</span><h2>今日任务</h2><div id="gkTaskList" class="gk-task-list"></div><button id="gkStartTraining" class="gk-button gk-start" type="button">开始训练</button></aside>
@@ -360,9 +385,16 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
   </main>
 </section>
 
+<section id="gkTeacherCenter" class="page gk-page gk-teacher-page hidden" aria-label="教师中心">
+  <main class="gk-shell">
+    <nav class="gk-topbar"><div class="gk-brand">海棠艺考<small>TEACHER CENTER</small></div><div class="gk-actions"><button id="gkTeacherBack" class="gk-button dark" type="button">返回训练首页</button></div></nav>
+    <iframe id="gkTeacherFrame" class="gk-teacher-frame" title="海棠艺考教师中心" loading="lazy"></iframe>
+  </main>
+</section>
+
 <section id="gkTools" class="page gk-page hidden">
   <main class="gk-shell">
-    <nav class="gk-topbar"><div class="gk-brand">和田玉艺考<small>TOOLBOX · 通用工具</small></div><div class="gk-actions"><button id="gkOpenSettings" class="gk-button secondary" type="button">⚙️ 设置</button><button id="gkToolsBack" class="gk-button dark" type="button">返回训练首页</button></div></nav>
+    <nav class="gk-topbar"><div class="gk-brand">海棠艺考<small>TOOLBOX · 通用工具</small></div><div class="gk-actions"><button id="gkOpenSettings" class="gk-button secondary" type="button">⚙️ 设置</button><button id="gkToolsBack" class="gk-button dark" type="button">返回训练首页</button></div></nav>
     <header class="gk-tools-head">
       <div><span class="gk-eyebrow">QUICK ACCESS</span><h1>通用工具箱</h1><p class="muted">调音、节拍、钢琴与和弦查询 · 与爱好者工具箱共享同一套工具</p></div>
     </header>
@@ -376,7 +408,7 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
 </section>
 <section id="gaokaoTheory" class="page gk-page hidden" aria-labelledby="gkTheoryTitle">
   <main class="gk-shell">
-    <nav class="gk-topbar"><div class="gk-brand">和田玉艺考<small>乐理训练 · GUANGDONG EXAM SCOPE</small></div><div class="gk-actions"><button id="gkOpenSettings" class="gk-button secondary" type="button">⚙️ 设置</button><button id="gkTheoryDashboard" class="gk-button secondary" type="button">返回训练首页</button><button id="gkTheorySwitchHobby" class="gk-button dark" type="button">切换到音乐爱好者</button></div></nav>
+    <nav class="gk-topbar"><div class="gk-brand">海棠艺考<small>乐理训练 · GUANGDONG EXAM SCOPE</small></div><div class="gk-actions"><button id="gkOpenSettings" class="gk-button secondary" type="button">⚙️ 设置</button><button id="gkTheoryDashboard" class="gk-button secondary" type="button">返回训练首页</button></div></nav>
     <div class="gk-theory-layout">
       <aside class="gk-category-panel"><span class="gk-eyebrow">TRAINING FILTER</span><h2>考纲分类</h2><div id="gkCategoryList" class="gk-category-list"></div></aside>
       <section id="gkQuestionCard" class="gk-panel gk-question-card">
@@ -395,7 +427,7 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
 
 <section id="gaokaoDictation" class="page gk-page hidden" aria-labelledby="gkDictationTitle">
   <main class="gk-shell">
-    <nav class="gk-topbar"><div class="gk-brand">和田玉艺考<small>限时听记训练 · TIMED DICTATION</small></div><div class="gk-actions"><button id="gkOpenSettings" class="gk-button secondary" type="button">⚙️ 设置</button><button id="gkDictationDashboard" class="gk-button secondary" type="button">返回训练首页</button><button id="gkDictationSwitchHobby" class="gk-button dark" type="button">切换到音乐爱好者</button></div></nav>
+    <nav class="gk-topbar"><div class="gk-brand">海棠艺考<small>限时听记训练 · TIMED DICTATION</small></div><div class="gk-actions"><button id="gkOpenSettings" class="gk-button secondary" type="button">⚙️ 设置</button><button id="gkDictationDashboard" class="gk-button secondary" type="button">返回训练首页</button></div></nav>
     <section id="gkDictationLanding" class="gk-dictation-landing">
       <header class="gk-dictation-hero"><span class="gk-eyebrow">EXAM LISTENING / 01</span><h1 id="gkDictationTitle">选择一项限时听记</h1><p>播放题目后，只通过五线谱谱例作答。提交或倒计时结束后统一评分，不在考试过程中显示答案。</p></header>
       <div id="gkDictationModes" class="gk-dictation-modes"></div>
@@ -494,11 +526,10 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
 <section id="eduDashboard" class="page education-page edu-dashboard hidden" aria-labelledby="eduGreeting">
   <main class="edu-dashboard-shell">
     <nav class="edu-dashboard-nav" aria-label="学习首页导航">
-      <div class="edu-brand">音乐爱好者<small>INSTRUMENT LEARNING DESK</small></div>
+        <div class="edu-brand">海棠音乐<small>INSTRUMENT LEARNING DESK</small></div>
       <button id="eduEditProfile" class="edu-button text" type="button">编辑档案</button>
       <button id="eduOpenSettings" class="edu-button text" type="button" aria-label="设置">⚙️ 设置</button>
       <button id="eduOpenToolbox" class="edu-button ghost" type="button">工具箱</button>
-      <button id="eduSwitchGaokao" class="edu-button ghost" type="button">切换到高考音乐生</button>
     </nav>
     <div class="edu-dashboard-grid">
       <header class="edu-dashboard-card edu-dashboard-title">
@@ -583,8 +614,8 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
 <section id="guitarAcademy" class="page education-page guitar-academy hidden" aria-labelledby="guitarAcademyTitle">
   <main class="guitar-shell">
     <nav class="guitar-nav">
-      <button id="guitarBackHome" class="edu-button text" type="button">← 音乐爱好者</button>
-      <div><span>HETIAN JADE · GUITAR</span><h1 id="guitarAcademyTitle">吉他学习系统</h1></div>
+      <button id="guitarBackHome" class="edu-button text" type="button">← 海棠音乐</button>
+      <div><span>HAITANG MUSIC · GUITAR</span><h1 id="guitarAcademyTitle">吉他学习系统</h1></div>
       <button id="guitarExportNotes" class="edu-button ghost" type="button">导出知识笔记</button>
     </nav>
 
@@ -788,15 +819,6 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
         </div>
       </section>
       <section class="settings-section">
-        <h2 class="settings-section-label">学习模式</h2>
-        <div class="settings-group">
-          <div class="settings-row">
-            <div class="settings-row-main"><span class="settings-row-title" id="settingsCurrentMode">当前：音乐爱好者</span><span class="settings-row-sub">高考训练与日常学习使用独立档案与记录</span></div>
-            <button id="settingsSwitchMode" class="settings-row-btn" type="button">切换到高考音乐生</button>
-          </div>
-        </div>
-      </section>
-      <section class="settings-section">
         <h2 class="settings-section-label">学习档案</h2>
         <div class="settings-group">
           <dl id="eduSettingsProfile" class="settings-profile"></dl>
@@ -831,7 +853,7 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
         <h2 class="settings-section-label">关于</h2>
         <div class="settings-group">
           <div class="settings-row">
-            <div class="settings-row-main"><span class="settings-row-title">和田玉音乐学习系统</span><span class="settings-row-sub">内测 0.0.1 · 音乐工具箱作为辅助功能保留</span></div>
+            <div class="settings-row-main"><span class="settings-row-title" id="settingsProductName">海棠音乐教育</span><span class="settings-row-sub">内测 0.0.1 · 通用音乐工具完整保留</span></div>
           </div>
         </div>
       </section>
@@ -884,7 +906,7 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
     <header class="sight-head">
       <button class="sight-icon-button" type="button" data-page="gaokaoDashboard" aria-label="返回高考训练首页">←</button>
       <div class="sight-brand">
-        <span>HETIAN JADE · OFFLINE AI</span>
+        <span>HAITANG · OFFLINE AI</span>
         <h1 id="sightTitle">AI 视唱辅助</h1>
       </div>
       <div class="sight-head-actions">
@@ -1115,7 +1137,7 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
 </div></div></section>
 <!-- ===== [新增模块：大学音乐生和弦查询器] ===== -->
 <section id="chordFinder" class="page chord-page hidden"><div class="chord-shell"><header class="chord-head"><button class="outline" data-page="menu">← 返回</button><h2>和弦查询器</h2><button id="chordFavorite" class="outline">☆ 收藏</button></header><div class="chord-search"><input id="chordInput" value="Cmaj7" autocomplete="off" autocapitalize="off" placeholder="输入 C、Cm7、C#m7(b5)、Bbmaj7…"><button id="chordSearchBtn" class="primary">查询</button></div><div class="chord-layout"><div><section class="chord-card"><div id="chordName" class="chord-name">Cmaj7</div><div id="chordTones" class="chord-tones"></div><div class="chord-info-grid"><div><small>根音</small><b id="chordRoot">C</b></div><div><small>类型</small><b id="chordType">大七和弦</b></div><div><small>音程结构</small><b id="chordFormula">1 3 5 7</b></div></div><div id="chordMessage" class="muted"></div></section><section class="chord-card" style="margin-top:14px"><h3>钢琴组成音</h3><div class="mini-piano-wrap"><div id="chordPiano" class="chord-piano"><div id="chordWhiteRow" class="chord-white-row"></div></div></div><p class="muted">高亮键为和弦组成音；所有琴键均可触摸发声。</p></section></div><div><section class="chord-card"><h3>常用和弦库</h3><div id="quickChords" class="quick-chords"></div><h3 style="margin-top:15px">最近查询</h3><div id="chordRecent" class="recent-list"></div><h3 style="margin-top:15px">收藏和弦</h3><div id="chordFavorites" class="recent-list"></div></section></div></div><section class="chord-card" style="margin-top:14px"><h3>横向吉他指板 · 0–12 品</h3><p class="muted">每根弦选择一个品位；再次点击取消。点击“×”可设为不弹。</p><div class="fret-scroll"><div id="fretboard" class="fretboard"></div></div><div id="fretResult" class="fret-result">按法：—<br>当前组成音：—<br>可能和弦：—</div><div class="chord-actions"><button id="clearFretboard" class="outline">清空指板</button><button id="playFretboard" class="primary">▶ 播放按法</button></div></section></div></section>
-<section id="guitar" class="page center instrument-page hidden"><div class="panel"><div class="topbar"><button class="outline" data-page="menu">← 返回菜单</button><h2>吉他调音器</h2></div><div class="headstock-container"><div class="headstock"><div class="headstock-inlay"><div class="brand">和田玉</div><div class="ornament">†</div></div></div><div class="nut"></div><button class="peg peg-left peg-low-e" data-tune="E2,82.41,⑥弦 (低音)" data-string="E2" data-note="E" data-cn="mi" data-pitch="E2" data-freq="82.41"><span class="peg-label"><span class="note-name">E</span><br><span class="note-cn">mi</span></span></button><button class="peg peg-left peg-a" data-tune="A2,110,⑤弦" data-string="A2" data-note="A" data-cn="la" data-pitch="A2" data-freq="110"><span class="peg-label"><span class="note-name">A</span><br><span class="note-cn">la</span></span></button><button class="peg peg-left peg-d" data-tune="D3,146.83,④弦" data-string="D3" data-note="D" data-cn="re" data-pitch="D3" data-freq="146.83"><span class="peg-label"><span class="note-name">D</span><br><span class="note-cn">re</span></span></button><button class="peg peg-right peg-high-e" data-tune="E4,329.63,①弦 (高音)" data-string="E4" data-note="E" data-cn="mi" data-pitch="E4" data-freq="329.63"><span class="peg-label"><span class="note-name">E</span><br><span class="note-cn">mi</span></span></button><button class="peg peg-right peg-b" data-tune="B3,246.94,②弦" data-string="B3" data-note="B" data-cn="si" data-pitch="B3" data-freq="246.94"><span class="peg-label"><span class="note-name">B</span><br><span class="note-cn">si</span></span></button><button class="peg peg-right peg-g" data-tune="G3,196,③弦" data-string="G3" data-note="G" data-cn="so" data-pitch="G3" data-freq="196"><span class="peg-label"><span class="note-name">G</span><br><span class="note-cn">so</span></span></button></div><div class="row" style="justify-content:center;margin-top:-15px"><div class="tuner-meter-area"><div id="tunerNote" class="tuner-note-cn">E2</div><div id="tunerString" class="tuner-note-sub">⑥弦 · 82.4 Hz</div><canvas id="meterCanvas" width="340" height="220"></canvas><div id="tunerTarget" class="tuner-target-hint">目标 82.41 Hz</div><div id="tunerFreq" class="tuner-frequency">--.- Hz</div><div id="tunerStatus" class="tuner-status">点击琴钮开始调音</div><div id="tunerDetected" class="tuner-detected">--</div></div><button id="guitarAutoMode" class="outline">自动模式：OFF</button></div><p class="muted" style="text-align:center">点击琴钮选择琴弦，或开启自动模式后直接弹奏</p></div></section>
+<section id="guitar" class="page center instrument-page hidden"><div class="panel"><div class="topbar"><button class="outline" data-page="menu">← 返回菜单</button><h2>吉他调音器</h2></div><div class="headstock-container"><div class="headstock"><div class="headstock-inlay"><div class="brand">海棠</div><div class="ornament">†</div></div></div><div class="nut"></div><button class="peg peg-left peg-low-e" data-tune="E2,82.41,⑥弦 (低音)" data-string="E2" data-note="E" data-cn="mi" data-pitch="E2" data-freq="82.41"><span class="peg-label"><span class="note-name">E</span><br><span class="note-cn">mi</span></span></button><button class="peg peg-left peg-a" data-tune="A2,110,⑤弦" data-string="A2" data-note="A" data-cn="la" data-pitch="A2" data-freq="110"><span class="peg-label"><span class="note-name">A</span><br><span class="note-cn">la</span></span></button><button class="peg peg-left peg-d" data-tune="D3,146.83,④弦" data-string="D3" data-note="D" data-cn="re" data-pitch="D3" data-freq="146.83"><span class="peg-label"><span class="note-name">D</span><br><span class="note-cn">re</span></span></button><button class="peg peg-right peg-high-e" data-tune="E4,329.63,①弦 (高音)" data-string="E4" data-note="E" data-cn="mi" data-pitch="E4" data-freq="329.63"><span class="peg-label"><span class="note-name">E</span><br><span class="note-cn">mi</span></span></button><button class="peg peg-right peg-b" data-tune="B3,246.94,②弦" data-string="B3" data-note="B" data-cn="si" data-pitch="B3" data-freq="246.94"><span class="peg-label"><span class="note-name">B</span><br><span class="note-cn">si</span></span></button><button class="peg peg-right peg-g" data-tune="G3,196,③弦" data-string="G3" data-note="G" data-cn="so" data-pitch="G3" data-freq="196"><span class="peg-label"><span class="note-name">G</span><br><span class="note-cn">so</span></span></button></div><div class="row" style="justify-content:center;margin-top:-15px"><div class="tuner-meter-area"><div id="tunerNote" class="tuner-note-cn">E2</div><div id="tunerString" class="tuner-note-sub">⑥弦 · 82.4 Hz</div><canvas id="meterCanvas" width="340" height="220"></canvas><div id="tunerTarget" class="tuner-target-hint">目标 82.41 Hz</div><div id="tunerFreq" class="tuner-frequency">--.- Hz</div><div id="tunerStatus" class="tuner-status">点击琴钮开始调音</div><div id="tunerDetected" class="tuner-detected">--</div></div><button id="guitarAutoMode" class="outline">自动模式：OFF</button></div><p class="muted" style="text-align:center">点击琴钮选择琴弦，或开启自动模式后直接弹奏</p></div></section>
 <section id="erhu" class="page center instrument-page hidden"><div class="panel"><div class="topbar"><button class="outline" data-page="menu">← 返回菜单</button><h2>二胡调音器</h2></div><div class="erhu-neck-area"><div class="erhu-neck"></div><div class="erhu-resonator"></div><div class="erhu-skin"></div><div class="erhu-bridge"></div><div class="erhu-string-line left"></div><div class="erhu-string-line right"></div><button id="erhuInner" class="erhu-peg inner">D4<br>内弦</button><button id="erhuOuter" class="erhu-peg outer">A4<br>外弦</button><div id="erhuKeybar" class="erhu-keybar"><button class="on" data-erhu="D4,A4">D调</button><button data-erhu="G3,D4">G调</button><button data-erhu="F3,C4">F调</button><button data-erhu="C4,G4">C调</button><button data-erhu="Bb3,F4">降B调</button><button data-erhu="A3,E4">A调</button></div></div><div class="tuner-meter-area"><div id="erhuTunerNote" class="tuner-note-cn">—</div><div id="erhuTunerString" class="tuner-note-sub">等待选择琴弦</div><canvas id="erhuMeterCanvas" width="340" height="220"></canvas><div id="erhuTunerTarget" class="tuner-target-hint">目标 — Hz</div><div id="erhuTunerFreq" class="tuner-frequency">--.- Hz</div><div id="erhuTunerStatus" class="tuner-status">点击琴钮开始调音</div><div id="erhuTunerDetected" class="tuner-detected">--</div></div></div></section>
 <section id="metro" class="page center metro-page hidden"><div class="panel"><div class="topbar"><button class="outline" data-page="menu">← 返回</button><h2>节拍器</h2></div><div class="metro-box"><div id="beatDots" class="beat-dots"></div><div id="bpmText" class="metro-display">120</div><div class="metro-label">BPM</div><div style="margin:15px 0"><input id="bpm" class="range" type="range" min="20" max="400" value="120"></div><input id="bpmInput" class="metro-input" type="number" min="20" max="400" value="120"><div class="metro-section"><label>拍号</label><div id="meterOptions" class="metro-options"><button class="metro-opt" data-meter="2">2/4</button><button class="metro-opt on" data-meter="4">4/4</button><button class="metro-opt" data-meter="3">3/4</button><button class="metro-opt" data-meter="6">6/8</button></div></div><div class="metro-section"><label>音色</label><div id="metroTones" class="metro-options"><button class="metro-opt on" data-mtone="wood">木鱼</button><button class="metro-opt" data-mtone="electronic">电子音</button><button class="metro-opt" data-mtone="cowbell">牛铃</button><button class="metro-opt" data-mtone="gunshot">强拍噪声</button><button class="metro-opt" data-mtone="voice">真人 1·2·3·4</button></div></div><div class="metro-section"><label>重拍</label><button id="accentToggle" class="metro-opt on">重拍强化：开</button></div><button id="metroToggle" class="primary metro-start">▶ 开始</button></div></div></section>
 <!-- ===== [新增模拟钢琴：c0-c3 演奏、录制与题库导入] ===== -->
@@ -1124,7 +1146,7 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
   <div class="synth-shell">
     <header class="synth-head">
       <button class="synth-back" data-page="menu">‹</button>
-      <div class="synth-brand"><small>HETIAN JADE · SYNTHESIS ENGINE</small><h2>SOUND <em>FORGE</em></h2></div>
+      <div class="synth-brand"><small>HAITANG · SYNTHESIS ENGINE</small><h2>SOUND <em>FORGE</em></h2></div>
       <button id="synthMidiBtn" class="synth-midi-btn">连接 MIDI</button>
       <span id="synthMidiStatus" class="synth-status">MIDI OFFLINE</span>
       <div class="synth-patchbar">
@@ -1300,7 +1322,7 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
   <div class="midi-shell">
     <header class="midi-head">
       <button class="daw-back" data-page="menu">‹</button>
-      <div class="daw-brand"><small>和田玉音乐工具箱 · MIX / MASTER</small><h2>STUDIO ONE</h2></div>
+      <div class="daw-brand"><small>海棠音乐工具 · MIX / MASTER</small><h2>STUDIO ONE</h2></div>
       <div class="daw-transport"><button id="dawUndoBtn" title="撤销">↶</button><button id="dawRedoBtn" title="重做">↷</button><button id="dawStopBtn" title="停止">■</button><button id="dawPlayBtn" class="transport-play" title="播放">▶</button><button id="dawRecordBtn" class="transport-record" title="录制">●</button></div>
       <div class="daw-lcd"><div><small>POSITION</small><b id="dawTime">001.1.00</b></div><label><small>TEMPO</small><input id="dawBpm" type="number" min="40" max="240" value="100"></label><label><small>METER</small><select id="dawMeter"><option selected>4/4</option><option>3/4</option><option>6/8</option></select></label></div>
       <span id="midiStatusBadge" class="midi-badge">MIDI OFFLINE</span>
@@ -1459,22 +1481,15 @@ function stopAllAppAudio(reason='navigation'){if(earPlaybackTimer)clearTimeout(e
 function performPageChange(id){stopAllAppAudio('pagechange');stopMic();if(id!=='metro')stopMetro();if(id!=='chordFinder')stopChordProgression('');if(id!=='simPiano'){stopPianoPerformance();setPianoLandscape(false)}if(id!=='midiStudio')stopDawTransport();if(id!=='soundLab')stopSynthLab();pages.forEach(p=>p.classList.toggle('hidden',p.id!==id));if(id==='ear'){earView='directory';earTab=null;renderEar()}if(id==='simPiano'){buildPerformancePiano();syncPianoTone();requestPianoUnlock();pianoLandscapeOptOut=false;setPianoLandscape(innerWidth<=720&&innerHeight>innerWidth)}if(id==='soundLab')initSynthLab();if(id==='midiStudio'){initMidiStudio();if(midiInput)midiInput.onmidimessage=handleMidiMessage}window.scrollTo(0,0);window.dispatchEvent(new CustomEvent('musictoolbox:pagechange',{detail:{id}}))}
 function showPage(id){return window.HetianCore?.router?.go?window.HetianCore.router.go(id,{source:'legacy'}):performPageChange(id)}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(b){const p=b.dataset.page;if(p==='menu'){showPage(window.HetianSettings?.getMode?.()==='gaokao'?'gkTools':'menu')}else showPage(p)}});
-/* ===== [设置面板：音量 / 主题 / 模式] ===== */
-const settingsVolume=$('settingsVolume'),settingsVolumeText=$('settingsVolumeText'),settingsThemes=$('settingsThemes'),settingsCurrentMode=$('settingsCurrentMode'),settingsSwitchMode=$('settingsSwitchMode'),settingsBack=$('eduSettingsBack');
+/* ===== [设置面板：音量 / 主题] ===== */
+const settingsVolume=$('settingsVolume'),settingsVolumeText=$('settingsVolumeText'),settingsThemes=$('settingsThemes'),settingsBack=$('eduSettingsBack');
 function renderSettingsPrefs(){
   if(settingsVolume){const pct=Math.round(window.HetianSettings.getVolume()*100);settingsVolume.value=pct;if(settingsVolumeText)settingsVolumeText.textContent=pct+'%'}
   if(settingsThemes){const current=window.HetianSettings.getTheme();settingsThemes.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.theme===current))}
-  if(settingsCurrentMode){settingsCurrentMode.textContent='当前：'+(window.HetianSettings.getMode()==='gaokao'?'高考音乐生':'音乐爱好者')}
-  if(settingsSwitchMode){const isGaokao=window.HetianSettings.getMode()==='gaokao';settingsSwitchMode.textContent=isGaokao?'切换到音乐爱好者':'切换到高考音乐生'}
   if(settingsBack){settingsBack.textContent=window.HetianSettings.getMode()==='gaokao'?'← 训练首页':'← 学习首页'}
 }
 if(settingsVolume){settingsVolume.addEventListener('input',e=>{window.HetianSettings.setVolume(e.target.value/100);if(settingsVolumeText)settingsVolumeText.textContent=e.target.value+'%'})}
 if(settingsThemes){settingsThemes.addEventListener('click',e=>{const btn=e.target.closest('button[data-theme]');if(!btn)return;window.HetianSettings.applyTheme(btn.dataset.theme);renderSettingsPrefs()})}
-if(settingsSwitchMode){settingsSwitchMode.addEventListener('click',()=>{
-  const isGaokao=window.HetianSettings.getMode()==='gaokao';
-  if(isGaokao){window.HetianSettings.setMode('hobby');window.HetianEducationUI?.goEducationHome?.()}
-  else{window.HetianSettings.setMode('gaokao');window.GaokaoApp?.enterGaokao?.()}
-})}
 window.HetianSettings.renderPrefs=renderSettingsPrefs;
 window.addEventListener('musictoolbox:pagechange',e=>{if(e.detail.id==='eduSettings'||e.detail.id==='home'||e.detail.id==='gaokaoDashboard')renderSettingsPrefs()});
 window.HetianApp={
@@ -1962,7 +1977,7 @@ function quantizeDawNotes(showMessage=true){const grid=+$('dawQuantize')?.value|
 function deleteSelectedDawNote(){if(!dawSelectedNoteId){$('dawSaveStatus').textContent='SELECT A NOTE FIRST';return}pushDawHistory();dawNotes=dawNotes.filter(note=>note.id!==dawSelectedNoteId);dawSelectedNoteId=null;dawSaveProject('NOTE DELETED');renderDawRoll();updateDawNoteInspector()}
 function clearDawNotes(){if(dawNotes.length&&!confirm('确定清空当前 MIDI 工程吗？'))return;pushDawHistory();stopDawPlayback(true);dawNotes=[];dawSelectedNoteId=null;dawSaveProject('PROJECT CLEARED');renderDawRoll();updateDawNoteInspector()}
 function dawVariableLength(value){let buffer=value&0x7f,out=[];while(value>>=7){buffer<<=8;buffer|=(value&0x7f)|0x80}while(true){out.push(buffer&0xff);if(buffer&0x80)buffer>>=8;else break}return out}
-function exportDawMidi(){if(!dawNotes.length){$('dawSaveStatus').textContent='NO MIDI TO EXPORT';return}const ppq=480,tempo=Math.round(60000000/dawBpm()),events=[],meter=String($('dawMeter').value).split('/').map(Number),denomPower=Math.round(Math.log2(meter[1]||4));dawNotes.forEach(note=>{const channel=Math.max(0,Math.min(2,+note.track||0)),velocity=Math.max(1,Math.min(127,Math.round(note.velocity*127)));events.push({tick:Math.max(0,Math.round(note.start*ppq)),order:1,data:[0x90|channel,note.midi,velocity]});events.push({tick:Math.max(1,Math.round((note.start+note.dur)*ppq)),order:0,data:[0x80|channel,note.midi,0]})});events.sort((a,b)=>a.tick-b.tick||a.order-b.order);const track=[0,0xff,0x51,3,(tempo>>16)&255,(tempo>>8)&255,tempo&255,0,0xff,0x58,4,meter[0]||4,denomPower,24,8];let previous=0;events.forEach(event=>{track.push(...dawVariableLength(event.tick-previous),...event.data);previous=event.tick});track.push(0,0xff,0x2f,0);const u32=n=>[(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255],bytes=[77,84,104,100,0,0,0,6,0,0,0,1,(ppq>>8)&255,ppq&255,77,84,114,107,...u32(track.length),...track],blob=new Blob([new Uint8Array(bytes)],{type:'audio/midi'}),link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=($('dawTitle').value.trim()||'和田玉-MIDI工程').replace(/[\\/:*?"<>|]/g,'_')+'.mid';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1200);$('dawSaveStatus').textContent='MIDI EXPORTED · 3 CHANNELS'}
+function exportDawMidi(){if(!dawNotes.length){$('dawSaveStatus').textContent='NO MIDI TO EXPORT';return}const ppq=480,tempo=Math.round(60000000/dawBpm()),events=[],meter=String($('dawMeter').value).split('/').map(Number),denomPower=Math.round(Math.log2(meter[1]||4));dawNotes.forEach(note=>{const channel=Math.max(0,Math.min(2,+note.track||0)),velocity=Math.max(1,Math.min(127,Math.round(note.velocity*127)));events.push({tick:Math.max(0,Math.round(note.start*ppq)),order:1,data:[0x90|channel,note.midi,velocity]});events.push({tick:Math.max(1,Math.round((note.start+note.dur)*ppq)),order:0,data:[0x80|channel,note.midi,0]})});events.sort((a,b)=>a.tick-b.tick||a.order-b.order);const track=[0,0xff,0x51,3,(tempo>>16)&255,(tempo>>8)&255,tempo&255,0,0xff,0x58,4,meter[0]||4,denomPower,24,8];let previous=0;events.forEach(event=>{track.push(...dawVariableLength(event.tick-previous),...event.data);previous=event.tick});track.push(0,0xff,0x2f,0);const u32=n=>[(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255],bytes=[77,84,104,100,0,0,0,6,0,0,0,1,(ppq>>8)&255,ppq&255,77,84,114,107,...u32(track.length),...track],blob=new Blob([new Uint8Array(bytes)],{type:'audio/midi'}),link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=($('dawTitle').value.trim()||'海棠-MIDI工程').replace(/[\\/:*?"<>|]/g,'_')+'.mid';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1200);$('dawSaveStatus').textContent='MIDI EXPORTED · 3 CHANNELS'}
 function importDawToEar(){const trackNotes=dawNotes.filter(note=>(+note.track||0)===dawActiveTrack);if(!trackNotes.length){$('dawSaveStatus').textContent='CURRENT TRACK IS EMPTY';return}if(trackNotes.some(note=>note.midi<EAR_MIN_MIDI||note.midi>EAR_MAX_MIDI)){$('dawSaveStatus').textContent='导入失败：当前轨音高必须在 G3–G5。';return}const notes=trackNotes.slice().sort((a,b)=>a.start-b.start).map(n=>({midi:n.midi,start:+n.start.toFixed(4),dur:+n.dur.toFixed(4),velocity:n.velocity})),title=$('dawTitle').value.trim()||dawTracks[dawActiveTrack].name,item={id:'daw-ear-'+Date.now(),category:'melody',title,meter:$('dawMeter').value,bpm:dawBpm(),recorded:true,notes,answer:noteSeq(notes)};try{const list=loadCustom();list.push(item);saveCustom(list);$('dawSaveStatus').textContent=`TRACK ${dawActiveTrack+1} → 听音题库：${title}`}catch(error){$('dawSaveStatus').textContent='IMPORT ERROR · '+error.message}}
 function bindMidiStudioControls(){$('midiConnectBtn').onclick=connectMidiStudio;$('midiRefreshBtn').onclick=()=>midiAccess?refreshMidiInputs():connectMidiStudio();$('midiInputSelect').onchange=e=>attachMidiInput(e.target.value);$('dawRecordBtn').onclick=toggleDawRecording;$('dawPlayBtn').onclick=()=>dawPlaying?pauseDawPlayback():startDawPlayback();$('dawStopBtn').onclick=()=>{if(dawRecording)stopDawRecording();stopDawPlayback(true)};$('dawUndoBtn').onclick=undoDaw;$('dawRedoBtn').onclick=redoDaw;$('dawQuantizeBtn').onclick=()=>quantizeDawNotes(true);$('dawDeleteBtn').onclick=deleteSelectedDawNote;$('dawClearBtn').onclick=clearDawNotes;$('dawExportBtn').onclick=exportDawMidi;$('dawToEarBtn').onclick=importDawToEar;$('dawApplyNoteBtn').onclick=applyDawNoteInspector;$('dawMetronomeBtn').onclick=toggleDawMetronome;$('dawLoopBtn').onclick=()=>w25SetLoop();$('w25ForceMode').onchange=w25UpdateDeviceState;$('w25LearnBtn').onclick=()=>w25LearnTarget?w25CancelLearn():w25StartLearn();$('w25PresetBtn').onclick=()=>{w25Mappings={...W25_FACTORY_MAPPINGS};w25SaveMappings();w25CancelLearn('已恢复 W25 出厂走带预设：CC24 停止、CC25 播放、CC26 录制。')};$('dawZoom').oninput=()=>{renderDawRoll();dawSaveProject()};$('dawTone').onchange=e=>{pushDawHistory();dawTracks[dawActiveTrack].tone=e.target.value;renderDawTracks();dawSaveProject()};$('dawTrackVolume').onchange=e=>{pushDawHistory();dawTracks[dawActiveTrack].volume=Math.max(.1,Math.min(1.2,+e.target.value/100));renderDawTracks();dawSaveProject()};['dawBpm','dawBars','dawMeter','dawQuantize','dawTranspose','dawTitle'].forEach(id=>$(id).onchange=()=>{if(['dawBpm','dawBars','dawMeter'].includes(id))stopDawPlayback(true);dawSaveProject();renderDawRoll()})}
 const bindMidiStudioControlsInternal=bindMidiStudioControls;
@@ -2109,5 +2124,6 @@ document.addEventListener('keyup',event=>{if(event.code==='Space'&&!$('midiStudi
 </script>
 <script src="auth.js" defer></script>
 <script src="offline-first.js" defer></script>
+<script src="product-entry.js" defer></script>
 </body>
 </html>

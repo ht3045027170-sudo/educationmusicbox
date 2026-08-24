@@ -9,8 +9,10 @@ export async function onRequestPost({ request, env }) {
     if (!csrfCheck.ok) return json({ ok: false, error: csrfCheck.error }, csrfCheck.status);
     const body = await readBody(request);
     const email = String(body.email || '').trim().toLowerCase();
+    const product = body.learningSystem === 'gaokao' ? 'exam' : 'music';
     if (!email) return json({ ok: true }); // 不暴露邮箱是否存在
-    const user = await env.DB.prepare('SELECT id, username FROM users WHERE email = ?').bind(email).first();
+    const system = product === 'exam' ? 'gaokao' : 'hobby';
+    const user = await env.DB.prepare('SELECT id, username FROM users WHERE email = ? AND learning_system = ?').bind(email, system).first();
     if (!user) return json({ ok: true, message: '如果该邮箱已注册，重置链接已发送。' });
 
     const token = randomToken(24);
@@ -20,7 +22,7 @@ export async function onRequestPost({ request, env }) {
     ).bind('verify:' + token, user.id, expiresAt).run();
 
     const origin = new URL(request.url).origin;
-    return json({ ok: true, username: user.username, devLink: `${origin}/?accountAction=reset&token=${token}` });
+    return json({ ok: true, username: user.username, devLink: `${origin}/?product=${product}&accountAction=reset&token=${token}` });
   } catch (error) {
     return json({ ok: true }); // 出错也不暴露敏感信息
   }

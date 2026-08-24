@@ -23,7 +23,7 @@
 
   function menu(label,items){return`<div class="d3-menu-wrap"><button class="d3-menu-button">${label}</button><div class="d3-dropdown">${items.map(([id,text,key])=>`<button data-command="${id}"><span>${text}</span><small>${key||''}</small></button>`).join('')}</div></div>`}
   page.innerHTML=`<div class="d3-app">
-    <div class="d3-menu"><b class="d3-brand">和田玉 · MIDI 实验室</b>
+      <div class="d3-menu"><b class="d3-brand">海棠 · MIDI 实验室</b>
       ${menu('文件',[['project.new','新建工程','Ctrl+N'],['project.open','打开工程','Ctrl+O'],['project.save','保存','Ctrl+S'],['project.saveAs','另存为','Ctrl+Shift+S'],['project.importMidi','导入标准 MIDI',''],['project.importAudio','导入音频',''],['project.importJson','导入工程 JSON',''],['project.exportMidi','导出标准 MIDI',''],['project.exportJson','导出工程 JSON','']])}
       ${menu('编辑',[['edit.undo','撤销','Ctrl+Z'],['edit.redo','重做','Ctrl+Shift+Z'],['edit.cut','剪切','Ctrl+X'],['edit.copy','复制','Ctrl+C'],['edit.paste','粘贴','Ctrl+V'],['edit.delete','删除','Delete'],['edit.selectAll','全选','Ctrl+A']])}
       ${menu('轨道',[['track.add','新建乐器轨','Ctrl+T'],['track.addAudio','新建音频轨',''],['track.duplicate','复制轨道',''],['track.rename','重命名','F2'],['track.delete','删除轨道',''],['track.mute','静音',''],['track.solo','独奏','']])}

@@ -277,7 +277,7 @@
   function validateImportedState(value) {
     if (!isPlainObject(value)) throw new Error('备份内容不是有效的学习数据对象。');
     if (!value.profile && !value.learning && !value.version) {
-      throw new Error('没有识别到和田玉学习数据结构。');
+      throw new Error('没有识别到海棠音乐学习数据结构。');
     }
     return migrateEducationState(value, 'import');
   }
