@@ -66,20 +66,25 @@
     else window.HetianEducation?.saveEducationState?.(state);
   }
 
+  function resetLocalState(code = systemCode) {
+    if (code === 'gaokao') window.GaokaoStore?.update?.(() => ({}));
+    else window.HetianEducation?.resetEducationState?.();
+  }
+
   function clearAccountCache() {
-    if (!localStorage.getItem(`haitang_state_owner_${systemCode}`)) return;
+    clearTimeout(syncTimers[systemCode]);
+    delete syncTimers[systemCode];
     applyingCloudState = true;
     try {
-      if (systemCode === 'gaokao') window.GaokaoStore?.update?.(() => ({}));
-      else window.HetianEducation?.resetEducationState?.();
+      resetLocalState();
       localStorage.removeItem(`haitang_state_owner_${systemCode}`);
     } finally {
       applyingCloudState = false;
     }
   }
 
-  async function pushState(code) {
-    if (!user) return;
+  async function pushState(code, accountId = user?.id) {
+    if (!user || String(user.id) !== String(accountId)) return;
     const state = localState(code);
     if (!state) return;
     await api(`/api/auth/state/${code}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ state }) });
@@ -88,26 +93,38 @@
   function queueStateSync(code) {
     if (applyingCloudState || !user || code !== systemCode) return;
     clearTimeout(syncTimers[code]);
-    syncTimers[code] = setTimeout(() => pushState(code).catch(() => {}), 700);
+    const accountId = user.id;
+    syncTimers[code] = setTimeout(() => pushState(code, accountId).catch(() => {}), 700);
   }
 
   async function hydrateAccountState(accountUser) {
     if (!accountUser) return;
+    clearTimeout(syncTimers[systemCode]);
+    delete syncTimers[systemCode];
     applyingCloudState = true;
     try {
+      const ownerKey = `haitang_state_owner_${systemCode}`;
+      const owner = localStorage.getItem(ownerKey);
+      const sameOwner = owner === String(accountUser.id);
+      if (!sameOwner) resetLocalState();
+
       const cloud = await api(`/api/auth/state/${systemCode}`);
-      if (hasLearningData(systemCode, cloud.state)) applyState(systemCode, cloud.state);
-      else {
-        const owner = localStorage.getItem(`haitang_state_owner_${systemCode}`);
-        if (owner && owner !== String(accountUser.id)) {
-          if (systemCode === 'gaokao') window.GaokaoStore?.update?.(() => ({}));
-          else window.HetianEducation?.resetEducationState?.();
-        }
-        applyProfile(systemCode, accountUser.profiles?.[systemCode] || {});
-        const state = localState(systemCode);
-        if (hasLearningData(systemCode, state)) await pushState(systemCode);
+      const accountProfile = accountUser.profiles?.[systemCode] || {};
+      const cloudName = systemCode === 'gaokao' ? cloud.state?.profile?.name : cloud.state?.profile?.username;
+      const cloudBelongsToAccount = !cloudName || (accountProfile.name && cloudName === accountProfile.name);
+
+      if (hasLearningData(systemCode, cloud.state) && cloudBelongsToAccount) {
+        applyState(systemCode, cloud.state);
+      } else if (hasLearningData(systemCode, cloud.state)) {
+        resetLocalState();
       }
-      localStorage.setItem(`haitang_state_owner_${systemCode}`, String(accountUser.id));
+      applyProfile(systemCode, accountProfile);
+      localStorage.setItem(ownerKey, String(accountUser.id));
+
+      const state = localState(systemCode);
+      if ((!cloudBelongsToAccount || !hasLearningData(systemCode, cloud.state)) && hasLearningData(systemCode, state)) {
+        await pushState(systemCode, accountUser.id);
+      }
     } finally {
       applyingCloudState = false;
     }
