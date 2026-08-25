@@ -48,6 +48,7 @@
 
     // Load teacher modules — they will find CONTENT_MANAGER already set
     import('/admin-questions.js');
+    import('/homework.js');
     import('/admin-homework.js');
 
     // Auto-activate the first teacher tab after modules inject it

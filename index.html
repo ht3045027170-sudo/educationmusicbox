@@ -387,6 +387,7 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
           <button id="gkOpenSight" class="gk-module" type="button"><b>AI 视唱辅助</b><span>离线识谱、校对与播放 · 已开放</span></button>
           <button id="gkOpenTools" class="gk-module" type="button"><b>通用工具箱</b><span>调音器、节拍器、钢琴、听音、和弦查询等</span></button>
           <button id="gkOpenTeacherCenter" class="gk-module gk-teacher-entry hidden" type="button"><b>教师中心</b><span>题库、班级、作业与学习结果</span></button>
+          <button id="gkOpenStudentClass" class="gk-module gk-student-entry hidden" type="button"><b>学生班级</b><span>班级群聊、今日作业与成绩</span></button>
         </div>
       </section>
       <aside class="gk-panel"><span class="gk-eyebrow">TODAY'S TASKS</span><h2>今日任务</h2><div id="gkTaskList" class="gk-task-list"></div><button id="gkStartTraining" class="gk-button gk-start" type="button">开始训练</button></aside>
@@ -417,11 +418,19 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
     </div>
   </main>
 </section>
-<section id="gaokaoTheory" class="page gk-page hidden" aria-labelledby="gkTheoryTitle">
+<section id="gaokaoTheory" class="page gk-page hidden" aria-labelledby="gkTheoryLandingTitle">
   <main class="gk-shell">
     <nav class="gk-topbar"><div class="gk-brand">海棠艺考<small>乐理训练 · GUANGDONG EXAM SCOPE</small></div><div class="gk-actions"><button id="gkOpenSettings" class="gk-button secondary" type="button">⚙️ 设置</button><button id="gkTheoryDashboard" class="gk-button secondary" type="button">返回训练首页</button></div></nav>
-    <div class="gk-theory-layout">
-      <aside class="gk-category-panel"><span class="gk-eyebrow">TRAINING FILTER</span><h2>考纲分类</h2><div id="gkCategoryList" class="gk-category-list"></div></aside>
+    <section id="gkTheoryLanding" class="gk-dictation-landing">
+      <header class="gk-dictation-hero"><span class="gk-eyebrow">EXAM THEORY / 01</span><h1 id="gkTheoryLandingTitle">选择一项限时乐理</h1><p>每个分区都是一套十题试卷。进入前先查看范围，提交或倒计时结束后统一评分。</p></header>
+      <div id="gkCategoryList" class="gk-dictation-modes"></div>
+    </section>
+    <section id="gkTheoryIntro" class="gk-panel gk-dictation-intro hidden">
+      <span class="gk-eyebrow">READY / 准备</span><h1 id="gkTheoryIntroTitle">综合训练模拟卷</h1><p id="gkTheoryIntroText">混合广东音乐统考基础乐理考纲知识点。</p>
+      <div class="gk-dictation-facts"><div><strong id="gkTheoryMinutes">20</strong><span>分钟</span></div><div><strong id="gkTheoryCount">10</strong><span>道题</span></div><div><strong>统一</strong><span>提交评分</span></div></div>
+      <div class="gk-actions"><button id="gkTheoryIntroBack" class="gk-button secondary" type="button">← 重选分区</button><button id="gkTheoryStart" class="gk-button" type="button">开始学习</button></div>
+    </section>
+    <section id="gkTheoryExam" class="hidden">
       <section id="gkQuestionCard" class="gk-panel gk-question-card">
         <div class="gk-question-meta"><span id="gkQuestionCategory">综合训练</span><span id="gkTheoryTimer" class="gk-timer" role="timer">20:00</span><span id="gkQuestionCounter">准备开始</span></div>
         <div class="gk-question-progress"><i id="gkQuestionProgress" style="width:0%"></i></div>
@@ -431,8 +440,8 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
         <div id="gkExplanation" class="gk-explanation">题目作答后会停留显示解析，由你决定何时进入下一题。</div>
         <div class="gk-question-actions"><button id="gkPrevQuestion" class="gk-button secondary" type="button" disabled>← 上一题</button><button id="gkTheoryReturnResult" class="gk-button secondary hidden" type="button">返回成绩</button><button id="gkTheorySubmit" class="gk-button secondary" type="button">提交整套试题</button><button id="gkNextQuestion" class="gk-button" type="button" disabled>下一题 →</button></div>
       </section>
-      <section id="gkTheoryResult" class="gk-panel gk-result hidden"><span class="gk-eyebrow">SESSION REPORT</span><div id="gkResultScore" class="gk-result-score">0%</div><h1>本次训练完成</h1><p id="gkResultText"></p><div class="gk-actions" style="justify-content:center"><button id="gkReviewTheory" class="gk-button" type="button">查看错题</button><button id="gkRetryTheory" class="gk-button" type="button">再练一组</button><button id="gkResultDashboard" class="gk-button secondary" type="button">返回训练首页</button></div></section>
-    </div>
+    </section>
+    <section id="gkTheoryResult" class="gk-panel gk-result hidden"><span class="gk-eyebrow">SESSION REPORT</span><div id="gkResultScore" class="gk-result-score">0%</div><h1>本次训练完成</h1><p id="gkResultText"></p><div class="gk-actions" style="justify-content:center"><button id="gkReviewTheory" class="gk-button" type="button">查看错题</button><button id="gkRetryTheory" class="gk-button" type="button">再练一组</button><button id="gkResultDashboard" class="gk-button secondary" type="button">返回训练首页</button></div></section>
   </main>
 </section>
 
@@ -802,7 +811,7 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
 
 <section id="eduSettings" class="page education-page theory-page hidden" aria-labelledby="settingsTitle">
   <main class="theory-shell settings-shell">
-    <header class="theory-head"><button id="eduSettingsBack" class="edu-button text" type="button">← 学习首页</button><h1 id="settingsTitle">设置</h1><span class="theory-kicker">LOCAL · SETTINGS</span></header>
+    <header class="theory-head"><button id="eduSettingsBack" class="edu-button text" type="button">← 学习首页</button><h1 id="settingsTitle">设置</h1><span id="settingsContext" class="theory-kicker">HAITANG MUSIC · SETTINGS</span></header>
     <div class="settings-list">
       <section class="settings-section">
         <h2 class="settings-section-label">账户</h2>

@@ -6,6 +6,15 @@
   if (!Store || !App) return;
   const $ = id => document.getElementById(id);
   const CATEGORIES = ['综合训练', '音与音高', '音长与节奏', '乐谱符号', '音程', '和弦', '调式调性'];
+  const CATEGORY_TEXT = {
+    综合训练: '混合各考纲知识点，按考试节奏完成一套综合卷。',
+    音与音高: '音名、唱名、等音、音级与五线谱音高。',
+    音长与节奏: '音符、休止符、附点、连音与节奏组合。',
+    乐谱符号: '谱号、力度、速度、演奏法与常用记号。',
+    音程: '音程度数、音数、性质、转位与协和性。',
+    和弦: '三和弦、七和弦、转位、结构与性质。',
+    调式调性: '调号、音阶、关系调与调式判断。'
+  };
   const FALLBACK_QUESTIONS = [
     { id:'fallback-pitch', category:'音与音高', knowledgeId:'gaokao.theory.pitch.enharmonic', difficulty:1, prompt:'下列哪一组是等音？', options:['C♯与D♭','C与D♭','E与F♯','B与C♯'], answer:'C♯与D♭', explanation:'C♯与D♭在十二平均律中音高相同。' },
     { id:'fallback-rhythm', category:'音长与节奏', knowledgeId:'gaokao.theory.rhythm.dotted', difficulty:1, prompt:'附点四分音符有几拍？', options:['1.5拍','1拍','2拍','0.5拍'], answer:'1.5拍', explanation:'附点增加原时值的一半。' },
@@ -194,21 +203,48 @@
   }
 
   function renderCategoryList() {
-    $('gkCategoryList').innerHTML = CATEGORIES.map((category, index) =>
-      `<button class="gk-category-button${category === activeCategory ? ' active' : ''}" type="button" data-gk-category="${escapeHTML(category)}"><b>${index + 1}. ${escapeHTML(category)}${category === '综合训练' ? '模拟卷' : '专项卷'}</b><small>10 题 · ${category === '综合训练' ? 20 : 15} 分钟</small></button>`
-    ).join('');
+    $('gkCategoryList').innerHTML = CATEGORIES.map((category, index) => {
+      const available = category === '综合训练' ? bank.length : bank.filter(item => item.category === category).length;
+      const questionCount = Math.min(10, available);
+      return `<button class="gk-dictation-mode" type="button" data-gk-category="${escapeHTML(category)}" ${questionCount ? '' : 'disabled'}><i>${String(index + 1).padStart(2, '0')} / ${category === '综合训练' ? 20 : 15} MIN</i><b>${escapeHTML(category)}${category === '综合训练' ? '模拟卷' : '专项卷'}</b><span>${escapeHTML(CATEGORY_TEXT[category])}</span><small>${questionCount || '暂无'} 题 · 限时 ${category === '综合训练' ? 20 : 15} 分钟 →</small></button>`;
+    }).join('');
     $('gkCategoryList').querySelectorAll('[data-gk-category]').forEach(button => {
-      button.addEventListener('click', () => startTheorySession(button.dataset.gkCategory));
+      button.addEventListener('click', () => showTheoryIntro(button.dataset.gkCategory));
     });
+  }
+
+  function showTheoryLanding() {
+    clearInterval(theoryTimerId);
+    $('gkTheoryLanding').classList.remove('hidden');
+    $('gkTheoryIntro').classList.add('hidden');
+    $('gkTheoryExam').classList.add('hidden');
+    $('gkTheoryResult').classList.add('hidden');
+    renderCategoryList();
+  }
+
+  function showTheoryIntro(category) {
+    activeCategory = category;
+    $('gkTheoryLanding').classList.add('hidden');
+    $('gkTheoryIntro').classList.remove('hidden');
+    $('gkTheoryExam').classList.add('hidden');
+    $('gkTheoryResult').classList.add('hidden');
+    $('gkTheoryIntroTitle').textContent = `${category}${category === '综合训练' ? '模拟卷' : '专项卷'}`;
+    $('gkTheoryIntroText').textContent = CATEGORY_TEXT[category];
+    $('gkTheoryMinutes').textContent = category === '综合训练' ? '20' : '15';
+    $('gkTheoryCount').textContent = String(Math.min(10, category === '综合训练' ? bank.length : bank.filter(item => item.category === category).length));
   }
 
   function openTheory() {
     App.showPage('gaokaoTheory');
-    $('gkQuestionCard').classList.remove('hidden');
-    $('gkTheoryResult').classList.add('hidden');
-    renderCategoryList();
-    if (!session || session.finished) startTheorySession(activeCategory);
-    else { renderQuestion(); startTheoryTimer(); }
+    if (session && !session.finished) {
+      $('gkTheoryLanding').classList.add('hidden');
+      $('gkTheoryIntro').classList.add('hidden');
+      $('gkTheoryExam').classList.remove('hidden');
+      $('gkQuestionCard').classList.remove('hidden');
+      $('gkTheoryResult').classList.add('hidden');
+      renderQuestion();
+      startTheoryTimer();
+    } else showTheoryLanding();
   }
 
   function startTheorySession(category = '综合训练') {
@@ -233,6 +269,9 @@
       deadline: Date.now() + (category === '综合训练' ? 20 : 15) * 60000,
       finished: false
     };
+    $('gkTheoryLanding').classList.add('hidden');
+    $('gkTheoryIntro').classList.add('hidden');
+    $('gkTheoryExam').classList.remove('hidden');
     $('gkQuestionCard').classList.remove('hidden');
     $('gkTheoryResult').classList.add('hidden');
     renderQuestion();
@@ -325,6 +364,7 @@
     const correct = answered.filter(item => item.correct).length;
     const accuracy = Math.round(correct / session.questions.length * 100);
     Store.finishSession({ id: session.id, type: 'theory', category: session.category, questionCount: session.questions.length, correct, accuracy, startedAt: session.startedAt, timedOut });
+    $('gkTheoryExam').classList.add('hidden');
     $('gkQuestionCard').classList.add('hidden');
     $('gkTheoryResult').classList.remove('hidden');
     $('gkResultScore').textContent = `${accuracy}%`;
@@ -335,6 +375,7 @@
 
   function showTheoryResult() {
     session.reviewing = false;
+    $('gkTheoryExam').classList.add('hidden');
     $('gkQuestionCard').classList.add('hidden');
     $('gkTheoryResult').classList.remove('hidden');
   }
@@ -346,6 +387,7 @@
     session.reviewing = true;
     session.index = firstWrong;
     $('gkTheoryResult').classList.add('hidden');
+    $('gkTheoryExam').classList.remove('hidden');
     $('gkQuestionCard').classList.remove('hidden');
     renderQuestion();
   }
@@ -389,6 +431,7 @@
     if (frame && !frame.src) frame.src = 'teacher.html?embedded=1';
     App.showPage('gkTeacherCenter');
   });
+  $('gkOpenStudentClass')?.addEventListener('click', () => window.MusicHomework?.open?.('gaokao'));
   $('gkTeacherBack')?.addEventListener('click', openDashboard);
   $('gkToolsBack')?.addEventListener('click', openDashboard);
   document.querySelectorAll('#gkTools .gk-tool-card').forEach(card => {
@@ -396,6 +439,8 @@
   });
   $('gkMockExam')?.addEventListener('click', showBlueprint);
   $('gkTheoryDashboard')?.addEventListener('click', openDashboard);
+  $('gkTheoryIntroBack')?.addEventListener('click', showTheoryLanding);
+  $('gkTheoryStart')?.addEventListener('click', () => startTheorySession(activeCategory));
   $('gkPrevQuestion')?.addEventListener('click', () => { if (session && session.index > 0) { session.index -= 1; renderQuestion(); } });
   $('gkNextQuestion')?.addEventListener('click', () => {
     if (!session?.answers?.[session.index]) return;
