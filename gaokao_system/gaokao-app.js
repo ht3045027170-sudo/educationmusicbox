@@ -442,6 +442,7 @@
     if (frame && !frame.src) frame.src = 'teacher.html?embedded=1';
     App.showPage('gkTeacherCenter');
   });
+  $('gkOpenTeacherClass')?.addEventListener('click', () => window.MusicHomework?.open?.('gaokao'));
   $('gkOpenStudentClass')?.addEventListener('click', () => window.MusicHomework?.open?.('gaokao'));
   $('gkTeacherBack')?.addEventListener('click', openDashboard);
   $('gkToolsBack')?.addEventListener('click', openDashboard);

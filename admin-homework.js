@@ -25,12 +25,6 @@
     ]);
     const subjects = systemSelect.value === 'hobby' ? '<option value="theory">吉他乐理</option>' : '<option value="theory">乐理</option><option value="dictation">听写</option><option value="sight_singing">视唱</option>';
     detail.innerHTML = `<section class="teacher-panel"><h2>班级学生</h2>${students.items.map(item=>`<span class="badge success">${esc(item.username)}<button class="badge-x" data-remove-student="${item.user_id}" title="移出班级">×</button></span>`).join(' ')||'<p>把班级邀请码发给学生即可加入。</p>'}</section><section class="teacher-panel"><h2>布置已审核题目</h2><form class="assignment-builder"><input name="title" required maxlength="100" placeholder="作业标题"><textarea name="instructions" maxlength="1000" placeholder="作业说明"></textarea><select name="subject">${subjects}</select><input name="dueAt" type="datetime-local"><div class="question-picker"></div><button>发布作业</button><p class="error"></p></form></section><section class="teacher-panel"><h2>已发布作业</h2><div class="assignment-list">${assignments.items.map(item=>`<article class="class-card"><b>${esc(item.title)}</b><div class="class-meta">${item.question_count} 题 · 已提交 ${item.submission_count} · 平均分 ${item.average_score ?? '—'}</div><div class="class-actions"><button data-results="${item.id}">查看成绩</button><button class="danger small" data-del-assignment="${item.id}">删除作业</button></div><div data-result-box="${item.id}"></div></article>`).join('')||'<p>暂无作业。</p>'}</div></section>`;
-    const studentPanel = detail.querySelector('.teacher-panel');
-    const chatButton = document.createElement('button');
-    chatButton.type = 'button';
-    chatButton.dataset.classChat = '';
-    chatButton.textContent = '打开班级群聊';
-    studentPanel.querySelector('h2').insertAdjacentElement('afterend', chatButton);
     const form = detail.querySelector('form'), picker = form.querySelector('.question-picker');
     function renderQuestions(){ const subject=form.elements.subject.value; picker.innerHTML=questions.items.filter(q=>q.subject===subject).map(q=>`<label><input type="checkbox" name="question" value="${q.id}"> ${esc(q.content.prompt||q.content.question||q.knowledge_id)}</label>`).join('')||'该科目暂无已发布题目。'; }
     form.elements.subject.onchange=renderQuestions; renderQuestions();
@@ -44,10 +38,6 @@
     const card=event.target.closest('[data-class]'); if(card) openClass(card.dataset.class);
   };
   detail.onclick = async event => {
-    if (event.target.dataset.classChat !== undefined) {
-      window.MusicHomework?.open?.(systemSelect.value, selectedClass);
-      return;
-    }
     const remove = event.target.dataset.removeStudent, delA = event.target.dataset.delAssignment;
     if (remove) { if (!confirm('确定把该学生移出班级？其提交过的作业记录也会一并删除。')) return;
       try { await api(`/api/teaching/${systemSelect.value}/classes/${selectedClass}/students/${remove}`, { method: 'DELETE' }); openClass(selectedClass); } catch (error) { alert(error.message); } return; }

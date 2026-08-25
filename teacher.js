@@ -48,7 +48,6 @@
 
     // Load teacher modules — they will find CONTENT_MANAGER already set
     import('/admin-questions.js');
-    import('/homework.js');
     import('/admin-homework.js');
 
     // Auto-activate the first teacher tab after modules inject it
@@ -106,6 +105,13 @@
 
   // Check existing session on load
   api('/api/admin/session').then((body) => {
-    if (body.manager?.role === 'teacher') enter(body.manager);
-  }).catch(() => {});
+    if (body.manager?.role === 'teacher') return enter(body.manager);
+    if (document.body.classList.contains('embedded')) {
+      $('loginCard').querySelector('h2').textContent = '登录状态已失效';
+      $('loginForm').hidden = true;
+      $('loginMessage').textContent = '请返回海棠艺考主页重新登录教师账号。';
+    }
+  }).catch(() => {
+    if (document.body.classList.contains('embedded')) $('loginMessage').textContent = '无法读取登录状态，请返回主页后重试。';
+  });
 })();

@@ -14,7 +14,10 @@ const checks = [
   ['其他页面切换账号后自动刷新', read('auth.js').includes("event.key === 'haitang_auth_changed_at'")],
   ['消息接口校验班级成员', read('functions/api/learning/[system]/classes/[classId]/messages.js').includes('accessibleClass')],
   ['教师作业写入班级消息', read('functions/api/teaching/[system]/classes/[classId]/assignments.js').includes("'assignment'")],
-  ['教师中心可打开群聊', read('admin-homework.js').includes('dataset.classChat') && read('teacher.js').includes("import('/homework.js')")],
+  ['教师主页可直接打开群聊', read('index.html').includes('id="gkOpenTeacherClass"') && read('gaokao_system/gaokao-app.js').includes("$('gkOpenTeacherClass')")],
+  ['教师中心不再重复放群聊入口', !read('admin-homework.js').includes('dataset.classChat')],
+  ['嵌入出题页复用主页会话', read('teacher.js').includes("api('/api/admin/session')") && read('teacher.js').includes("body.manager?.role === 'teacher'")],
+  ['群聊消息区独立滚动', read('homework.js').includes('flex:1 1 0;overflow-y:auto') && read('homework.js').includes('.message-compose{position:relative')],
 ];
 
 const failed = checks.filter(([, ok]) => !ok);
