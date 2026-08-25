@@ -395,7 +395,7 @@
   function showBlueprint() { window.GaokaoDictation?.openIntro?.('guangdong_mock'); }
 
   $('portalToolbox')?.addEventListener('click', () => App.showPage('menu'));
-  $('gkProfileForm')?.addEventListener('submit', event => {
+  $('gkProfileForm')?.addEventListener('submit', async event => {
     event.preventDefault();
     const form = event.currentTarget;
     const data = Object.fromEntries(new FormData(form).entries());
@@ -403,10 +403,21 @@
       $('gkProfileError').textContent = '请填写姓名、高考时间、考试省份、未来方向和主项。';
       return;
     }
-    Store.saveProfile({
+    const profile = {
       name: data.name.trim(), examDate: data.examDate, province: data.province,
       direction: data.direction, primarySubject: data.primarySubject.trim(), secondarySubject: data.secondarySubject.trim()
-    });
+    };
+    try {
+      if (window.HetianAuth?.getUser?.()) {
+        await window.HetianAuth.saveProfile('gaokao', {
+          name: profile.name, examDate: profile.examDate, province: profile.province, direction: profile.direction,
+          primaryMajor: profile.primarySubject, secondaryMajor: profile.secondarySubject
+        });
+      } else Store.saveProfile(profile);
+    } catch (error) {
+      $('gkProfileError').textContent = `档案暂未同步：${error.message}`;
+      return;
+    }
     openDashboard();
   });
   $('gkEditProfile')?.addEventListener('click', () => openProfile(true));

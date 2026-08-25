@@ -93,7 +93,7 @@
     return !message;
   }
 
-  function saveProfile() {
+  async function saveProfile() {
     if (!validateStep()) return;
     const profile = {
       username: form.elements.nickname.value.trim(),
@@ -105,7 +105,17 @@
       examDate: '',
       selfReportedWeaknesses: []
     };
-    Education.saveProfile(profile);
+    const account = window.HetianAuth?.getUser?.();
+    if (account) {
+      try {
+        await window.HetianAuth.saveProfile('hobby', {
+          name: profile.username, instrument: profile.primaryMajor, age: profile.age, dailyMinutes: profile.dailyMinutes
+        });
+      } catch (error) {
+        showToast(`档案暂未同步：${error.message}`, true);
+        return;
+      }
+    } else Education.saveProfile(profile);
     // 立即从统一状态读取一次，避免旧版 WebView 在表单切页时出现“看似提交、实际未保存”的假象。
     const saved = Education.getState();
     if (!saved.profile.username || !saved.onboarding.completed) {
@@ -312,14 +322,14 @@
   $('eduWelcomeGuitar')?.addEventListener('click', () => window.GuitarAcademy?.open?.());
   $('eduOnboardingClose').addEventListener('click', goEducationHome);
   $('eduPrevStep').addEventListener('click', () => setStep(step - 1));
-  $('eduNextStep').addEventListener('click', () => {
+  $('eduNextStep').addEventListener('click', async () => {
     if (!validateStep()) return;
     if (step < totalSteps) setStep(step + 1);
-    else saveProfile();
+    else await saveProfile();
   });
-  form.addEventListener('submit', event => {
+  form.addEventListener('submit', async event => {
     event.preventDefault();
-    if (step === totalSteps) saveProfile();
+    if (step === totalSteps) await saveProfile();
   });
 
   document.addEventListener('click', event => {
