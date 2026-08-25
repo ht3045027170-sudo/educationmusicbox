@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>清除本机数据 · 海棠音乐</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,"PingFang SC",sans-serif;color:#173d31;background:#f5f2e9}
+    body{min-height:100vh;margin:0;display:grid;place-items:center;padding:20px;box-sizing:border-box}
+    main{width:min(520px,100%);padding:34px;box-sizing:border-box;background:#fff;border:1px solid #d8ded8;border-radius:24px;box-shadow:0 18px 50px rgba(23,61,49,.12)}
+    h1{margin:0 0 12px;font-size:28px}p{color:#65756e;line-height:1.7}.done{color:#1f7a55;font-weight:700}
+    a{display:inline-block;margin-top:12px;padding:11px 18px;border-radius:999px;background:#1f7559;color:#fff;text-decoration:none;font-weight:700}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>正在清除本机数据</h1>
+    <p id="status">请稍候，不要关闭页面……</p>
+    <a id="back" href="/" hidden>返回登录</a>
+  </main>
+  <script>
+    (async () => {
+      try {
+        const csrf = await fetch('/api/csrf', { credentials: 'same-origin' }).then(response => response.json());
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin', headers: { 'x-csrf-token': csrf.csrfToken || '' } });
+      } catch {}
+      localStorage.clear();
+      sessionStorage.clear();
+      if ('caches' in window) await Promise.all((await caches.keys()).map(name => caches.delete(name)));
+      if (indexedDB.databases) {
+        for (const database of await indexedDB.databases()) if (database.name) indexedDB.deleteDatabase(database.name);
+      }
+      if (navigator.serviceWorker) {
+        for (const registration of await navigator.serviceWorker.getRegistrations()) await registration.unregister();
+      }
+      document.getElementById('status').textContent = '这台设备上的网站学习记录、缓存和登录会话已清除。服务器账号和数据库未删除。';
+      document.getElementById('status').className = 'done';
+      document.getElementById('back').hidden = false;
+    })();
+  </script>
+</body>
+</html>
