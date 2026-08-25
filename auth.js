@@ -34,6 +34,16 @@
     ? window.GaokaoStore?.getState?.()
     : window.HetianEducation?.getState?.();
 
+  function hasLearningData(code, state) {
+    if (!state || typeof state !== 'object') return false;
+    if (code === 'gaokao') {
+      return Boolean(state.profile?.completed && state.profile?.name)
+        || Number(state.learning?.totalQuestions) > 0 || (state.sessions?.length || 0) > 0;
+    }
+    return Boolean(state.onboarding?.completed && state.profile?.username)
+      || Number(state.learning?.totalQuestions) > 0 || (state.sessions?.length || 0) > 0;
+  }
+
   function applyProfile(code, profile = {}) {
     if (!profile?.name) return;
     if (code === 'gaokao') {
@@ -86,7 +96,7 @@
     applyingCloudState = true;
     try {
       const cloud = await api(`/api/auth/state/${systemCode}`);
-      if (cloud.state) applyState(systemCode, cloud.state);
+      if (hasLearningData(systemCode, cloud.state)) applyState(systemCode, cloud.state);
       else {
         const owner = localStorage.getItem(`haitang_state_owner_${systemCode}`);
         if (owner && owner !== String(accountUser.id)) {
@@ -95,7 +105,7 @@
         }
         applyProfile(systemCode, accountUser.profiles?.[systemCode] || {});
         const state = localState(systemCode);
-        if (state) await pushState(systemCode);
+        if (hasLearningData(systemCode, state)) await pushState(systemCode);
       }
       localStorage.setItem(`haitang_state_owner_${systemCode}`, String(accountUser.id));
     } finally {
