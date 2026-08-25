@@ -202,7 +202,7 @@
   min-height: 460px;
   overflow: hidden;
   background:
-    linear-gradient(155deg, rgba(31, 92, 69, .98), rgba(14, 57, 42, .98)),
+    linear-gradient(155deg, rgba(31, 92, 69, .99), rgba(12, 50, 37, .99)),
     #174d3a;
 }
 
@@ -210,47 +210,89 @@
 .edu-jade-stage::after {
   content: "";
   position: absolute;
-  border: 1px solid rgba(231, 245, 235, .18);
-  border-radius: 50%;
 }
 
-.edu-jade-stage::before { inset: 12% -44% 12% 10%; }
-.edu-jade-stage::after { inset: 21% -29% 21% 25%; }
+.edu-jade-stage::before {
+  left: 9%;
+  right: 9%;
+  top: 50%;
+  height: 96px;
+  transform: translateY(-50%) rotate(-7deg);
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(231, 245, 235, .2) 0,
+    rgba(231, 245, 235, .2) 1px,
+    transparent 1px,
+    transparent 23px
+  );
+}
+
+.edu-jade-stage::after {
+  top: 11%;
+  right: 10%;
+  width: 68px;
+  height: 5px;
+  background: #e86635;
+  box-shadow: -22px 14px 0 rgba(232, 102, 53, .42);
+}
 
 .edu-jade-stone {
   position: absolute;
   z-index: 2;
   top: 50%;
   left: 50%;
-  width: min(66%, 300px);
-  aspect-ratio: .78;
-  transform: translate(-50%, -53%) rotate(9deg);
-  border: 1px solid rgba(255,255,255,.32);
-  border-radius: 48% 52% 42% 58% / 42% 45% 55% 58%;
-  background:
-    radial-gradient(circle at 32% 22%, rgba(255,255,255,.85), transparent 16%),
-    radial-gradient(circle at 67% 69%, rgba(26,101,72,.38), transparent 27%),
-    linear-gradient(145deg, #eaf4e9, #b9d9c3 46%, #6eaa89);
-  box-shadow:
-    inset -22px -30px 48px rgba(28, 102, 72, .28),
-    inset 18px 18px 32px rgba(255,255,255,.54),
-    0 40px 80px rgba(4, 31, 22, .44);
+  width: min(68%, 300px);
+  min-height: 360px;
+  transform: translate(-50%, -54%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 38px 34px 30px;
+  border: 1px solid rgba(255, 255, 255, .62);
+  border-radius: 18px 3px 18px 3px;
+  background: linear-gradient(145deg, rgba(252, 250, 243, .98), rgba(224, 237, 226, .96));
+  box-shadow: 0 30px 64px rgba(3, 30, 21, .34);
 }
 
-.edu-jade-stone::after {
-  content: "每一次练习\A都是一次打磨";
-  white-space: pre;
+.edu-jade-stone::before {
+  content: "";
   position: absolute;
-  inset: 0;
-  display: grid;
-  place-content: center;
-  color: rgba(19, 72, 52, .7);
+  top: 0;
+  left: 0;
+  width: 7px;
+  height: 104px;
+  background: #e86635;
+}
+
+.edu-jade-stone img {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 32px;
+}
+
+.edu-jade-stone strong {
+  color: #153f31;
+  font-family: "Songti SC", "STSong", Georgia, serif;
+  font-size: 36px;
+  letter-spacing: .08em;
+}
+
+.edu-jade-stone span {
+  margin-top: 20px;
+  color: #587267;
   font-family: "Songti SC", "STSong", serif;
-  font-size: clamp(14px, 2vw, 19px);
-  line-height: 2.1;
-  text-align: center;
-  letter-spacing: .16em;
-  transform: rotate(-9deg);
+  font-size: 17px;
+  line-height: 1.9;
+  letter-spacing: .1em;
+}
+
+.edu-jade-stone em {
+  margin-top: auto;
+  color: #2c7959;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 850;
+  letter-spacing: .2em;
 }
 
 .edu-stage-index {
@@ -757,7 +799,10 @@
 @media (max-width: 820px) {
   .edu-welcome-shell { grid-template-columns: 1fr; min-height: 0; }
   .edu-jade-stage { min-height: 310px; order: -1; }
-  .edu-jade-stone { width: 185px; }
+  .edu-jade-stone { width: 230px; min-height: 240px; padding: 24px 25px 20px; }
+  .edu-jade-stone img { width: 48px; height: 48px; margin-bottom: 16px; }
+  .edu-jade-stone strong { font-size: 27px; }
+  .edu-jade-stone span { margin-top: 10px; font-size: 13px; line-height: 1.65; }
   .edu-welcome-copy { padding: 34px 26px 40px; }
   .edu-onboarding-shell { grid-template-columns: 1fr; }
   .edu-onboarding-rail { padding: 20px 22px; }
@@ -784,7 +829,7 @@
 @media (max-width: 560px) {
   .education-welcome { display: block; overflow: auto; padding: 0; }
   .edu-welcome-shell { width: 100%; border: 0; border-radius: 0; box-shadow: none; }
-  .edu-jade-stage { min-height: 260px; }
+  .edu-jade-stage { min-height: 300px; }
   .edu-welcome-copy h1 { font-size: 41px; }
   .edu-welcome-actions { display: grid; }
   .edu-welcome-actions .edu-button { width: 100%; }
