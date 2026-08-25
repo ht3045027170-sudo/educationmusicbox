@@ -11,8 +11,7 @@ export async function onRequestPost({ request, env }) {
     const email = String(body.email || '').trim().toLowerCase();
     const product = body.learningSystem === 'gaokao' ? 'exam' : 'music';
     if (!email) return json({ ok: true });
-    const system = product === 'exam' ? 'gaokao' : 'hobby';
-    const user = await env.DB.prepare('SELECT id, email_verified FROM users WHERE email = ? AND learning_system = ?').bind(email, system).first();
+    const user = await env.DB.prepare('SELECT id, email_verified FROM users WHERE email = ?').bind(email).first();
     if (!user || user.email_verified) {
       return json({ ok: true, message: '如果该邮箱存在且尚未验证，邮件已经发送。' });
     }

@@ -31,7 +31,7 @@
 
   function renderAccountUI() {
     const box = accountBox(); if (!box) return;
-    const accountUser = user?.learningSystem === systemCode ? user : null;
+    const accountUser = user || null;
     if (!accountUser) {
       box.innerHTML = `<p class="settings-muted">当前未登录 ${productName}。${product === 'exam' ? '登录后可保存训练、成绩和作业。' : '登录后可保存学习进度和会员状态。'}</p><div class="settings-actions"><button class="edu-button primary" type="button" data-auth="login">登录</button><button class="edu-button ghost" type="button" data-auth="register">注册</button></div>`;
     } else {
@@ -62,7 +62,7 @@
   function open(mode) {
     const registering = mode === 'register';
     const forgot = mode === 'forgot';
-    dialog.innerHTML = `<form class="auth-card" method="dialog"><h2>${registering ? `注册${productName}` : forgot ? '找回密码' : `登录${productName}`}</h2><p>${registering ? `${product === 'exam' ? '当前公开注册均为学生账号。' : '注册后可使用免费体验并保存个人进度。'}注册完成后将直接登录。` : forgot ? '我们会把重置链接发送到注册邮箱。' : `使用${productName}邮箱或用户名登录。`}</p>${registering ? '<label>昵称</label><input name="username" autocomplete="nickname" minlength="2" maxlength="40" required>' : ''}<label>${registering || forgot ? '邮箱' : '邮箱或用户名'}</label><input name="email" ${registering || forgot ? 'type="email"' : ''} autocomplete="username" maxlength="254" required>${forgot ? '' : `<label>密码</label><input name="password" type="password" autocomplete="${registering ? 'new-password' : 'current-password'}" minlength="${registering ? 10 : 1}" required>`}<div class="auth-message"></div>${!registering&&!forgot?'<div class="auth-links"><button type="button" data-forgot>忘记密码</button><button type="button" data-resend>重发验证邮件</button></div>':''}<div class="auth-actions"><button class="cancel" value="cancel" formnovalidate>取消</button><button class="submit" value="submit">${registering ? '注册并登录' : forgot ? '发送重置邮件' : '登录'}</button></div></form>`;
+    dialog.innerHTML = `<form class="auth-card" method="dialog"><h2>${registering ? '注册海棠账号' : forgot ? '找回密码' : '登录海棠账号'}</h2><p>${registering ? '一个账号可使用海棠音乐和海棠艺考；两边的档案与进度分别保存。注册完成后将直接登录。' : forgot ? '我们会把重置链接发送到注册邮箱。' : '使用统一海棠账号登录。'}</p>${registering ? '<label>昵称</label><input name="username" autocomplete="nickname" minlength="2" maxlength="40" required>' : ''}<label>${registering || forgot ? '邮箱' : '邮箱或用户名'}</label><input name="email" ${registering || forgot ? 'type="email"' : ''} autocomplete="username" maxlength="254" required>${forgot ? '' : `<label>密码</label><input name="password" type="password" autocomplete="${registering ? 'new-password' : 'current-password'}" minlength="${registering ? 10 : 1}" required>`}<div class="auth-message"></div>${!registering&&!forgot?'<div class="auth-links"><button type="button" data-forgot>忘记密码</button><button type="button" data-resend>重发验证邮件</button></div>':''}<div class="auth-actions"><button class="cancel" value="cancel" formnovalidate>取消</button><button class="submit" value="submit">${registering ? '注册并登录' : forgot ? '发送重置邮件' : '登录'}</button></div></form>`;
     const form = dialog.querySelector('form');
     form.addEventListener('submit', async (event) => {
       if (event.submitter?.value !== 'submit') return; event.preventDefault(); const message = form.querySelector('.auth-message'); message.textContent = '';

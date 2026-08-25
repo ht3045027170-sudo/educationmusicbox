@@ -10,16 +10,12 @@ export async function onRequestPost({ request, env }) {
     const body = await readBody(request);
     const identifier = String(body.email || body.username || '').trim();
     const password = String(body.password || '');
-    const system = String(body.learningSystem || body.system || 'hobby').trim();
     if (!identifier || !password) {
       return json({ ok: false, error: '请输入账号（邮箱或用户名）和密码。' }, 400);
     }
-    if (!['hobby', 'gaokao'].includes(system)) {
-      return json({ ok: false, error: '账号所属产品无效。' }, 400);
-    }
     const user = await env.DB.prepare(
-      'SELECT id, username, email, display_name, role, learning_system, status, email_verified, password_hash, password_salt, created_at, profiles_json FROM users WHERE (email = ? OR username = ?) AND learning_system = ? LIMIT 1'
-    ).bind(identifier, identifier, system).first();
+      'SELECT id, username, email, display_name, role, learning_system, status, email_verified, password_hash, password_salt, created_at, profiles_json FROM users WHERE email = ? OR username = ? LIMIT 1'
+    ).bind(identifier, identifier).first();
     if (!user) return json({ ok: false, error: '账号或密码错误。' }, 401);
     if (user.status !== 'active') return json({ ok: false, error: '该账号已被停用，请联系管理员。' }, 403);
     const ok = await verifyPassword(password, user.password_salt, user.password_hash);

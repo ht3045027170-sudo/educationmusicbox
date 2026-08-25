@@ -35,10 +35,6 @@
       showExamLogin();
       return;
     }
-    if (user.learningSystem !== 'gaokao') {
-      showExamLogin('当前登录的是海棠音乐账号，请退出后登录海棠艺考账号。');
-      return;
-    }
     window.GaokaoApp?.enterGaokao?.();
   }
 

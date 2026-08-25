@@ -32,9 +32,9 @@ export async function onRequestPost({ request, env }) {
     }
 
     const exists = await env.DB.prepare(
-      'SELECT id FROM users WHERE (username = ? OR email = ?) AND learning_system = ?'
-    ).bind(username, email, learningSystem).first();
-    if (exists) return json({ ok: false, error: '该用户名或邮箱已被注册。' }, 409);
+      'SELECT id FROM users WHERE username = ? OR email = ?'
+    ).bind(username, email).first();
+    if (exists) return json({ ok: false, error: '该用户名或邮箱已被注册，可直接登录两个系统。' }, 409);
 
     const { salt, hash } = await hashPassword(password);
     const result = await env.DB.prepare(
