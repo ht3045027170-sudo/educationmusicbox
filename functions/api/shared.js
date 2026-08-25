@@ -116,6 +116,13 @@ const requireTeacher = async (request, env) => {
   return { ok: true, user };
 };
 
+const ensureClassMessages = async (env) => {
+  await env.DB.prepare(
+    "CREATE TABLE IF NOT EXISTS class_messages (id INTEGER PRIMARY KEY AUTOINCREMENT, class_id INTEGER NOT NULL, sender_id INTEGER, kind TEXT NOT NULL DEFAULT 'text', content TEXT NOT NULL, assignment_id INTEGER, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(class_id) REFERENCES classes(id) ON DELETE CASCADE, FOREIGN KEY(sender_id) REFERENCES users(id) ON DELETE SET NULL, FOREIGN KEY(assignment_id) REFERENCES homework_assignments(id) ON DELETE CASCADE)"
+  ).run();
+  await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_class_messages_class_time ON class_messages(class_id, created_at)').run();
+};
+
 // 统一读取请求体
 const readBody = async (request) => {
   const ct = (request.headers.get('content-type') || '').toLowerCase();
@@ -146,5 +153,5 @@ export {
   json, randomToken, parseCookies, clientIp, safeEqual,
   bytesToHex, hexToBytes, hashPassword, verifyPassword, pbkdf2,
   requireCsrf, verifyCsrfRequest, readBody, issueSession, cookieAttrs,
-  currentUser, requireTeacher,
+  currentUser, requireTeacher, ensureClassMessages,
 };

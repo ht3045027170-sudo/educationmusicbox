@@ -1,4 +1,4 @@
-import { json, readBody, verifyCsrfRequest, requireTeacher } from '../../../../shared.js';
+import { json, readBody, verifyCsrfRequest, requireTeacher, ensureClassMessages } from '../../../../shared.js';
 
 // GET  /api/teaching/{system}/classes/{classId}/assignments  班级作业列表
 // POST /api/teaching/{system}/classes/{classId}/assignments  发布作业
@@ -59,7 +59,7 @@ export async function onRequestPost({ request, env, params }) {
 
     if (!title || title.length > 100) return json({ ok: false, error: '作业标题需在 1-100 字符之间。' }, 400);
     if (!questionIds.length) return json({ ok: false, error: '请至少选择一道题目。' }, 400);
-    if (Number.isNaN(Date.parse(dueAt))) return json({ ok: false, error: '截止时间格式不正确。' }, 400);
+    if (dueAt && Number.isNaN(Date.parse(dueAt))) return json({ ok: false, error: '截止时间格式不正确。' }, 400);
 
     // 校验题目确实存在、已发布、且属于当前子系统
     const placeholders = questionIds.map(() => '?').join(',');
@@ -73,6 +73,11 @@ export async function onRequestPost({ request, env, params }) {
     const result = await env.DB.prepare(
       'INSERT INTO homework_assignments (class_id, teacher_id, title, instructions, subject, question_ids, due_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
     ).bind(classId, auth.user.id, title, instructions, subject, JSON.stringify(questionIds), dueAt).run();
+
+    await ensureClassMessages(env);
+    await env.DB.prepare(
+      "INSERT INTO class_messages (class_id, sender_id, kind, content, assignment_id) VALUES (?, ?, 'assignment', ?, ?)"
+    ).bind(classId, auth.user.id, title, result.meta.last_row_id).run();
 
     return json({ ok: true, id: result.meta.last_row_id });
   } catch (error) {
