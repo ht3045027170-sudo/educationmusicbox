@@ -11,8 +11,7 @@ export async function onRequestPost({ request, env }) {
     const email = String(body.email || '').trim().toLowerCase();
     const product = body.learningSystem === 'gaokao' ? 'exam' : 'music';
     if (!email) return json({ ok: true }); // 不暴露邮箱是否存在
-    const system = product === 'exam' ? 'gaokao' : 'hobby';
-    const user = await env.DB.prepare('SELECT id, username FROM users WHERE email = ? AND learning_system = ?').bind(email, system).first();
+    const user = await env.DB.prepare('SELECT id, username FROM users WHERE email = ?').bind(email).first();
     if (!user) return json({ ok: true, message: '如果该邮箱已注册，重置链接已发送。' });
 
     const token = randomToken(24);
