@@ -48,6 +48,5 @@
   window.addEventListener('hetian:auth-changed', (event) => enterProduct(event.detail?.user || null));
 
   if (product === 'exam') showExamLogin('正在确认登录状态…');
-  else window.HetianEducationUI?.goEducationHome?.();
   window.HetianAuth?.whenReady?.().then(enterProduct);
 })();

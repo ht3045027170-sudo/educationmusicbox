@@ -1,6 +1,7 @@
 (() => {
   'use strict';
-  let csrfToken = '', user = null, resolveReady;
+  let csrfToken = '', user = null, resolveReady, applyingCloudState = false;
+  const syncTimers = {};
   const ready = new Promise((resolve) => { resolveReady = resolve; });
   const product = window.HaitangProduct?.product === 'exam' ? 'exam' : 'music';
   const systemCode = product === 'exam' ? 'gaokao' : 'hobby';
@@ -29,6 +30,88 @@
     window.dispatchEvent(new CustomEvent('hetian:auth-changed', { detail: { user } }));
   }
 
+  const localState = (code) => code === 'gaokao'
+    ? window.GaokaoStore?.getState?.()
+    : window.HetianEducation?.getState?.();
+
+  function applyProfile(code, profile = {}) {
+    if (!profile?.name) return;
+    if (code === 'gaokao') {
+      window.GaokaoStore?.saveProfile?.({
+        name: profile.name, examDate: profile.examDate || '', province: profile.province || '广东省',
+        direction: profile.direction || '', primarySubject: profile.primarySubject || profile.primaryMajor || '',
+        secondarySubject: profile.secondarySubject || profile.secondaryMajor || ''
+      });
+    } else {
+      window.HetianEducation?.saveProfile?.({
+        username: profile.name, primaryMajor: profile.instrument || '吉他', age: Number(profile.age) || 0,
+        dailyMinutes: Number(profile.dailyMinutes) || 30, examDirection: ['海棠音乐']
+      });
+    }
+  }
+
+  function applyState(code, state) {
+    if (!state || typeof state !== 'object') return;
+    if (code === 'gaokao') window.GaokaoStore?.update?.(() => state);
+    else window.HetianEducation?.saveEducationState?.(state);
+  }
+
+  function clearAccountCache() {
+    if (!localStorage.getItem(`haitang_state_owner_${systemCode}`)) return;
+    applyingCloudState = true;
+    try {
+      if (systemCode === 'gaokao') window.GaokaoStore?.update?.(() => ({}));
+      else window.HetianEducation?.resetEducationState?.();
+      localStorage.removeItem(`haitang_state_owner_${systemCode}`);
+    } finally {
+      applyingCloudState = false;
+    }
+  }
+
+  async function pushState(code) {
+    if (!user) return;
+    const state = localState(code);
+    if (!state) return;
+    await api(`/api/auth/state/${code}`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ state }) });
+  }
+
+  function queueStateSync(code) {
+    if (applyingCloudState || !user || code !== systemCode) return;
+    clearTimeout(syncTimers[code]);
+    syncTimers[code] = setTimeout(() => pushState(code).catch(() => {}), 700);
+  }
+
+  async function hydrateAccountState(accountUser) {
+    if (!accountUser) return;
+    applyingCloudState = true;
+    try {
+      const cloud = await api(`/api/auth/state/${systemCode}`);
+      if (cloud.state) applyState(systemCode, cloud.state);
+      else {
+        const owner = localStorage.getItem(`haitang_state_owner_${systemCode}`);
+        if (owner && owner !== String(accountUser.id)) {
+          if (systemCode === 'gaokao') window.GaokaoStore?.update?.(() => ({}));
+          else window.HetianEducation?.resetEducationState?.();
+        }
+        applyProfile(systemCode, accountUser.profiles?.[systemCode] || {});
+        const state = localState(systemCode);
+        if (state) await pushState(systemCode);
+      }
+      localStorage.setItem(`haitang_state_owner_${systemCode}`, String(accountUser.id));
+    } finally {
+      applyingCloudState = false;
+    }
+  }
+
+  async function saveAccountProfile(code, profile) {
+    const result = await api(`/api/auth/systems/${code}/profile`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ profile }) });
+    user.profiles = { ...(user.profiles || {}), [code]: result.profile };
+    applyingCloudState = true;
+    try { applyProfile(code, result.profile); } finally { applyingCloudState = false; }
+    await pushState(code);
+    return result.profile;
+  }
+
   function renderAccountUI() {
     const box = accountBox(); if (!box) return;
     const accountUser = user || null;
@@ -50,6 +133,7 @@
       if (mode === 'homework') return window.MusicHomework?.open();
       if (mode === 'logout') {
         try { await api('/api/auth/logout', { method: 'POST' }); } finally { user = null; csrfToken = ''; }
+        clearAccountCache();
         renderAccountUI();
         notifyAccessChange();
         toast('已退出登录');
@@ -66,7 +150,7 @@
     const form = dialog.querySelector('form');
     form.addEventListener('submit', async (event) => {
       if (event.submitter?.value !== 'submit') return; event.preventDefault(); const message = form.querySelector('.auth-message'); message.textContent = '';
-      try { const data = Object.fromEntries(new FormData(form)); data.learningSystem = systemCode; const endpoint=registering?'register':forgot?'forgot-password':'login'; const body = await api(`/api/auth/${endpoint}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) }); if(forgot){message.className='auth-message success';message.innerHTML=body.mail?.devLink?`本机测试链接：<a href="${esc(body.mail.devLink)}">打开</a>`:body.devLink?`本机测试链接：<a href="${esc(body.devLink)}">打开</a>`:'如果邮箱存在，重置邮件已经发送。';return;} user = body.user; csrfToken = body.csrfToken; renderAccountUI(); notifyAccessChange(); dialog.close(); toast(registering?`已注册并登录${productName}`:`已登录${productName}`); } catch (error) { message.textContent = error.message; }
+      try { const data = Object.fromEntries(new FormData(form)); data.learningSystem = systemCode; const endpoint=registering?'register':forgot?'forgot-password':'login'; const body = await api(`/api/auth/${endpoint}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) }); if(forgot){message.className='auth-message success';message.innerHTML=body.mail?.devLink?`本机测试链接：<a href="${esc(body.mail.devLink)}">打开</a>`:body.devLink?`本机测试链接：<a href="${esc(body.devLink)}">打开</a>`:'如果邮箱存在，重置邮件已经发送。';return;} user = body.user; csrfToken = body.csrfToken; let syncError = null; try { await hydrateAccountState(user); } catch (error) { syncError = error; } renderAccountUI(); notifyAccessChange(); dialog.close(); toast(syncError ? `已登录，但学习数据同步失败：${syncError.message}` : registering?`已注册并登录${productName}`:`已登录${productName}`, Boolean(syncError)); } catch (error) { message.textContent = error.message; }
     }); dialog.showModal();
     form.querySelector('[data-forgot]')?.addEventListener('click',()=>open('forgot'));
     form.querySelector('[data-resend]')?.addEventListener('click',async()=>{const email=form.elements.email.value,message=form.querySelector('.auth-message');if(!email)return message.textContent='请先输入注册邮箱';const body=await api('/api/auth/resend-verification',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email,learningSystem:systemCode})});message.className='auth-message success';message.innerHTML=body.devLink?`本机测试链接：<a href="${esc(body.devLink)}">打开</a>`:'如果邮箱存在且尚未验证，邮件已经发送。';});
@@ -88,7 +172,7 @@
         if (profile.age) profile.age = Number(profile.age);
         if (profile.dailyMinutes) profile.dailyMinutes = Number(profile.dailyMinutes);
         try {
-          await api(`/api/auth/systems/${form.dataset.system}/profile`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ profile }) });
+          await saveAccountProfile(form.dataset.system, profile);
           message.className = 'auth-message success'; message.textContent = '已保存';
         } catch (error) { message.className = 'auth-message'; message.textContent = error.message; }
       };
@@ -111,10 +195,18 @@
     openRegister: () => open('register'),
     openAccount: () => openAccount(),
     openHomework: () => window.MusicHomework?.open(),
+    saveProfile: saveAccountProfile,
     logout: () => onAuthAction({ currentTarget: { dataset: { auth: 'logout' } } }),
     whenReady: () => ready
   };
-  api('/api/auth/session').then((body) => { user = body.user; renderAccountUI(); notifyAccessChange(); resolveReady(user); }).catch(() => resolveReady(null));
+  window.addEventListener('hetian:education-state', () => queueStateSync('hobby'));
+  window.addEventListener('hetian:gaokao-state', () => queueStateSync('gaokao'));
+  api('/api/auth/session').then(async (body) => {
+    user = body.user;
+    if (!user) clearAccountCache();
+    try { await hydrateAccountState(user); } catch (error) { console.warn('账号学习数据同步失败，暂时使用本机缓存。', error); }
+    renderAccountUI(); notifyAccessChange(); resolveReady(user);
+  }).catch(() => resolveReady(null));
   handleAccountAction();
   import('/homework.js').catch(() => {});
 })();
