@@ -15,16 +15,20 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: '未授权。' }, 401);
   }
 
-  const tables = (await env.DB.prepare(
-    "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
-  ).all()).results || [];
-  const counts = {};
-  for (const { name } of tables) {
-    if (!/^[a-zA-Z0-9_]+$/.test(name)) continue;
-    counts[name] = Number((await env.DB.prepare(`SELECT COUNT(*) AS total FROM ${name}`).first())?.total || 0);
+  try {
+    const tables = (await env.DB.prepare(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
+    ).all()).results || [];
+    const counts = {};
+    for (const { name } of tables) {
+      if (!/^[a-zA-Z0-9_]+$/.test(name)) continue;
+      counts[name] = Number((await env.DB.prepare(`SELECT COUNT(*) AS total FROM ${name}`).first())?.total || 0);
+    }
+    const users = (await env.DB.prepare(
+      'SELECT id, username, email, display_name, role, learning_system, status, email_verified, created_at FROM users ORDER BY id'
+    ).all()).results || [];
+    return json({ ok: true, counts, users });
+  } catch (error) {
+    return json({ ok: false, error: error?.message || String(error) }, 500);
   }
-  const users = (await env.DB.prepare(
-    'SELECT id, username, email, display_name, role, learning_system, status, email_verified, created_at FROM users ORDER BY id'
-  ).all()).results || [];
-  return json({ ok: true, counts, users });
 }
