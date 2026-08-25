@@ -21,7 +21,11 @@ export async function onRequestGet({ request, env, params }) {
       'SELECT m.id, m.sender_id, m.kind, m.content, m.assignment_id, m.created_at, u.username, u.display_name, u.role ' +
       'FROM class_messages m LEFT JOIN users u ON u.id = m.sender_id WHERE m.class_id = ? ORDER BY m.id DESC LIMIT 100'
     ).bind(classId).all();
-    return json({ class: { id: cls.id, name: cls.name }, items: results.reverse().map(row => ({ ...row, is_mine: Number(row.sender_id) === Number(user.id) })) });
+    return json({
+      class: { id: cls.id, name: cls.name },
+      viewer: { id: user.id, role: user.role },
+      items: results.reverse().map(row => ({ ...row, is_mine: Number(row.sender_id) === Number(user.id) }))
+    });
   } catch (error) {
     return json({ ok: false, error: '加载班级消息失败：' + (error.message || String(error)) }, 500);
   }

@@ -30,6 +30,10 @@
     window.dispatchEvent(new CustomEvent('hetian:auth-changed', { detail: { user } }));
   }
 
+  function announceSessionChange() {
+    localStorage.setItem('haitang_auth_changed_at', `${Date.now()}:${user?.id || 0}`);
+  }
+
   const localState = (code) => code === 'gaokao'
     ? window.GaokaoStore?.getState?.()
     : window.HetianEducation?.getState?.();
@@ -163,6 +167,7 @@
         clearAccountCache();
         renderAccountUI();
         notifyAccessChange();
+        announceSessionChange();
         toast('已退出登录');
       }
     } catch (error) {
@@ -177,7 +182,7 @@
     const form = dialog.querySelector('form');
     form.addEventListener('submit', async (event) => {
       if (event.submitter?.value !== 'submit') return; event.preventDefault(); const message = form.querySelector('.auth-message'); message.textContent = '';
-      try { const data = Object.fromEntries(new FormData(form)); data.learningSystem = systemCode; const endpoint=registering?'register':forgot?'forgot-password':'login'; const body = await api(`/api/auth/${endpoint}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) }); if(forgot){message.className='auth-message success';message.innerHTML=body.mail?.devLink?`本机测试链接：<a href="${esc(body.mail.devLink)}">打开</a>`:body.devLink?`本机测试链接：<a href="${esc(body.devLink)}">打开</a>`:'如果邮箱存在，重置邮件已经发送。';return;} user = body.user; csrfToken = body.csrfToken; let syncError = null; try { await hydrateAccountState(user); } catch (error) { syncError = error; } renderAccountUI(); notifyAccessChange(); dialog.close(); toast(syncError ? `已登录，但学习数据同步失败：${syncError.message}` : registering?`已注册并登录${productName}`:`已登录${productName}`, Boolean(syncError)); } catch (error) { message.textContent = error.message; }
+      try { const data = Object.fromEntries(new FormData(form)); data.learningSystem = systemCode; const endpoint=registering?'register':forgot?'forgot-password':'login'; const body = await api(`/api/auth/${endpoint}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) }); if(forgot){message.className='auth-message success';message.innerHTML=body.mail?.devLink?`本机测试链接：<a href="${esc(body.mail.devLink)}">打开</a>`:body.devLink?`本机测试链接：<a href="${esc(body.devLink)}">打开</a>`:'如果邮箱存在，重置邮件已经发送。';return;} user = body.user; csrfToken = body.csrfToken; let syncError = null; try { await hydrateAccountState(user); } catch (error) { syncError = error; } renderAccountUI(); notifyAccessChange(); announceSessionChange(); dialog.close(); toast(syncError ? `已登录，但学习数据同步失败：${syncError.message}` : registering?`已注册并登录${productName}`:`已登录${productName}`, Boolean(syncError)); } catch (error) { message.textContent = error.message; }
     }); dialog.showModal();
     form.querySelector('[data-forgot]')?.addEventListener('click',()=>open('forgot'));
     form.querySelector('[data-resend]')?.addEventListener('click',async()=>{const email=form.elements.email.value,message=form.querySelector('.auth-message');if(!email)return message.textContent='请先输入注册邮箱';const body=await api('/api/auth/resend-verification',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email,learningSystem:systemCode})});message.className='auth-message success';message.innerHTML=body.devLink?`本机测试链接：<a href="${esc(body.devLink)}">打开</a>`:'如果邮箱存在且尚未验证，邮件已经发送。';});
@@ -228,6 +233,9 @@
   };
   window.addEventListener('hetian:education-state', () => queueStateSync('hobby'));
   window.addEventListener('hetian:gaokao-state', () => queueStateSync('gaokao'));
+  window.addEventListener('storage', event => {
+    if (event.key === 'haitang_auth_changed_at') location.reload();
+  });
   api('/api/auth/session').then(async (body) => {
     user = body.user;
     if (!user) clearAccountCache();

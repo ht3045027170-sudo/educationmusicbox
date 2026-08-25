@@ -83,6 +83,11 @@
       api(`/api/learning/${selectedSystem}/classes/${selectedClass}/messages`),
       api(`/api/learning/${selectedSystem}/assignments`)
     ]);
+    const localUserId = Number(window.HetianAuth?.getUser?.()?.id);
+    if (localUserId && Number(messages.viewer?.id) !== localUserId) {
+      location.reload();
+      return;
+    }
     const classAssignments = assignments.items.filter(item => Number(item.class_id) === Number(selectedClass));
     const localDay = value => value ? new Date(value.endsWith?.('Z') ? value : `${value}Z`).toLocaleDateString() : '';
     const todayKey = new Date().toLocaleDateString();
