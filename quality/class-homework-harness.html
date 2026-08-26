@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>班级与作业检查</title></head>
+<body>
+<button id="openClass">打开班级</button>
+<script>
+window.HetianAuth={getUser:()=>({id:2,username:'hexin',display_name:'何欣',role:'learner'})};
+const now=new Date().toISOString();
+const response=body=>({ok:true,status:200,json:async()=>body});
+window.fetch=async input=>{
+  const url=String(input);
+  if(url.includes('/api/csrf'))return response({csrfToken:'test'});
+  if(url.endsWith('/classes'))return response({items:[{id:1,name:'下小雨班',teacher_name:'何老师',member_count:3}]});
+  if(url.includes('/classes/1/messages'))return response({class:{id:1,name:'下小雨班',teacher_id:1,member_count:3,announcement:'本周完成音程与节奏练习。'},viewer:{id:2,role:'learner',is_teacher:false},members:[{id:1,display_name:'何老师',role:'teacher'},{id:2,display_name:'何欣',role:'learner'}],pinned:[{id:10,content:'周五前提交作业',display_name:'何老师',created_at:now}],has_more:true,items:[{id:9,sender_id:1,kind:'text',content:'大家注意听辨时先看清谱号。',created_at:now,display_name:'何老师',role:'teacher',is_mine:false,can_delete:false,can_pin:false},{id:10,sender_id:2,kind:'text',content:'收到，我会按时完成。',created_at:now,display_name:'何欣',role:'learner',is_mine:true,can_delete:true,can_pin:false}]});
+  if(url.includes('/assignments'))return response({items:[{id:6,class_id:1,class_name:'下小雨班',title:'第三周音程综合',instructions:'完成后查看错题。',question_count:10,created_at:now,due_at:new Date(Date.now()+86400000).toISOString(),score:null,submitted_at:null,allow_retry:true,max_attempts:3,attempt_count:0}]});
+  return response({ok:true});
+};
+</script>
+<script src="../homework.js"></script>
+<script>document.getElementById('openClass').onclick=()=>MusicHomework.open('gaokao');document.getElementById('openClass').click();</script>
+</body>
+</html>

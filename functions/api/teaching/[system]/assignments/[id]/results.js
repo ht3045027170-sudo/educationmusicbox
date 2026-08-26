@@ -1,4 +1,4 @@
-import { json, requireTeacher } from '../../../../shared.js';
+import { json, requireTeacher, ensureCollaborationSchema } from '../../../../shared.js';
 
 // GET /api/teaching/{system}/assignments/{id}/results
 // 作业成绩（含未提交学生）+ 逐题明细（每题学生作答 vs 标准答案、对错）
@@ -8,6 +8,7 @@ export async function onRequestGet({ request, env, params }) {
     const auth = await requireTeacher(request, env);
     if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status);
     const assignmentId = Number(params.id);
+    await ensureCollaborationSchema(env);
 
     const assignment = await env.DB.prepare(
       'SELECT a.id, a.class_id, a.question_ids FROM homework_assignments a ' +
@@ -40,12 +41,13 @@ export async function onRequestGet({ request, env, params }) {
     }
 
     const { results } = await env.DB.prepare(
-      'SELECT u.username, u.display_name, s.score, s.wrong_count, s.submitted_at, s.answers ' +
+      'SELECT u.id AS student_id, u.username, u.display_name, s.score, s.wrong_count, s.submitted_at, s.answers, ' +
+      '(SELECT COUNT(*) FROM homework_attempts h WHERE h.assignment_id=? AND h.student_id=u.id) AS attempt_count ' +
       'FROM class_students cs ' +
       'JOIN users u ON u.id = cs.student_id ' +
       'LEFT JOIN homework_submissions s ON s.assignment_id = ? AND s.student_id = cs.student_id ' +
       'WHERE cs.class_id = ? ORDER BY s.submitted_at IS NULL, s.submitted_at DESC'
-    ).bind(assignmentId, assignment.class_id).all();
+    ).bind(assignmentId, assignmentId, assignment.class_id).all();
 
     const items = results.map((row) => {
       let answers = {};
@@ -57,13 +59,25 @@ export async function onRequestGet({ request, env, params }) {
       });
       return {
         username: row.display_name || row.username,
+        student_id: row.student_id,
         score: row.score,
         wrong_count: row.wrong_count,
         submitted_at: row.submitted_at,
         detail: row.submitted_at ? detail : null,
+        attempt_count: Number(row.attempt_count || 0),
       };
     });
-    return json({ items, questions });
+    const completed = items.filter(item => item.submitted_at && Number.isFinite(Number(item.score)));
+    const scores = completed.map(item => Number(item.score));
+    const summary = {
+      total: items.length,
+      completed: completed.length,
+      pending: items.length - completed.length,
+      average: scores.length ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length * 10) / 10 : null,
+      highest: scores.length ? Math.max(...scores) : null,
+      lowest: scores.length ? Math.min(...scores) : null,
+    };
+    return json({ items, questions, summary });
   } catch (error) {
     return json({ ok: false, error: '加载成绩失败：' + (error.message || String(error)) }, 500);
   }

@@ -123,6 +123,20 @@ const ensureClassMessages = async (env) => {
   await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_class_messages_class_time ON class_messages(class_id, created_at)').run();
 };
 
+// 班级协作与套题采用附加表扩展旧数据，不改动已有账号、题库和作业主表。
+const ensureCollaborationSchema = async (env) => {
+  await env.DB.batch([
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS class_settings (class_id INTEGER PRIMARY KEY, announcement TEXT NOT NULL DEFAULT '', updated_by INTEGER, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(class_id) REFERENCES classes(id) ON DELETE CASCADE)"),
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS class_message_meta (message_id INTEGER PRIMARY KEY, reply_to INTEGER, pinned_at TEXT, pinned_by INTEGER, deleted_at TEXT, deleted_by INTEGER, FOREIGN KEY(message_id) REFERENCES class_messages(id) ON DELETE CASCADE, FOREIGN KEY(reply_to) REFERENCES class_messages(id) ON DELETE SET NULL)"),
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS class_read_states (class_id INTEGER NOT NULL, user_id INTEGER NOT NULL, last_message_id INTEGER NOT NULL DEFAULT 0, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(class_id,user_id), FOREIGN KEY(class_id) REFERENCES classes(id) ON DELETE CASCADE, FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE)"),
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS assignment_settings (assignment_id INTEGER PRIMARY KEY, allow_retry INTEGER NOT NULL DEFAULT 0, max_attempts INTEGER, score_policy TEXT NOT NULL DEFAULT 'highest', deleted_at TEXT, question_set_id INTEGER, announce_in_chat INTEGER NOT NULL DEFAULT 1, FOREIGN KEY(assignment_id) REFERENCES homework_assignments(id) ON DELETE CASCADE)"),
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS homework_attempts (id INTEGER PRIMARY KEY AUTOINCREMENT, assignment_id INTEGER NOT NULL, student_id INTEGER NOT NULL, attempt_no INTEGER NOT NULL, answers TEXT NOT NULL, score REAL NOT NULL DEFAULT 0, wrong_count INTEGER NOT NULL DEFAULT 0, started_at TEXT, submitted_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(assignment_id) REFERENCES homework_assignments(id) ON DELETE CASCADE, FOREIGN KEY(student_id) REFERENCES users(id) ON DELETE CASCADE, UNIQUE(assignment_id, student_id, attempt_no))"),
+    env.DB.prepare("CREATE TABLE IF NOT EXISTS question_sets (id INTEGER PRIMARY KEY AUTOINCREMENT, system_code TEXT NOT NULL, teacher_id INTEGER NOT NULL, title TEXT NOT NULL, description TEXT NOT NULL DEFAULT '', sections_json TEXT NOT NULL DEFAULT '[]', total_score REAL NOT NULL DEFAULT 0, estimated_duration INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'draft', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, deleted_at TEXT, FOREIGN KEY(teacher_id) REFERENCES users(id) ON DELETE CASCADE)"),
+    env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_attempts_assignment_student ON homework_attempts(assignment_id, student_id, attempt_no)'),
+    env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_question_sets_teacher ON question_sets(teacher_id, system_code, updated_at)'),
+  ]);
+};
+
 // 统一读取请求体
 const readBody = async (request) => {
   const ct = (request.headers.get('content-type') || '').toLowerCase();
@@ -153,5 +167,5 @@ export {
   json, randomToken, parseCookies, clientIp, safeEqual,
   bytesToHex, hexToBytes, hashPassword, verifyPassword, pbkdf2,
   requireCsrf, verifyCsrfRequest, readBody, issueSession, cookieAttrs,
-  currentUser, requireTeacher, ensureClassMessages,
+  currentUser, requireTeacher, ensureClassMessages, ensureCollaborationSchema,
 };

@@ -78,6 +78,10 @@
   let activeKeys = new Set(); // 当前按下的键 (防止重复触发)
   let history = [];
   let historyIndex = -1;
+  let playbackEpoch = 0;
+  let playbackDoneTimer = 0;
+  const playbackVoices = new Set();
+  const voiceCleanupTimers = new Set();
 
   /* ==================== 工具函数 ==================== */
   const $ = sel => document.querySelector(sel);
@@ -138,27 +142,57 @@
     return piano;
   }
 
+  function resetPlayButton() {
+    const playBtn = document.getElementById('mePlay');
+    if (playBtn) { playBtn.disabled = false; playBtn.textContent = '▶ 播放'; }
+  }
+
+  function stopPlayback() {
+    playbackEpoch++;
+    if (playbackDoneTimer) clearTimeout(playbackDoneTimer);
+    playbackDoneTimer = 0;
+    voiceCleanupTimers.forEach(timer => clearTimeout(timer));
+    voiceCleanupTimers.clear();
+    playbackVoices.forEach(voice => {
+      voice?.sources?.forEach(source => { try { source.stop(audioContext?.currentTime || 0); } catch (_) {} });
+      try { voice?.release?.(.04); } catch (_) {}
+    });
+    playbackVoices.clear();
+    resetPlayButton();
+  }
+
   function playNote(midi, when = null, duration = 0.5, velocity = 0.7) {
     try {
       const ctx = getAudio();
       const t = when ?? ctx.currentTime;
       const piano = window.HetianPiano;
       if (!piano || !piano.isReady?.()) return;
-      piano.play(ctx, midi, t, duration, velocity);
+      const voice = piano.play(ctx, midi, t, duration, velocity);
+      if (!voice) return;
+      playbackVoices.add(voice);
+      const timer = setTimeout(() => {
+        playbackVoices.delete(voice);
+        voiceCleanupTimers.delete(timer);
+      }, Math.max(250, (t - ctx.currentTime + duration + .5) * 1000));
+      voiceCleanupTimers.add(timer);
+      return voice;
     } catch (e) { /* 静默 */ }
   }
 
   async function playSequence() {
     if (!state.notes.length) return;
+    stopPlayback();
+    const token = playbackEpoch;
     const playBtn = document.getElementById('mePlay');
     if (playBtn) { playBtn.disabled = true; playBtn.textContent = '播放中…'; }
     try {
       await ensurePiano();
     } catch (e) {
-      if (playBtn) { playBtn.disabled = false; playBtn.textContent = '▶ 播放'; }
+      resetPlayButton();
       alert('钢琴采样加载失败：' + e.message + '\n请确保 sight-singing/piano-samples 文件完整。');
       return;
     }
+    if (token !== playbackEpoch || !isEditorActive()) return;
     const ctx = getAudio();
     const beat = 60 / state.bpm;
     let t = ctx.currentTime + 0.06;
@@ -170,15 +204,16 @@
       t += dur;
     }
     const totalMs = (t - ctx.currentTime) * 1000 + 200;
-    setTimeout(() => {
-      if (playBtn) { playBtn.disabled = false; playBtn.textContent = '▶ 播放'; }
+    playbackDoneTimer = setTimeout(() => {
+      playbackDoneTimer = 0;
+      if (token === playbackEpoch) resetPlayButton();
     }, totalMs);
   }
 
   /* ==================== 五线谱渲染 ==================== */
   function renderStaff(notes, keySig, meter, category, clef = 'treble') {
     const seq = notes && notes.length ? notes : [{ midi: 60, dur: 1, rest: true }];
-    const ink = '#20302b', line = '#52625d', staffSpace = 8;
+    const ink = '#45271e', line = '#80685f', staffSpace = 8;
     const md = String(meter || '4/4').split('/');
     const beatsPerBar = Math.max(1, (+md[0] || 4) * 4 / (+md[1] || 4));
     const keyData = KEY_SIGNATURES[keySig] || KEY_SIGNATURES.C;
@@ -355,7 +390,8 @@
       if (!SHARP_CLASSES.has(m % 12)) whiteKeys.push(m);
     }
     const whiteCount = whiteKeys.length;
-    let html = '<div class="me-piano"><div class="me-piano-white">';
+    const pianoWidth = whiteCount * 52;
+    let html = `<div class="me-piano" style="width:${pianoWidth}px"><div class="me-piano-white">`;
     whiteKeys.forEach(m => {
       const label = m % 12 === 0 ? 'C' + (Math.floor(m / 12) - 1) : '';
       html += `<button class="me-key me-white" data-midi="${m}" type="button">${label}</button>`;
@@ -364,8 +400,7 @@
     for (let m = KEYS_START; m <= KEYS_END; m++) {
       if (!SHARP_CLASSES.has(m % 12)) continue;
       const precedingWhite = whiteKeys.filter(x => x < m).length;
-      const leftPct = (precedingWhite / whiteCount * 100) - (100 / whiteCount * 0.5);
-      html += `<button class="me-key me-black" data-midi="${m}" type="button" style="left:${leftPct}%"></button>`;
+      html += `<button class="me-key me-black" data-midi="${m}" type="button" style="left:${precedingWhite * 52 - 17}px"></button>`;
     }
     html += '</div></div>';
     container.innerHTML = html;
@@ -373,19 +408,25 @@
     // 绑定鼠标/触摸事件
     container.querySelectorAll('.me-key').forEach(key => {
       const midi = +key.dataset.midi;
+      let touchStartX = 0;
       const press = (e) => {
-        e.preventDefault();
-        handleNoteOn(midi, 'mouse');
+        touchStartX = e.clientX;
+        if (e.pointerType === 'mouse') { e.preventDefault(); handleNoteOn(midi, 'mouse'); }
       };
       const release = (e) => {
-        e.preventDefault();
-        handleNoteOff(midi, 'mouse');
+        if (e.pointerType === 'mouse') { e.preventDefault(); handleNoteOff(midi, 'mouse'); return; }
+        if (Math.abs(e.clientX - touchStartX) < 8) {
+          handleNoteOn(midi, 'touch');
+          setTimeout(() => handleNoteOff(midi, 'touch'), 120);
+        }
       };
+      const cancel = e => { if (e.pointerType === 'mouse') handleNoteOff(midi, 'mouse'); };
       key.addEventListener('pointerdown', press);
       key.addEventListener('pointerup', release);
-      key.addEventListener('pointerleave', release);
-      key.addEventListener('pointercancel', release);
+      key.addEventListener('pointerleave', cancel);
+      key.addEventListener('pointercancel', cancel);
     });
+    requestAnimationFrame(() => { container.scrollLeft = Math.max(0, 7 * 52 - container.clientWidth * .18); });
   }
 
   /* ==================== 音符输入逻辑 ==================== */
@@ -653,6 +694,7 @@
 
   /* ==================== 主渲染（构建完整 UI） ==================== */
   function mount(container, options = {}) {
+    destroy();
     // 注入样式（只注入一次）
     if (!document.getElementById('me-styles')) {
       const style = document.createElement('style');
@@ -781,8 +823,13 @@
   }
 
   function destroy() {
+    stopPlayback();
     document.removeEventListener('keydown', handleKeyboardDown);
     document.removeEventListener('keyup', handleKeyboardUp);
+    if (midiAccess) {
+      midiAccess.inputs.forEach(input => { input.onmidimessage = null; });
+      midiAccess.onstatechange = null;
+    }
     activeKeys.clear();
     changeListener = null;
   }
@@ -821,52 +868,55 @@
 
   /* ==================== 样式 ==================== */
   const ME_STYLES = `
-.me-editor{border:1px solid #dce5df;border-radius:14px;padding:18px;background:#f8faf8;margin:14px 0}
+.me-editor{border:1px solid #ead3c4;border-radius:14px;padding:18px;background:#fff8f2;margin:14px 0}
 .me-controls{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px}
 .me-control-group{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap}
-.me-control-group label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:#3a5346}
-.me-control-group select,.me-control-group input[type=range]{padding:7px 10px;border:1px solid #cad8d0;border-radius:8px;font-size:13px;background:#fff}
+.me-control-group label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:#684438}
+.me-control-group select,.me-control-group input[type=range]{padding:7px 10px;border:1px solid #dfc1af;border-radius:8px;font-size:13px;background:#fff}
 .me-control-group input[type=range]{width:120px}
-.me-toggle{padding:7px 12px;border:1px solid #cad8d0;border-radius:8px;background:#fff;color:#40534a;cursor:pointer;font-size:13px}
-.me-toggle.me-active{background:#4d9b73;color:#fff;border-color:#4d9b73}
-.me-secondary{padding:7px 12px;border:1px solid #cad8d0;border-radius:8px;background:#eef2ef;color:#40534a;cursor:pointer;font-size:13px}
-.me-primary{padding:9px 18px;border:0;border-radius:9px;background:#4d9b73;color:#fff;cursor:pointer;font-size:14px;font-weight:650}
+.me-toggle{padding:7px 12px;border:1px solid #dfc1af;border-radius:8px;background:#fff;color:#684438;cursor:pointer;font-size:13px}
+.me-toggle.me-active{background:#e76531;color:#fff;border-color:#e76531}
+.me-secondary{padding:7px 12px;border:1px solid #dfc1af;border-radius:8px;background:#f8e9de;color:#684438;cursor:pointer;font-size:13px}
+.me-primary{padding:9px 18px;border:0;border-radius:9px;background:#e76531;color:#fff;cursor:pointer;font-size:14px;font-weight:650}
 .me-danger{padding:7px 12px;border:1px solid #e8c5c5;border-radius:8px;background:#f8e8e8;color:#a23d3d;cursor:pointer;font-size:13px}
-.me-staff-container{background:#fff;border:1px solid #dce5df;border-radius:10px;padding:12px;overflow:auto;margin-bottom:12px;min-height:130px}
+.me-staff-container{background:#fff;border:1px solid #ead3c4;border-radius:10px;padding:12px;overflow:auto;margin-bottom:12px;min-height:130px}
 .me-staff-container svg{display:block;width:100%;max-width:720px;height:auto}
 .me-note-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;max-height:180px;overflow-y:auto}
-.me-empty{color:#9bacA3;font-size:13px;padding:14px;text-align:center;width:100%}
-.me-note-chip{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid #dce5df;border-radius:8px;background:#fff;font-size:12px}
-.me-note-chip.me-rest{background:#f0f4f1;border-style:dashed}
-.me-note-name{font-weight:650;color:#263c48;min-width:36px}
-.me-note-dur{color:#687970;font-size:11px}
+.me-empty{color:#a18478;font-size:13px;padding:14px;text-align:center;width:100%}
+.me-note-chip{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid #ead3c4;border-radius:8px;background:#fff;font-size:12px}
+.me-note-chip.me-rest{background:#fbefe7;border-style:dashed}
+.me-note-name{font-weight:650;color:#45271e;min-width:36px}
+.me-note-dur{color:#8b6c60;font-size:11px}
 .me-note-actions{display:flex;gap:3px}
-.me-note-actions button{padding:3px 6px;border:1px solid #dce5df;border-radius:5px;background:#fff;cursor:pointer;font-size:11px;color:#51665b}
+.me-note-actions button{padding:3px 6px;border:1px solid #ead3c4;border-radius:5px;background:#fff;cursor:pointer;font-size:11px;color:#684438}
 .me-note-actions .me-danger{padding:3px 6px;font-size:11px}
 .me-keyboard-section{margin-top:10px}
 .me-keyboard-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.me-midi-status{font-size:12px;color:#687970}
-.me-keyboard-wrap{position:relative;user-select:none}
-.me-piano{position:relative;height:140px;display:flex}
-.me-piano-white{display:flex;flex:1;position:relative;z-index:1}
-.me-piano-black{position:absolute;top:0;left:0;right:0;height:85px;z-index:2;pointer-events:none}
-.me-key{border:1px solid #8a9b94;cursor:pointer;font-size:10px;font-weight:600;transition:background .08s}
-.me-key.me-white{flex:1;height:100%;background:#fff;color:#9bacA3;border-radius:0 0 5px 5px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
-.me-key.me-black{position:absolute;width:24px;height:100%;background:#263c48;color:#c8d8d0;border:1px solid #1a2a24;border-radius:0 0 4px 4px;pointer-events:auto}
-.me-key.me-key-active.me-white{background:#4d9b73;color:#fff;transform:translateY(1px)}
-.me-key.me-key-active.me-black{background:#3a8560;transform:translateY(1px)}
-.me-hint{font-size:11px;color:#9bacA3;margin-top:8px;line-height:1.6}
+.me-midi-status{font-size:12px;color:#8b6c60}
+.me-keyboard-wrap{position:relative;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-color:#e76531 #f3dfd1;scrollbar-width:thin;user-select:none;padding:20px 14px 12px;border:1px solid #7d4631;border-radius:15px;background:linear-gradient(180deg,#6b3625 0 15px,#3b1d15 15px 100%);box-shadow:inset 0 2px 4px #fff2,inset 0 -8px 16px #16080380;touch-action:pan-x}
+.me-keyboard-wrap::-webkit-scrollbar{height:8px}.me-keyboard-wrap::-webkit-scrollbar-track{background:#f3dfd1;border-radius:99px}.me-keyboard-wrap::-webkit-scrollbar-thumb{background:#e76531;border-radius:99px}
+.me-piano{position:relative;height:148px;display:flex;flex:none;margin:0 auto}
+.me-piano-white{display:flex;position:relative;z-index:1}
+.me-piano-black{position:absolute;top:0;left:0;right:0;height:92px;z-index:2;pointer-events:none}
+.me-key{flex:none;border:1px solid #8e817b;cursor:pointer;font-size:10px;font-weight:700;transition:filter .08s,transform .08s;touch-action:pan-x}
+.me-key.me-white{width:52px;height:100%;background:linear-gradient(100deg,#f4eee8 0,#fff 30%,#fffdf9 72%,#d8cec5 100%);color:#987f73;border-radius:0 0 7px 7px;box-shadow:inset 0 -9px 12px #c9bcb560;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px}
+.me-key.me-black{position:absolute;width:34px;height:100%;background:linear-gradient(100deg,#160f0d 0,#44302a 55%,#120b09 100%);color:#e9d8ce;border:1px solid #0b0605;border-radius:0 0 5px 5px;box-shadow:3px 5px 6px #0007,inset 1px 0 #fff2;pointer-events:auto}
+.me-key.me-key-active.me-white{background:linear-gradient(#ffd4bc,#f08a5b);color:#51261a;transform:translateY(2px)}
+.me-key.me-key-active.me-black{background:linear-gradient(#ff8b5a,#b93e19);transform:translateY(2px)}
+.me-hint{font-size:11px;color:#a18478;margin-top:8px;line-height:1.6}
 @media(max-width:600px){
   .me-controls{flex-direction:column}
-  .me-piano{height:100px}
-  .me-piano-black{height:62px}
-  .me-key.me-black{width:18px}
+  .me-piano{height:118px}
+  .me-piano-black{height:74px}
 }
   `;
 
   async function playNotes(notes, opts = {}) {
     if (!notes || !notes.length) return;
+    stopPlayback();
+    const token = playbackEpoch;
     await ensurePiano();
+    if (token !== playbackEpoch) return;
     const ctx = getAudio();
     const bpm = opts.bpm || state.bpm || 100;
     const beat = 60 / bpm;
@@ -878,9 +928,11 @@
       if (!simultaneous) t += dur;
     }
     if (simultaneous) t += Math.max(...notes.map(n => (Number(n.dur) || 1) * beat));
-    return (t - ctx.currentTime) * 1000 + 200;
+    const totalMs = (t - ctx.currentTime) * 1000 + 200;
+    playbackDoneTimer = setTimeout(() => { playbackDoneTimer = 0; }, totalMs);
+    return totalMs;
   }
 
   /* ==================== 导出 ==================== */
-  window.MusicEditor = { mount, destroy, getNotes, setNotes, getState, setState, playSequence, renderStaffPreview: renderStaff, playNotes };
+  window.MusicEditor = { mount, destroy, stopPlayback, getNotes, setNotes, getState, setState, playSequence, renderStaffPreview: renderStaff, playNotes };
 })();

@@ -1,4 +1,4 @@
-import { json, readBody, verifyCsrfRequest, currentUser } from '../../../shared.js';
+import { json, readBody, verifyCsrfRequest, currentUser, ensureClassMessages } from '../../../shared.js';
 
 // POST /api/learning/{system}/classes/join  学生凭邀请码加入班级
 export async function onRequestPost({ request, env, params }) {
@@ -30,6 +30,10 @@ export async function onRequestPost({ request, env, params }) {
     await env.DB.prepare(
       'INSERT INTO class_students (class_id, student_id) VALUES (?, ?)'
     ).bind(cls.id, user.id).run();
+    await ensureClassMessages(env);
+    await env.DB.prepare(
+      "INSERT INTO class_messages (class_id, sender_id, kind, content) VALUES (?, NULL, 'system', ?)"
+    ).bind(cls.id, `${user.display_name || user.username} 加入了班级`).run();
     return json({ ok: true, className: cls.name });
   } catch (error) {
     return json({ ok: false, error: '加入班级失败：' + (error.message || String(error)) }, 500);

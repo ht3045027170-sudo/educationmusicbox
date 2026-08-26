@@ -444,6 +444,7 @@
   });
   $('gkOpenTeacherClass')?.addEventListener('click', () => window.MusicHomework?.open?.('gaokao'));
   $('gkOpenStudentClass')?.addEventListener('click', () => window.MusicHomework?.open?.('gaokao'));
+  $('gkOpenStudentHomework')?.addEventListener('click', () => window.MusicHomework?.openAssignments?.('gaokao'));
   $('gkTeacherBack')?.addEventListener('click', openDashboard);
   $('gkToolsBack')?.addEventListener('click', openDashboard);
   document.querySelectorAll('#gkTools .gk-tool-card').forEach(card => {
