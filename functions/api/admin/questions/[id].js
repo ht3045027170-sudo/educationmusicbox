@@ -55,13 +55,14 @@ export async function onRequestPut({ request, env, params }) {
     const difficulty = Math.min(5, Math.max(1, Number(body.difficulty) || 1));
     const nextVersion = (row.version_no || 1) + 1;
 
+    const nextStatus = body.saveMode === 'draft' ? 'draft' : 'submitted';
     await env.DB.prepare(
       'UPDATE questions SET subject = ?, instrument = ?, knowledge_id = ?, question_type = ?, difficulty = ?, ' +
-      "source_label = ?, content = ?, status = 'submitted', version_no = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
+      'source_label = ?, content = ?, status = ?, version_no = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
     ).bind(
       subject, String(body.instrument || '').trim(), String(body.knowledgeId || '').trim(),
       questionType, difficulty, String(body.sourceLabel || '').trim(),
-      JSON.stringify(content), nextVersion, Number(params.id)
+      JSON.stringify(content), nextStatus, nextVersion, Number(params.id)
     ).run();
 
     return json({ ok: true, version: nextVersion });
