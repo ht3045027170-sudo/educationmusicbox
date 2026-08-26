@@ -23,11 +23,12 @@
     { value: 1, label: '四分音符' },
     { value: 0.5, label: '八分音符' },
     { value: 0.25, label: '十六分音符' },
+    { value: 0.125, label: '三十二分音符' },
     { value: 1/3, label: '三连音' },
   ];
 
   const DURATION_LABEL = {
-    4: '𝅝', 2: '𝅗𝅥', 1: '♩', 0.5: '♪', 0.25: '♬', [1/3]: '♩₃'
+    4: '𝅝', 2: '𝅗𝅥', 1: '♩', 0.5: '♪', 0.25: '♬', 0.125: '三十二分', [1/3]: '♩₃'
   };
   // 附点等衍生时值显示
   const durationLabel = d => {
@@ -64,6 +65,7 @@
     duration: 1,
     dotted: false,
     keySignature: 'C',
+    clef: 'treble',
     meter: '4/4',
     bpm: 100,
     category: 'single',
@@ -72,6 +74,7 @@
   };
   let audioContext = null;
   let midiAccess = null;
+  let changeListener = null;
   let activeKeys = new Set(); // 当前按下的键 (防止重复触发)
   let history = [];
   let historyIndex = -1;
@@ -173,13 +176,12 @@
   }
 
   /* ==================== 五线谱渲染 ==================== */
-  function renderStaff(notes, keySig, meter, category) {
+  function renderStaff(notes, keySig, meter, category, clef = 'treble') {
     const seq = notes && notes.length ? notes : [{ midi: 60, dur: 1, rest: true }];
-    const ink = '#263c48';
-    const line = '#60727d';
+    const ink = '#20302b', line = '#52625d', staffSpace = 8;
     const md = String(meter || '4/4').split('/');
     const beatsPerBar = Math.max(1, (+md[0] || 4) * 4 / (+md[1] || 4));
-    const keyData = KEY_SIGNATURES[keySig] || KEY_SIGNATURES['C'];
+    const keyData = KEY_SIGNATURES[keySig] || KEY_SIGNATURES.C;
 
     // 初始化调号状态：调号内的升/降号默认生效
     const initState = new Map();
@@ -203,17 +205,28 @@
       const letterIdx = LETTERS[pc];
       const octave = Math.floor(midi / 12) - 1;
       const key = `${octave}:${letterIdx}`;
-      const wanted = isSharp(midi) ? 'sharp' : 'natural';
+      const explicit = { sharp: 'sharp', flat: 'flat', natural: 'natural', '♯': 'sharp', '♭': 'flat', '♮': 'natural' }[n.accidental];
+      const wanted = explicit || (isSharp(midi) ? 'sharp' : 'natural');
       const previous = accState.get(key) || 'natural';
       accState.set(key, wanted);
       if (wanted === 'sharp' && previous !== 'sharp') return '♯';
+      if (wanted === 'flat' && previous !== 'flat') return '♭';
       if (wanted === 'natural' && previous === 'sharp') return '♮';
+      if (wanted === 'natural' && previous === 'flat') return '♮';
       return '';
     }
 
-    function drawNote(n, x, bottom, gap, accState, accShift = 0) {
-      if (n.rest) return `<path d="M${x-5} ${bottom-gap*2.8}h10l-7 7 7 7-9 10" fill="none" stroke="${ink}" stroke-width="2.3" stroke-linejoin="round"/>`;
-      const y = bottom - (diatonicPos(n.midi) - 30) * (gap / 2);
+    const staffBottomPosition = clef === 'bass' ? 18 : 30; // 低音谱表第一线 G2；高音谱表第一线 E4
+    const noteY = (n, bottom, gap) => bottom - (diatonicPos(n.midi) - staffBottomPosition) * (gap / 2);
+    function drawRest(n, x, top, gap) {
+      if (n.dur >= 4) return `<rect x="${x-7}" y="${top+gap}" width="14" height="4" fill="${ink}"/>`;
+      if (n.dur >= 2) return `<rect x="${x-7}" y="${top+gap*2-4}" width="14" height="4" fill="${ink}"/>`;
+      if (n.dur >= 1) return `<path d="M${x+3} ${top+gap*.8}l-7 11 7 6-7 11" fill="none" stroke="${ink}" stroke-width="2.4" stroke-linejoin="round"/>`;
+      return `<path d="M${x-2} ${top+gap*1.2}q10 4 1 13q9 4 0 13" fill="none" stroke="${ink}" stroke-width="2.2"/><circle cx="${x+3}" cy="${top+gap*1.2}" r="2.4" fill="${ink}"/>`;
+    }
+    function drawNote(n, x, top, bottom, gap, accState, beamed = false, forcedStemUp = null) {
+      if (n.rest) return drawRest(n, x, top, gap);
+      const y = noteY(n, bottom, gap);
       const accidental = staffAccidental(n, accState);
       let out = '';
       // 加线
@@ -221,15 +234,17 @@
         out += `<line x1="${x-11}" y1="${ly}" x2="${x+11}" y2="${ly}" stroke="${line}" stroke-width="1.2"/>`;
       for (let ly = bottom - gap * 5; ly >= y; ly -= gap)
         out += `<line x1="${x-11}" y1="${ly}" x2="${x+11}" y2="${ly}" stroke="${line}" stroke-width="1.2"/>`;
-      if (accidental)
-        out += `<text x="${x-28-accShift}" y="${y+5}" font-size="18" font-weight="700" fill="${ink}">${accidental}</text>`;
+      if (accidental) out += `<text x="${x-20}" y="${y+5}" font-size="16" font-weight="700" fill="${ink}">${accidental}</text>`;
       const whole = n.dur >= 4, hollow = whole || n.dur >= 2;
-      out += `<ellipse cx="${x}" cy="${y}" rx="7.5" ry="5" transform="rotate(-18 ${x} ${y})" fill="${hollow ? '#fff' : ink}" stroke="${ink}" stroke-width="2"/>`;
-      if (!whole)
-        out += `<line x1="${x+6.5}" y1="${y}" x2="${x+6.5}" y2="${y-25}" stroke="${ink}" stroke-width="2"/>`;
-      const flags = n.dur <= 0.25 ? 2 : n.dur <= 0.5 ? 1 : 0;
-      for (let f = 0; f < flags; f++)
-        out += `<path d="M${x+6.5} ${y-25+f*7}q14 7 4 17" fill="none" stroke="${ink}" stroke-width="2"/>`;
+      const stemUp = forcedStemUp ?? diatonicPos(n.midi) < staffBottomPosition + 4;
+      out += `<ellipse cx="${x}" cy="${y}" rx="6.4" ry="4.5" transform="rotate(-18 ${x} ${y})" fill="${hollow ? '#fff' : ink}" stroke="${ink}" stroke-width="1.8"/>`;
+      if (!whole) out += stemUp
+        ? `<line x1="${x+5.7}" y1="${y}" x2="${x+5.7}" y2="${y-27}" stroke="${ink}" stroke-width="1.8"/>`
+        : `<line x1="${x-5.7}" y1="${y}" x2="${x-5.7}" y2="${y+27}" stroke="${ink}" stroke-width="1.8"/>`;
+      const flags = n.dur <= 0.125 ? 3 : n.dur <= 0.25 ? 2 : n.dur <= 0.5 ? 1 : 0;
+      if (!beamed) for (let f = 0; f < flags; f++) out += stemUp
+        ? `<path d="M${x+5.7} ${y-27+f*7}q13 6 4 16" fill="none" stroke="${ink}" stroke-width="1.8"/>`
+        : `<path d="M${x-5.7} ${y+27-f*7}q-13-6-4-16" fill="none" stroke="${ink}" stroke-width="1.8"/>`;
       if ([3, 1.5, 0.75, 0.375, 0.1875].includes(n.dur))
         out += `<circle cx="${x+14}" cy="${y}" r="2.1" fill="${ink}"/>`;
       return out;
@@ -251,79 +266,85 @@
     }
 
     function clefSVG(x, top, gap, ink) {
-      const scale = gap / 10;
-      return `<g class="staff-clef-vector" transform="translate(${x} ${top - 17}) scale(${scale})" fill="none" stroke="${ink}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 1C9 15 10 28 22 35C36 43 34 58 23 62C13 66 5 59 6 50C7 42 14 37 22 38C29 39 31 45 29 50C27 55 22 56 18 53"/><path d="M20 1C25 14 17 27 16 39L20 70C21 80 17 87 11 85C7 84 5 80 7 77"/><circle cx="18" cy="49" r="2.2" fill="${ink}" stroke="none"/></g>`;
+      const glyph = clef === 'bass' ? '𝄢' : '𝄞';
+      const size = clef === 'bass' ? gap * 5.4 : gap * 6.4;
+      const y = clef === 'bass' ? top + gap * 3.35 : top + gap * 4.65;
+      return `<text class="staff-clef-glyph" x="${x}" y="${y}" font-family="Bravura, 'Noto Music', 'Segoe UI Symbol', serif" font-size="${size}" fill="${ink}">${glyph}</text>`;
     }
 
-    const barred = seq.some(n => Number.isInteger(n.bar));
-    if (barred) {
-      const w = 720, h = 174, gap = 7.5, systemGap = 82, barWidth = (w - 62) / 4;
-      let svg = `<svg class="me-staff-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="${meter}拍五线谱">`;
-      for (let row = 0; row < 2; row++) {
-        const top = 7 + row * systemGap, bottom = top + gap * 4;
-        for (let l = 0; l < 5; l++)
-          svg += `<line x1="4" y1="${top + l * gap}" x2="${w - 8}" y2="${top + l * gap}" stroke="${line}" stroke-width="1"/>`;
-        svg += clefSVG(5, top, gap, ink);
-        svg += drawKeySignature(46, top, gap, ink);
-        if (row === 0)
-          svg += `<text x="${46 + (keyData.sharps.length + keyData.flats.length) * 9 + 5}" y="${top + 13}" font-size="12" font-weight="800">${md[0]}</text><text x="${46 + (keyData.sharps.length + keyData.flats.length) * 9 + 5}" y="${top + 28}" font-size="12" font-weight="800">${md[1] || 4}</text>`;
-        const barlineX = 54 + (keyData.sharps.length + keyData.flats.length) * 9;
-        svg += `<line x1="${barlineX}" y1="${top}" x2="${barlineX}" y2="${bottom}" stroke="${ink}" stroke-width="1.2"/>`;
-        for (let slot = 0; slot < 4; slot++) {
-          const bar = row * 4 + slot;
-          const x0 = barlineX + slot * ((w - barlineX - 8) / 4), x1 = barlineX + (slot + 1) * ((w - barlineX - 8) / 4);
-          const barNotes = seq.filter(n => n.bar === bar);
-          const accState = new Map(initState);
-          svg += `<line x1="${x1}" y1="${top}" x2="${x1}" y2="${bottom}" stroke="${ink}" stroke-width="${bar === 7 ? 2.5 : 1.2}"/>`;
-          barNotes.forEach((n, i) => {
-            const x = x0 + 18 + (i + 0.5) * Math.max(16, (x1 - x0 - 25) / Math.max(1, barNotes.length));
-            svg += drawNote(n, x, bottom, gap, accState);
-          });
-        }
-      }
-      return svg + '</svg>';
-    }
-
-    // 非小节模式 (单行五线谱)
     const simultaneous = category === 'interval' || category === 'chord';
-    const w = simultaneous ? 290 : Math.max(360, 130 + seq.length * 66);
-    const h = 118, gap = 10, top = 28, bottom = top + gap * 4;
-    const start = 88, end = w - 13;
-    let svg = `<svg class="me-staff-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="五线谱">`;
-    for (let l = 0; l < 5; l++)
-      svg += `<line x1="4" y1="${top + l * gap}" x2="${w - 10}" y2="${top + l * gap}" stroke="${line}" stroke-width="1"/>`;
-    svg += clefSVG(5, top, gap, ink);
-    svg += drawKeySignature(46, top, gap, ink);
-    const tsX = 46 + (keyData.sharps.length + keyData.flats.length) * 9 + 5;
-    svg += `<text x="${tsX}" y="${top + 17}" font-size="15" font-weight="800">${md[0]}</text><text x="${tsX}" y="${top + 36}" font-size="15" font-weight="800">${md[1] || 4}</text>`;
-    const barlineX = tsX + 18;
-    svg += `<line x1="${barlineX}" y1="${top}" x2="${barlineX}" y2="${bottom}" stroke="${ink}" stroke-width="1.2"/>`;
-
-    const accState = new Map(initState);
-    let accumulated = 0;
-    seq.forEach((n, i) => {
-      if (simultaneous) {
-        const x = barlineX + 60 + (i - (seq.length - 1) / 2) * 16;
-        svg += drawNote(n, x, bottom, gap, accState, Math.max(0, i) * 9);
-      } else {
-        const x = barlineX + 12 + i * Math.max(30, (end - barlineX - 12) / Math.max(1, seq.length - 1));
-        svg += drawNote(n, x, bottom, gap, accState);
-        accumulated += Math.abs(+n.dur || 1);
-        if (i < seq.length - 1 && Math.abs(accumulated / beatsPerBar - Math.round(accumulated / beatsPerBar)) < 0.001) {
-          const nextX = barlineX + 12 + (i + 1) * Math.max(30, (end - barlineX - 12) / Math.max(1, seq.length - 1));
-          const barX = (x + nextX) / 2;
-          svg += `<line x1="${barX}" y1="${top}" x2="${barX}" y2="${bottom}" stroke="${ink}" stroke-width="1.2"/>`;
-          accState.clear();
-          keyData.sharps.forEach(pc => {
-            for (let oct = 3; oct <= 6; oct++) accState.set(`${oct}:${LETTERS[pc]}`, 'sharp');
-          });
-          keyData.flats.forEach(pc => {
-            for (let oct = 3; oct <= 6; oct++) accState.set(`${oct}:${LETTERS[pc]}`, 'flat');
-          });
-        }
+    const bars = [];
+    if (simultaneous) bars.push(seq);
+    else if (seq.some(n => Number.isInteger(n.bar))) {
+      const maxBar = Math.max(...seq.map(n => Number.isInteger(n.bar) ? n.bar : 0));
+      for (let bar = 0; bar <= maxBar; bar++) bars.push(seq.filter(n => n.bar === bar));
+    } else {
+      let bar = [], beats = 0;
+      seq.forEach(n => {
+        const dur = Math.max(.125, Number(n.dur) || 1);
+        if (bar.length && beats + dur > beatsPerBar + .001) { bars.push(bar); bar = []; beats = 0; }
+        bar.push(n); beats += dur;
+        if (beats >= beatsPerBar - .001) { bars.push(bar); bar = []; beats = 0; }
+      });
+      if (bar.length) bars.push(bar);
+    }
+    const measureWidth = bar => clamp(58 + bar.reduce((sum, n) => sum + (n.dur >= 2 ? 42 : n.dur >= 1 ? 34 : n.dur >= .5 ? 27 : 23) + (n.accidental ? 8 : 0), 0), 104, 270);
+    const keyWidth = (keyData.sharps.length + keyData.flats.length) * 9;
+    const pageWidth = 760, pagePad = 18, systemGap = 92, topPad = 30;
+    const systems = [];
+    bars.forEach((bar, index) => {
+      const first = systems.length === 0, prefix = 70 + keyWidth + (first ? 24 : 0), width = measureWidth(bar);
+      let system = systems.at(-1);
+      if (!system || system.used + width > pageWidth - pagePad - prefix) {
+        system = { bars: [], used: 0, prefix, first: systems.length === 0 };
+        systems.push(system);
       }
+      system.bars.push({ notes: bar, width, index }); system.used += width;
     });
-    svg += `<line x1="${end}" y1="${top}" x2="${end}" y2="${bottom}" stroke="${ink}" stroke-width="2.4"/>`;
+    const width = Math.max(360, Math.min(pageWidth, Math.max(...systems.map(s => s.prefix + s.used + pagePad))));
+    const height = topPad * 2 + (systems.length - 1) * systemGap + staffSpace * 4 + 35;
+    let svg = `<svg class="me-staff-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(meter)}拍五线谱，共${bars.length}小节">`;
+    systems.forEach((system, row) => {
+      const top = topPad + row * systemGap, bottom = top + staffSpace * 4;
+      const systemEnd = Math.min(width - pagePad, system.prefix + system.used);
+      for (let l = 0; l < 5; l++) svg += `<line x1="${pagePad}" y1="${top+l*staffSpace}" x2="${systemEnd}" y2="${top+l*staffSpace}" stroke="${line}" stroke-width="1"/>`;
+      svg += clefSVG(pagePad + 2, top, staffSpace, ink);
+      svg += drawKeySignature(pagePad + 42, top, staffSpace, ink);
+      if (system.first) {
+        const tx = pagePad + 44 + keyWidth;
+        svg += `<text x="${tx}" y="${top+14}" font-size="13" font-weight="800" fill="${ink}">${md[0]}</text><text x="${tx}" y="${top+29}" font-size="13" font-weight="800" fill="${ink}">${md[1]||4}</text>`;
+      }
+      let x0 = system.prefix;
+      svg += `<line x1="${x0}" y1="${top}" x2="${x0}" y2="${bottom}" stroke="${ink}" stroke-width="1"/>`;
+      system.bars.forEach((bar, barIndex) => {
+        const x1 = x0 + bar.width, accState = new Map(initState), total = Math.max(beatsPerBar, bar.notes.reduce((sum,n)=>sum+Math.max(.125,Number(n.dur)||1),0));
+        let elapsed = 0;
+        const positions = bar.notes.map((n, i) => {
+          const dur = Math.max(.125, Number(n.dur) || 1);
+          const x = simultaneous ? x0 + bar.width/2 + (i && Math.abs(diatonicPos(n.midi)-diatonicPos(bar.notes[i-1]?.midi||0))===1 ? 7 : 0) : x0 + 17 + (elapsed + dur/2) / total * (bar.width - 34);
+          elapsed += simultaneous ? 0 : dur;
+          return { n, x, y: n.rest ? top+staffSpace*2 : noteY(n,bottom,staffSpace) };
+        });
+        const beamGroups = [];
+        if (!simultaneous) {
+          let group=[];
+          const flush=()=>{if(group.length>1)beamGroups.push(group);group=[]};
+          positions.forEach((p,i)=>{if(!p.n.rest&&p.n.dur<=.5){group.push(i);if(group.length===4)flush()}else flush()}); flush();
+        }
+        const beamIndex = new Map();
+        beamGroups.forEach(group=>{const stemUp=group.reduce((s,i)=>s+diatonicPos(positions[i].n.midi),0)/group.length<staffBottomPosition+4;group.forEach(i=>beamIndex.set(i,stemUp))});
+        positions.forEach((p,i)=>{svg += drawNote(p.n,p.x,top,bottom,staffSpace,accState,beamIndex.has(i),beamIndex.get(i))});
+        beamGroups.forEach(group=>{
+          const stemUp=beamIndex.get(group[0]), first=positions[group[0]], last=positions[group.at(-1)], sx=stemUp?5.7:-5.7, sy=stemUp?-27:27;
+          svg += `<line x1="${first.x+sx}" y1="${first.y+sy}" x2="${last.x+sx}" y2="${last.y+sy}" stroke="${ink}" stroke-width="5"/>`;
+          if(group.every(i=>positions[i].n.dur<=.25)) svg += `<line x1="${first.x+sx}" y1="${first.y+sy+(stemUp?7:-7)}" x2="${last.x+sx}" y2="${last.y+sy+(stemUp?7:-7)}" stroke="${ink}" stroke-width="4"/>`;
+        });
+        const finalBar = bar.index === bars.length - 1;
+        svg += `<line x1="${x1}" y1="${top}" x2="${x1}" y2="${bottom}" stroke="${ink}" stroke-width="${finalBar?3:1}"/>`;
+        if(finalBar) svg += `<line x1="${x1-5}" y1="${top}" x2="${x1-5}" y2="${bottom}" stroke="${ink}" stroke-width="1"/>`;
+        x0=x1;
+      });
+    });
     return svg + '</svg>';
   }
 
@@ -539,7 +560,7 @@
   function render() {
     // 五线谱
     const staff = document.getElementById('meStaff');
-    if (staff) staff.innerHTML = renderStaff(state.notes, state.keySignature, state.meter, state.category);
+    if (staff) staff.innerHTML = renderStaff(state.notes, state.keySignature, state.meter, state.category, state.clef);
 
     // 音符列表
     const list = document.getElementById('meNoteList');
@@ -603,6 +624,9 @@
     const ksSelect = document.getElementById('meKeySig');
     if (ksSelect) ksSelect.value = state.keySignature;
 
+    const clefSelect = document.getElementById('meClef');
+    if (clefSelect) clefSelect.value = state.clef;
+
     // 节拍
     const meterSelect = document.getElementById('meMeter');
     if (meterSelect) meterSelect.value = state.meter;
@@ -624,6 +648,7 @@
     // 分类
     const catSelect = document.getElementById('meCategory');
     if (catSelect) catSelect.value = state.category;
+    changeListener?.(getState());
   }
 
   /* ==================== 主渲染（构建完整 UI） ==================== */
@@ -637,11 +662,13 @@
     }
 
     // 从 options 恢复状态
-    if (options.notes) state.notes = JSON.parse(JSON.stringify(options.notes));
+    state.notes = JSON.parse(JSON.stringify(options.notes || []));
     if (options.keySignature) state.keySignature = options.keySignature;
+    state.clef = options.clef === 'bass' ? 'bass' : 'treble';
     if (options.meter) state.meter = options.meter;
     if (options.bpm) state.bpm = options.bpm;
     if (options.category) state.category = options.category;
+    changeListener = typeof options.onChange === 'function' ? options.onChange : null;
 
     // 初始化历史
     history = [JSON.parse(JSON.stringify(state.notes))];
@@ -665,6 +692,12 @@
               <select id="meKeySig">
                 ${Object.entries(KEY_SIGNATURES).map(([k, v]) =>
                   `<option value="${k}">${esc(v.label)}</option>`).join('')}
+              </select>
+            </label>
+            <label>谱号
+              <select id="meClef">
+                <option value="treble">𝄞 高音谱号</option>
+                <option value="bass">𝄢 低音谱号</option>
               </select>
             </label>
             <label>节拍
@@ -724,6 +757,7 @@
     document.getElementById('mePlay').onclick = playSequence;
     document.getElementById('meMidiBtn').onclick = connectMIDI;
     document.getElementById('meKeySig').onchange = e => { state.keySignature = e.target.value; render(); };
+    document.getElementById('meClef').onchange = e => { state.clef = e.target.value; render(); };
     document.getElementById('meMeter').onchange = e => { state.meter = e.target.value; render(); };
     document.getElementById('meBpm').oninput = e => { state.bpm = +e.target.value; document.getElementById('meBpmText').textContent = e.target.value; };
     document.getElementById('meCategory').onchange = e => {
@@ -750,6 +784,7 @@
     document.removeEventListener('keydown', handleKeyboardDown);
     document.removeEventListener('keyup', handleKeyboardUp);
     activeKeys.clear();
+    changeListener = null;
   }
 
   function getNotes() {
@@ -767,6 +802,7 @@
     return {
       notes: JSON.parse(JSON.stringify(state.notes)),
       keySignature: state.keySignature,
+      clef: state.clef,
       meter: state.meter,
       bpm: state.bpm,
       category: state.category,
@@ -776,6 +812,7 @@
   function setState(s) {
     if (s.notes) state.notes = JSON.parse(JSON.stringify(s.notes));
     if (s.keySignature) state.keySignature = s.keySignature;
+    if (s.clef) state.clef = s.clef;
     if (s.meter) state.meter = s.meter;
     if (s.bpm) state.bpm = s.bpm;
     if (s.category) state.category = s.category;
@@ -834,11 +871,13 @@
     const bpm = opts.bpm || state.bpm || 100;
     const beat = 60 / bpm;
     let t = ctx.currentTime + 0.06;
+    const simultaneous = opts.simultaneous || notes.length > 1 && notes.every(n => n.rest || n.simultaneous);
     for (const n of notes) {
       const dur = n.dur * beat;
       if (!n.rest) playNote(n.midi, t, Math.max(0.08, dur * 0.92), 0.72);
-      t += dur;
+      if (!simultaneous) t += dur;
     }
+    if (simultaneous) t += Math.max(...notes.map(n => (Number(n.dur) || 1) * beat));
     return (t - ctx.currentTime) * 1000 + 200;
   }
 

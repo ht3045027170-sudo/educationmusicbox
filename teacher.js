@@ -47,16 +47,11 @@
     };
 
     // Load teacher modules — they will find CONTENT_MANAGER already set
-    import('/admin-questions.js');
-    import('/admin-homework.js');
+    Promise.all([import('/teacher-workbench.js'), import('/admin-homework.js')]).then(() => {
+      document.getElementById('teacherWorkbenchTab')?.click();
+    });
 
     // Auto-activate the first teacher tab after modules inject it
-    const waitAndClick = () => {
-      const firstTab = document.querySelector('nav button[data-tab]');
-      if (firstTab) { firstTab.click(); }
-      else setTimeout(waitAndClick, 80);
-    };
-    setTimeout(waitAndClick, 200);
   }
 
   // Login form handler

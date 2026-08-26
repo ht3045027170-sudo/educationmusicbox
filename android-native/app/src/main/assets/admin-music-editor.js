@@ -251,8 +251,7 @@
     }
 
     function clefSVG(x, top, gap, ink) {
-      const scale = gap / 10;
-      return `<g class="staff-clef-vector" transform="translate(${x} ${top - 17}) scale(${scale})" fill="none" stroke="${ink}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 1C9 15 10 28 22 35C36 43 34 58 23 62C13 66 5 59 6 50C7 42 14 37 22 38C29 39 31 45 29 50C27 55 22 56 18 53"/><path d="M20 1C25 14 17 27 16 39L20 70C21 80 17 87 11 85C7 84 5 80 7 77"/><circle cx="18" cy="49" r="2.2" fill="${ink}" stroke="none"/></g>`;
+      return `<text class="staff-clef-glyph" x="${x}" y="${top + gap * 4.65}" font-family="Bravura, 'Noto Music', 'Segoe UI Symbol', serif" font-size="${gap * 6.4}" fill="${ink}">𝄞</text>`;
     }
 
     const barred = seq.some(n => Number.isInteger(n.bar));
