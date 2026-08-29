@@ -62,7 +62,7 @@
 .settings-row-btn.danger{border-color:rgba(147,61,55,.35);color:#933d37}
 .settings-row-btn.danger:hover{border-color:#933d37;background:rgba(147,61,55,.06)}
 .settings-section-danger .settings-group{border-color:rgba(147,61,55,.18);background:rgba(255,249,247,.92)}
-.settings-theme-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:14px 18px 6px}
+.settings-theme-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px 18px 6px}
 .settings-theme-row button{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 6px;border:1px solid rgba(47,82,65,.18);border-radius:12px;background:transparent;color:var(--edu-muted);font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s}
 .settings-theme-row button .theme-swatch{width:14px;height:14px;border-radius:50%;background:var(--swatch);box-shadow:inset 0 0 0 1px rgba(0,0,0,.14);flex:0 0 auto}
 .settings-theme-row button.on{border-color:var(--edu-jade);background:var(--edu-jade);color:#fff}
@@ -93,6 +93,7 @@
 .account-inline .account-name{font-weight:750}
 .account-inline .settings-actions{display:flex;flex-wrap:wrap;gap:8px;padding:0}
 [data-theme="dark"] .settings-group{background:rgba(25,31,38,.9);border-color:rgba(221,229,236,.12)}
+[data-theme="dark"] .theory-head{background:rgba(24,31,27,.96);border-color:rgba(221,229,236,.12);box-shadow:0 14px 34px rgba(0,0,0,.22)}
 [data-theme="dark"] .settings-row+.settings-row{border-top-color:rgba(221,229,236,.08)}
 [data-theme="dark"] .settings-theme-row button{color:var(--edu-muted)}
 [data-theme="dark"] .settings-theme-row button.on{background:var(--edu-jade);color:#fff}
