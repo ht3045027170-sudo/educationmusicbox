@@ -21,6 +21,7 @@ const checks = [
   ['高低音谱号使用不同音高基准', score.includes("clef === 'bass' ? 18 : 30")],
   ['教师端保存谱号并同步学生预览', workbench.includes('clef:state.clef') && workbench.includes('state.category,state.clef')],
   ['音程和弦专属参数可保存后恢复', workbench.includes('musicData:{notes:') && workbench.includes('parameters},audioSettings') && workbench.includes('function restoreParameters()')],
+  ['和声音程可选择并同时弹响两个音', workbench.includes('和声音程（同时弹响）') && score.includes("state.category === 'interval' || state.category === 'chord'") && score.includes('if (!simultaneous) t += dur')],
   ['钢琴采用固定真琴键比例并可横向滑动', score.includes('whiteCount * 52') && score.includes('overflow-x:auto') && score.includes('touch-action:pan-x')],
   ['教师出题音乐编辑器统一橙色状态色', score.includes('background:#e76531') && workbench.includes('button.active{background:var(--tw-accent)')],
   ['关闭出题工作台立即停止全部音源', score.includes('function stopPlayback()') && score.includes('playbackVoices.forEach') && workbench.includes("editor.addEventListener('close'")],

@@ -196,13 +196,15 @@
     const ctx = getAudio();
     const beat = 60 / state.bpm;
     let t = ctx.currentTime + 0.06;
+    const simultaneous = state.category === 'interval' || state.category === 'chord' || state.notes.length > 1 && state.notes.every(n => n.rest || n.simultaneous);
     for (const n of state.notes) {
       const dur = n.dur * beat;
       if (!n.rest) {
         playNote(n.midi, t, Math.max(0.08, dur * 0.92), 0.72);
       }
-      t += dur;
+      if (!simultaneous) t += dur;
     }
+    if (simultaneous) t += Math.max(...state.notes.map(n => (Number(n.dur) || 1) * beat));
     const totalMs = (t - ctx.currentTime) * 1000 + 200;
     playbackDoneTimer = setTimeout(() => {
       playbackDoneTimer = 0;
@@ -684,6 +686,7 @@
       chordBtn.classList.toggle('me-active', state.chordMode);
       const isChordType = state.category === 'chord' || state.category === 'interval';
       chordBtn.style.display = isChordType ? '' : 'none';
+      chordBtn.textContent = state.category === 'interval' ? '音程模式' : '和弦模式';
     }
 
     // 分类
