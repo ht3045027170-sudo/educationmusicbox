@@ -3,6 +3,8 @@ node_modules/
 .playwright-cli/
 output/playwright/
 desktop-build/dist/
+desktop-build/dist-omr*/
+desktop-build/releases/
 desktop-build/app/
 android-native/app/build/
 android-native/.gradle/

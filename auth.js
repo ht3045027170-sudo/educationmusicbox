@@ -7,7 +7,7 @@
   const systemCode = product === 'exam' ? 'gaokao' : 'hobby';
   const productName = product === 'exam' ? '海棠艺考' : '海棠音乐';
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
-  const roleName = { learner: product === 'exam' ? '学生' : '用户', teacher: '教师' };
+  const roleName = { learner: product === 'exam' ? '学生' : '用户', teacher: '教师', admin: '总管理员教师' };
   const dialog = document.createElement('dialog'); dialog.className = 'auth-dialog'; document.body.append(dialog);
   const accountBox = () => document.getElementById('eduSettingsAccount');
 

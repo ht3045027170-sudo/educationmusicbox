@@ -22,11 +22,12 @@
   }
 
   function syncTeacherEntry(user) {
+    const canTeach = ['teacher', 'admin'].includes(user?.role);
     document.querySelectorAll('.gk-teacher-entry').forEach((entry) => {
-      entry.classList.toggle('hidden', user?.role !== 'teacher');
+      entry.classList.toggle('hidden', !canTeach);
     });
     document.querySelectorAll('.gk-student-entry').forEach((entry) => {
-      entry.classList.toggle('hidden', !user || user.role === 'teacher');
+      entry.classList.toggle('hidden', !user || canTeach);
     });
   }
 

@@ -25,7 +25,7 @@
   }
 
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const roleName = { learner: '学生', teacher: '教师' };
+  const roleName = { learner: '学生', teacher: '教师', admin: '总管理员教师' };
   const systemName = () => '海棠艺考';
 
   function enter(manager) {
@@ -69,7 +69,7 @@
       csrfToken = body.csrfToken;
 
       // 海棠艺考教师中心只接受教师账号。
-      if (body.user.role !== 'teacher') {
+      if (!['teacher', 'admin'].includes(body.user.role)) {
         $('loginMessage').textContent = `此账号角色为「${roleName[body.user.role] || body.user.role}」，没有教师权限。请联系项目负责人开通。`;
         // Log them back out since they can't use this portal
         await api('/api/auth/logout', { method: 'POST' }).catch(() => {});
@@ -100,7 +100,7 @@
 
   // Check existing session on load
   api('/api/admin/session').then((body) => {
-    if (body.manager?.role === 'teacher') return enter(body.manager);
+    if (['teacher', 'admin'].includes(body.manager?.role)) return enter(body.manager);
     if (document.body.classList.contains('embedded')) {
       $('loginCard').querySelector('h2').textContent = '登录状态已失效';
       $('loginForm').hidden = true;

@@ -437,7 +437,7 @@
   $('gkOpenSight')?.addEventListener('click', () => App.showPage('sightSinging'));
   $('gkOpenTools')?.addEventListener('click', () => App.showPage('gkTools'));
   $('gkOpenTeacherCenter')?.addEventListener('click', () => {
-    if (window.HetianAuth?.getUser?.()?.role !== 'teacher') return;
+    if (!['teacher', 'admin'].includes(window.HetianAuth?.getUser?.()?.role)) return;
     const frame = $('gkTeacherFrame');
     if (frame && !frame.src) frame.src = 'teacher.html?embedded=1';
     App.showPage('gkTeacherCenter');

@@ -6,7 +6,7 @@
   document.body.append(dialog);
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
   const user = () => window.HetianAuth?.getUser?.() || null;
-  const isTeacher = () => user()?.role === 'teacher';
+  const isTeacher = () => ['teacher', 'admin'].includes(user()?.role);
   const teacherLabel = value => /老师$/.test(String(value || '')) ? String(value) : `${value || '教师'}老师`;
   const dateText = value => value ? new Date(String(value).endsWith('Z') ? value : `${value}Z`).toLocaleString() : '—';
 
@@ -86,7 +86,7 @@
     const compact = previous && previous.kind === 'text' && Number(previous.sender_id) === Number(message.sender_id) && Date.parse(`${message.created_at}Z`) - previousTime < 5 * 60000;
     const reply = message.reply_to ? `<blockquote>回复 ${esc(message.reply_name || message.reply_username || '班级成员')}：${esc(message.reply_content || '原消息已删除')}</blockquote>` : '';
     return `<article id="message-${message.id}" data-message-id="${message.id}" class="message-row ${message.is_mine ? 'mine' : 'other'} ${compact ? 'compact' : ''} ${message.deleted_at ? 'deleted' : ''}">
-      <div class="message-avatar">${esc((message.display_name || message.username || '同').slice(0, 1))}</div><div><small>${esc(message.display_name || message.username || '班级成员')}${message.role === 'teacher' ? ' · 教师' : ''}</small>${reply}<p>${esc(message.content)}</p><time>${dateText(message.created_at)}</time></div>
+      <div class="message-avatar">${esc((message.display_name || message.username || '同').slice(0, 1))}</div><div><small>${esc(message.display_name || message.username || '班级成员')}${['teacher','admin'].includes(message.role) ? ' · 教师' : ''}</small>${reply}<p>${esc(message.content)}</p><time>${dateText(message.created_at)}</time></div>
       ${message.deleted_at ? '' : `<button class="message-more" type="button" aria-label="消息操作">···</button><menu><button type="button" data-reply="${message.id}">回复</button><button type="button" data-copy="${message.id}">复制</button>${message.can_pin ? `<button type="button" data-pin="${message.id}" data-pinned="${message.pinned_at ? 1 : 0}">${message.pinned_at ? '取消置顶' : '置顶'}</button>` : ''}${message.can_delete ? `<button type="button" data-delete-message="${message.id}">删除</button>` : ''}</menu>`}
     </article>`;
   }
@@ -216,7 +216,7 @@
     const data = chatSnapshot, drawer = document.createElement('aside'); drawer.className = 'class-drawer';
     drawer.innerHTML = `<header><h3>班级群设置</h3><button type="button" data-drawer-close>×</button></header>
       <section><h4>班级公告</h4>${data.viewer.is_teacher ? `<form data-announcement><textarea name="content" maxlength="2000" placeholder="课程、上课时间与考试安排">${esc(data.class.announcement)}</textarea><button>保存公告</button></form>` : `<p>${esc(data.class.announcement || '老师尚未发布公告。')}</p>`}</section>
-      <section><h4>成员 · ${data.class.member_count} 人</h4><input data-member-filter placeholder="搜索班级成员"><div class="member-list">${data.members.map(member => `<article data-member-name="${esc(`${member.display_name || member.username}`.toLowerCase())}"><span>${esc((member.display_name || member.username).slice(0,1))}</span><div><b>${esc(member.display_name || member.username)}</b><small>${member.role === 'teacher' ? '教师' : '学生'}</small></div>${data.viewer.is_teacher && member.role !== 'teacher' ? `<button type="button" data-remove-member="${member.id}">移出</button>` : ''}</article>`).join('')}</div></section>
+      <section><h4>成员 · ${data.class.member_count} 人</h4><input data-member-filter placeholder="搜索班级成员"><div class="member-list">${data.members.map(member => `<article data-member-name="${esc(`${member.display_name || member.username}`.toLowerCase())}"><span>${esc((member.display_name || member.username).slice(0,1))}</span><div><b>${esc(member.display_name || member.username)}</b><small>${['teacher','admin'].includes(member.role) ? '教师' : '学生'}</small></div>${data.viewer.is_teacher && !['teacher','admin'].includes(member.role) ? `<button type="button" data-remove-member="${member.id}">移出</button>` : ''}</article>`).join('')}</div></section>
       ${data.viewer.is_teacher ? `<section><h4>添加学生</h4><form data-member-search><input name="search" required placeholder="姓名、用户名或邮箱"><button>搜索</button></form><div class="member-search-results"></div></section>` : `<section><h4>加入其他班级</h4><form data-join-another><input name="inviteCode" maxlength="20" required placeholder="输入班级邀请码"><button>加入班级</button></form></section>`}`;
     dialog.querySelector('.class-main').append(drawer); drawer.querySelector('[data-drawer-close]').onclick = () => drawer.remove();
     drawer.querySelector('[data-member-filter]')?.addEventListener('input', event => drawer.querySelectorAll('[data-member-name]').forEach(item => item.hidden = !item.dataset.memberName.includes(event.target.value.trim().toLowerCase())));

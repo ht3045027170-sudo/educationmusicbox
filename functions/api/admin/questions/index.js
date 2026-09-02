@@ -6,7 +6,7 @@ import { json, readBody, verifyCsrfRequest, currentUser } from '../../shared.js'
 // 角色：teacher 可出题（草稿/送审），admin 全权限。支持教师远程登录后出题。
 const STATUSES = ['draft', 'submitted', 'in_review', 'changes_requested', 'approved', 'published', 'archived'];
 
-const shapeQuestion = (row) => ({
+const shapeQuestion = (row, user) => ({
   id: row.id,
   system_code: row.system_code,
   subject: row.subject,
@@ -20,6 +20,7 @@ const shapeQuestion = (row) => ({
   version_no: row.version_no || 1,
   review_notes: row.review_notes || '',
   created_by: row.created_by,
+  can_edit: user?.role === 'admin' || Number(row.created_by) === Number(user?.id),
   updated_at: row.updated_at,
   content: (() => { try { return JSON.parse(row.content || '{}'); } catch { return {}; } })(),
 });
@@ -37,12 +38,14 @@ export async function onRequestGet({ request, env }) {
     const systemCode = url.searchParams.get('systemCode') || '';
     const subject = url.searchParams.get('subject') || '';
     const status = url.searchParams.get('status') || '';
+    const difficulty = Number(url.searchParams.get('difficulty')) || 0;
     const search = (url.searchParams.get('search') || '').trim();
 
     const where = [], binds = [];
     if (['hobby', 'gaokao'].includes(systemCode)) { where.push('system_code = ?'); binds.push(systemCode); }
     if (subject) { where.push('subject = ?'); binds.push(subject); }
     if (STATUSES.includes(status)) { where.push('status = ?'); binds.push(status); }
+    if (difficulty >= 1 && difficulty <= 5) { where.push('difficulty = ?'); binds.push(difficulty); }
     if (search) {
       where.push('(content LIKE ? OR knowledge_id LIKE ? OR source_label LIKE ?)');
       const like = `%${search}%`;
@@ -61,7 +64,7 @@ export async function onRequestGet({ request, env }) {
     ).bind(...binds, pageSize, (page - 1) * pageSize).all();
 
     return json({
-      items: results.map(shapeQuestion),
+      items: results.map((row) => shapeQuestion(row, user)),
       pagination: { page, pages, total },
     });
   } catch (error) {
