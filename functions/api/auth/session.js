@@ -1,4 +1,4 @@
-import { json, parseCookies } from '../shared.js';
+import { json, parseCookies, effectiveRole } from '../shared.js';
 
 // GET /api/auth/session  -> { user }
 // 仅返回当前登录用户。未登录返回 user: null。
@@ -28,7 +28,7 @@ export async function onRequestGet({ request, env }) {
         username: row.username,
         email: row.email,
         displayName: row.display_name,
-        role: row.role,
+        role: effectiveRole(row),
         learningSystem: row.learning_system,
         status: row.status,
         emailVerified: !!row.email_verified,

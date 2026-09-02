@@ -21,6 +21,9 @@ export async function onRequestPost({ request, env }) {
     if (!username || username.length < 2 || username.length > 40) {
       return json({ ok: false, error: '用户名长度需在 2-40 字符之间。' }, 400);
     }
+    if (username.toLowerCase() === 'admin' || email === 'admin@haitang.local') {
+      return json({ ok: false, error: '该用户名或邮箱为系统保留账号。' }, 409);
+    }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
       return json({ ok: false, error: '邮箱格式不正确。' }, 400);
     }

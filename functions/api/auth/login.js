@@ -1,4 +1,4 @@
-import { json, parseCookies, verifyPassword, readBody, verifyCsrfRequest } from '../shared.js';
+import { json, parseCookies, verifyPassword, readBody, verifyCsrfRequest, effectiveRole } from '../shared.js';
 
 // POST /api/auth/login
 // body: { email, password, learningSystem? }
@@ -41,7 +41,7 @@ export async function onRequestPost({ request, env }) {
     return json({
       user: {
         id: user.id, username: user.username, email: user.email,
-        displayName: user.display_name, role: user.role,
+        displayName: user.display_name, role: effectiveRole(user),
         learningSystem: user.learning_system, status: user.status,
         emailVerified: !!user.email_verified, createdAt: user.created_at,
         profiles,

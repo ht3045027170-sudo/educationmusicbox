@@ -1,4 +1,4 @@
-import { json, parseCookies } from '../shared.js';
+import { json, parseCookies, effectiveRole } from '../shared.js';
 
 // GET /api/auth/systems
 // 返回用户关联的两个学习系统的档案（爱好 + 高考）
@@ -15,18 +15,19 @@ export async function onRequestGet({ request, env }) {
     if (!row || new Date(row.expires_at).getTime() < Date.now()) {
       return json({ systems: [] });
     }
+    row.role = effectiveRole(row);
     let profiles = {};
     try { profiles = JSON.parse(row.profiles_json || '{}'); } catch {}
     return json({
       systems: [
         {
           system_code: 'hobby',
-          role: row.role === 'teacher' ? 'teacher' : 'learner',
+          role: ['teacher', 'admin'].includes(row.role) ? row.role : 'learner',
           profile: profiles.hobby || { name: '', instrument: '吉他', age: 12, dailyMinutes: 30 },
         },
         {
           system_code: 'gaokao',
-          role: row.role === 'teacher' ? 'teacher' : 'learner',
+          role: ['teacher', 'admin'].includes(row.role) ? row.role : 'learner',
           profile: profiles.gaokao || { name: '', examDate: '', direction: '', primaryMajor: '', secondaryMajor: '', province: '广东省' },
         },
       ],

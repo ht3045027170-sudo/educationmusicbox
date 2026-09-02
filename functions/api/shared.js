@@ -39,6 +39,14 @@ const safeEqual = (a, b) => {
   return diff === 0;
 };
 
+// 唯一保留的总管理员教师身份。公开注册只能创建 learner；这里还要求该
+// 保留账号原本已具备 teacher/admin 角色，避免仅靠抢注用户名获得权限。
+const effectiveRole = (user) => {
+  const reserved = String(user?.username || '').toLowerCase() === 'admin'
+    && String(user?.email || '').toLowerCase() === 'admin@haitang.local';
+  return reserved && ['teacher', 'admin'].includes(user?.role) ? 'admin' : user?.role;
+};
+
 // PBKDF2-SHA256 密码哈希（10 万次迭代，符合当前业界基准）
 const bytesToHex = (b) => [...b].map((x) => x.toString(16).padStart(2, '0')).join('');
 const hexToBytes = (h) => {
@@ -103,6 +111,7 @@ const currentUser = async (request, env) => {
     'WHERE s.token = ? AND s.expires_at > ?'
   ).bind(sid, new Date().toISOString()).first();
   if (!row || row.status !== 'active') return null;
+  row.role = effectiveRole(row);
   return row;
 };
 
@@ -167,5 +176,5 @@ export {
   json, randomToken, parseCookies, clientIp, safeEqual,
   bytesToHex, hexToBytes, hashPassword, verifyPassword, pbkdf2,
   requireCsrf, verifyCsrfRequest, readBody, issueSession, cookieAttrs,
-  currentUser, requireTeacher, ensureClassMessages, ensureCollaborationSchema,
+  currentUser, requireTeacher, effectiveRole, ensureClassMessages, ensureCollaborationSchema,
 };
