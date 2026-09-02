@@ -34,7 +34,7 @@ export async function onRequestGet({ request, env }) {
     }
     const url = new URL(request.url);
     const page = Math.max(1, Number(url.searchParams.get('page')) || 1);
-    const pageSize = Math.min(100, Math.max(1, Number(url.searchParams.get('pageSize')) || 25));
+    const pageSize = Math.min(500, Math.max(1, Number(url.searchParams.get('pageSize')) || 25));
     const systemCode = url.searchParams.get('systemCode') || '';
     const subject = url.searchParams.get('subject') || '';
     const status = url.searchParams.get('status') || '';
