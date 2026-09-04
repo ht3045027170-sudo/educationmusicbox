@@ -91,6 +91,7 @@ body.admin-mode .tool-card.pro-locked{opacity:1;filter:none}.hidden{display:none
 .sight-practice-measure-band{border-color:rgba(182,135,61,.55);background:linear-gradient(90deg,rgba(217,177,89,.04),rgba(217,177,89,.11),rgba(217,177,89,.04));transition:left .16s ease,top .16s ease}
 .sight-follow-orb{width:18px;height:18px;background:rgba(255,247,187,.42);border:2px solid rgba(255,255,255,.94);box-shadow:0 0 5px 3px #f4d269,0 0 17px 10px rgba(44,115,88,.58),0 0 32px 16px rgba(246,207,93,.34);mix-blend-mode:multiply;transition:left .14s linear,top .14s linear}
 .sight-follow-orb i{display:none}
+.sight-follow-orb{transition:none!important}.sight-follow-orb.active{animation:none}.sight-practice-score-sheet{min-width:0}.sight-score-toolbar label[hidden]{display:none}
 .sight-follow-orb.resting{background:rgba(255,255,255,.8);border-color:var(--sight-gold);box-shadow:0 0 0 4px rgba(182,135,61,.24),0 0 18px 8px rgba(182,135,61,.35)}
 .sight-player-controls .sight-check{flex-direction:row;align-items:center;min-height:42px;padding:8px 10px;border:1px solid var(--sight-line);border-radius:10px;background:#fff}
 .sight-player-controls .sight-check input{min-width:0;accent-color:var(--sight-jade)}
