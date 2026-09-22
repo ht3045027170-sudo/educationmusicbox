@@ -1,0 +1,1154 @@
+/*
+ * 海棠艺考 · Editorial rehearsal system
+ * 让每个功能区像一张可使用的音乐出版物：功能清晰，构图有呼吸。
+ */
+
+body.product-exam {
+  --art-ink: #33231f;
+  --art-ink-soft: #654c43;
+  --art-paper: #f4ecdf;
+  --art-paper-deep: #e8dccd;
+  --art-paper-light: #fffaf1;
+  --art-rust: #9f402a;
+  --art-rust-bright: #cd6542;
+  --art-gold: #d6ad69;
+  --art-green: #354b40;
+  --art-line: rgba(63, 38, 29, .22);
+  --art-line-light: rgba(255, 250, 241, .28);
+}
+
+/* ---------- Shared canvas ---------- */
+body.product-exam .gk-page {
+  --gk-ink: var(--art-ink);
+  --gk-ink-soft: var(--art-ink-soft);
+  --gk-paper: var(--art-paper);
+  --gk-paper-strong: var(--art-paper-light);
+  --gk-accent: var(--art-rust);
+  --gk-gold: var(--art-gold);
+  --gk-line: var(--art-line);
+  --gk-muted: #806b62;
+  --gk-radius: 0;
+  --gk-shadow: 13px 13px 0 rgba(73, 42, 31, .1);
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, transparent 0 7.8%, rgba(82, 46, 34, .08) 7.8% calc(7.8% + 1px), transparent calc(7.8% + 1px)),
+    linear-gradient(var(--art-paper), var(--art-paper));
+}
+
+body.product-exam .gk-page::before {
+  z-index: 0;
+  inset: 0;
+  opacity: .45;
+  background:
+    linear-gradient(90deg, rgba(75, 45, 35, .035) 1px, transparent 1px),
+    linear-gradient(rgba(75, 45, 35, .026) 1px, transparent 1px);
+  background-size: 9px 9px;
+  mix-blend-mode: multiply;
+}
+
+body.product-exam .gk-page::after {
+  content: "";
+  position: fixed;
+  z-index: 0;
+  right: -10vw;
+  top: 22vh;
+  width: 42vw;
+  height: 42vw;
+  border: 1px solid rgba(159, 64, 42, .16);
+  border-radius: 48% 52% 39% 61% / 59% 39% 61% 41%;
+  pointer-events: none;
+  transform: rotate(19deg);
+}
+
+body.product-exam .gk-shell {
+  width: min(1380px, calc(100% - 64px));
+  padding: 30px 0 78px;
+}
+
+body.product-exam .gk-topbar {
+  min-height: 66px;
+  margin-bottom: clamp(38px, 7vw, 88px);
+  padding: 0 0 17px;
+  border-bottom: 1px solid var(--gk-ink);
+}
+
+body.product-exam .gk-brand {
+  position: relative;
+  font-size: 21px;
+  font-weight: 500;
+  letter-spacing: -.04em;
+}
+
+body.product-exam .gk-brand::before {
+  width: 37px;
+  height: 37px;
+  filter: saturate(.72) contrast(1.08);
+}
+
+body.product-exam .gk-brand small,
+body.product-exam .gk-eyebrow {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: .16em;
+}
+
+body.product-exam .gk-brand small {
+  margin-top: 4px;
+  color: var(--gk-muted);
+}
+
+body.product-exam .gk-eyebrow {
+  color: var(--gk-accent);
+  font-size: 10px;
+}
+
+body.product-exam .gk-button {
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--gk-ink);
+  border-radius: 0;
+  background: var(--gk-ink);
+  box-shadow: 4px 4px 0 var(--gk-accent);
+  letter-spacing: .02em;
+  transition: transform .2s ease, box-shadow .2s ease, color .2s ease, background .2s ease;
+}
+
+body.product-exam .gk-button:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0 var(--gk-accent);
+}
+
+body.product-exam .gk-button.secondary {
+  border-color: var(--gk-ink);
+  background: transparent;
+  color: var(--gk-ink);
+  box-shadow: none;
+}
+
+body.product-exam .gk-button.secondary:hover {
+  background: var(--gk-ink);
+  color: var(--art-paper-light);
+  box-shadow: 4px 4px 0 var(--gk-accent);
+}
+
+body.product-exam .gk-button.dark {
+  border-color: var(--gk-ink);
+  background: var(--gk-ink);
+  color: #fff;
+}
+
+body.product-exam .gk-panel,
+body.product-exam .gk-form-card {
+  border: 1px solid var(--gk-ink);
+  border-radius: 0;
+  background: rgba(255, 250, 241, .92);
+  box-shadow: var(--gk-shadow);
+}
+
+body.product-exam .gk-panel h2,
+body.product-exam .gk-form-card h2 {
+  font-weight: 500;
+  letter-spacing: -.04em;
+}
+
+/* ---------- Student profile ---------- */
+body.product-exam #gaokaoProfile {
+  background-color: #eadbc9;
+}
+
+body.product-exam #gaokaoProfile .gk-profile-layout {
+  grid-template-columns: minmax(300px, .78fr) minmax(540px, 1.22fr);
+  gap: 0;
+  align-items: stretch;
+  border: 1px solid var(--gk-ink);
+  box-shadow: 18px 18px 0 rgba(80, 44, 32, .11);
+}
+
+body.product-exam #gaokaoProfile .gk-intro-panel {
+  position: relative;
+  top: auto;
+  min-height: 640px;
+  padding: 42px;
+  border-radius: 0;
+  background: var(--art-rust);
+  color: #fff8ed;
+}
+
+body.product-exam #gaokaoProfile .gk-intro-panel::before {
+  content: "𝄞";
+  position: absolute;
+  right: -36px;
+  bottom: 2%;
+  color: rgba(255, 225, 177, .17);
+  font: 400 330px/1 Georgia, serif;
+  transform: rotate(-13deg);
+}
+
+body.product-exam #gaokaoProfile .gk-intro-panel::after {
+  content: "";
+  position: absolute;
+  left: -12%;
+  right: -12%;
+  top: 56%;
+  height: 112px;
+  border-top: 1px solid rgba(255,255,255,.38);
+  border-bottom: 1px solid rgba(255,255,255,.38);
+  background: repeating-linear-gradient(to bottom, rgba(255,255,255,.22) 0 1px, transparent 1px 22px);
+  transform: rotate(-9deg);
+}
+
+body.product-exam #gaokaoProfile .gk-intro-panel h1 {
+  position: relative;
+  z-index: 1;
+  margin-top: 75px;
+  font-size: clamp(45px, 5vw, 76px);
+  font-weight: 500;
+  letter-spacing: -.08em;
+}
+
+body.product-exam #gaokaoProfile .gk-intro-panel p {
+  position: relative;
+  z-index: 1;
+  max-width: 340px;
+  color: #f1d7ca;
+}
+
+body.product-exam #gaokaoProfile .gk-form-card {
+  padding: clamp(34px, 5vw, 72px);
+  border: 0;
+  box-shadow: none;
+}
+
+body.product-exam .gk-form-card h2 {
+  margin-top: 10px;
+  font-size: clamp(34px, 4vw, 52px);
+}
+
+body.product-exam .gk-field {
+  position: relative;
+  gap: 9px;
+}
+
+body.product-exam .gk-field span {
+  font: 700 10px/1.3 ui-monospace, monospace;
+  letter-spacing: .12em;
+  color: var(--gk-muted);
+}
+
+body.product-exam .gk-field input,
+body.product-exam .gk-field select {
+  min-height: 52px;
+  border: 0;
+  border-bottom: 1px solid var(--gk-ink);
+  border-radius: 0;
+  background: transparent;
+  padding: 0 4px;
+}
+
+/* ---------- Training dashboard ---------- */
+body.product-exam #gaokaoDashboard {
+  background-color: #eee5d8;
+}
+
+body.product-exam #gaokaoDashboard .gk-dashboard-head {
+  position: relative;
+  min-height: 250px;
+  align-items: start;
+  margin-bottom: 34px;
+  padding: 12px 0 42px;
+  border-bottom: 1px solid var(--gk-ink);
+}
+
+body.product-exam #gaokaoDashboard .gk-dashboard-head::after {
+  content: "TODAY";
+  position: absolute;
+  right: 0;
+  bottom: -12px;
+  color: rgba(82, 48, 36, .065);
+  font: 500 clamp(90px, 16vw, 210px)/.72 Georgia, serif;
+  letter-spacing: -.08em;
+  pointer-events: none;
+}
+
+body.product-exam .gk-person {
+  align-items: flex-start;
+}
+
+body.product-exam .gk-avatar {
+  width: 84px;
+  height: 106px;
+  border-radius: 50% 50% 46% 54% / 58% 42% 58% 42%;
+  background: var(--gk-accent);
+  font-size: 41px;
+  box-shadow: 7px 7px 0 var(--art-gold);
+  transform: rotate(-4deg);
+}
+
+body.product-exam .gk-person h1 {
+  font-size: clamp(48px, 7vw, 92px);
+  font-weight: 500;
+  letter-spacing: -.075em;
+  line-height: .95;
+}
+
+body.product-exam .gk-exam-countdown {
+  border-color: var(--gk-ink);
+  border-radius: 0;
+  background: transparent;
+  color: var(--gk-ink);
+  font-family: ui-monospace, monospace;
+}
+
+body.product-exam .gk-dashboard-grid {
+  grid-template-columns: repeat(12, 1fr);
+  gap: 22px;
+}
+
+body.product-exam .gk-dashboard-grid > :nth-child(1) { grid-column: span 8; }
+body.product-exam .gk-dashboard-grid > :nth-child(2) { grid-column: span 4; }
+body.product-exam .gk-dashboard-grid > :nth-child(3) { grid-column: span 5; }
+body.product-exam .gk-dashboard-grid > :nth-child(4) { grid-column: span 7; }
+
+body.product-exam .gk-dashboard-grid > .gk-panel {
+  position: relative;
+  padding: clamp(24px, 3vw, 40px);
+  overflow: hidden;
+}
+
+body.product-exam .gk-dashboard-grid > .gk-panel::after {
+  position: absolute;
+  right: 18px;
+  top: 13px;
+  color: rgba(72, 42, 31, .22);
+  font: 700 10px/1 ui-monospace, monospace;
+  letter-spacing: .12em;
+}
+
+body.product-exam .gk-dashboard-grid > :nth-child(1)::after { content: "01 / PRACTICE"; }
+body.product-exam .gk-dashboard-grid > :nth-child(2)::after { content: "02 / TODAY"; }
+body.product-exam .gk-dashboard-grid > :nth-child(3)::after { content: "03 / REVIEW"; }
+body.product-exam .gk-dashboard-grid > :nth-child(4)::after { content: "04 / EXAM"; }
+
+body.product-exam .gk-progress-list {
+  margin: 28px 0 32px;
+}
+
+body.product-exam .gk-progress-row {
+  grid-template-columns: 62px 1fr 46px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(65, 39, 30, .13);
+}
+
+body.product-exam .gk-progress-track {
+  height: 3px;
+  border-radius: 0;
+  background: rgba(52, 34, 29, .14);
+}
+
+body.product-exam .gk-progress-track i {
+  border-radius: 0;
+  background: var(--gk-accent);
+}
+
+body.product-exam .gk-module-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid var(--gk-ink);
+  background: var(--gk-ink);
+}
+
+body.product-exam .gk-module {
+  position: relative;
+  min-height: 154px;
+  padding: 24px 58px 22px 22px;
+  border: 0;
+  border-radius: 0;
+  background: var(--art-paper-light);
+  color: var(--gk-ink);
+  overflow: hidden;
+  transition: color .25s ease, background .25s ease;
+}
+
+body.product-exam .gk-module::before {
+  display: block;
+  margin-bottom: 29px;
+  color: var(--gk-accent);
+  font: 700 10px/1 ui-monospace, monospace;
+  letter-spacing: .14em;
+}
+
+body.product-exam .gk-module::after {
+  content: "↗";
+  position: absolute;
+  right: 20px;
+  top: 18px;
+  font-size: 24px;
+}
+
+body.product-exam .gk-module:nth-child(1)::before { content: "A / THEORY"; }
+body.product-exam .gk-module:nth-child(2)::before { content: "B / DICTATION"; }
+body.product-exam .gk-module:nth-child(3)::before { content: "C / SIGHT-SINGING"; }
+body.product-exam .gk-module:nth-child(4)::before { content: "D / TOOLBOX"; }
+body.product-exam .gk-module:nth-child(n+5)::before { content: "E / CLASSROOM"; }
+
+body.product-exam .gk-module b {
+  font: 500 25px/1.1 Georgia, "Songti SC", serif;
+  letter-spacing: -.04em;
+}
+
+body.product-exam .gk-module span {
+  display: block;
+  margin-top: 10px;
+  max-width: 250px;
+  line-height: 1.55;
+}
+
+body.product-exam .gk-module:hover,
+body.product-exam .gk-module:focus-visible {
+  background: var(--gk-accent);
+  color: #fff8ed;
+}
+
+body.product-exam .gk-module:hover::before,
+body.product-exam .gk-module:hover span,
+body.product-exam .gk-module:focus-visible::before,
+body.product-exam .gk-module:focus-visible span {
+  color: #f5d39e;
+}
+
+body.product-exam .gk-task {
+  border-bottom-color: var(--gk-line);
+}
+
+body.product-exam .gk-task i {
+  border-radius: 0;
+}
+
+body.product-exam .gk-weak-item {
+  border: 0;
+  border-bottom: 1px solid var(--gk-line);
+  border-radius: 0;
+  background: transparent;
+}
+
+body.product-exam .gk-dashboard-grid > :nth-child(4) {
+  background: var(--gk-ink);
+  color: #fff8ed;
+}
+
+body.product-exam .gk-dashboard-grid > :nth-child(4) .gk-eyebrow { color: #e4bd7d; }
+body.product-exam .gk-dashboard-grid > :nth-child(4)::after { color: rgba(255,255,255,.35); }
+body.product-exam .gk-dashboard-grid > :nth-child(4) .gk-button.secondary { border-color: #fff8ed; color: #fff8ed; }
+
+/* ---------- Theory & dictation editions ---------- */
+body.product-exam #gaokaoTheory {
+  --gk-accent: #9f402a;
+  background-color: #ead8ca;
+}
+
+body.product-exam #gaokaoDictation {
+  --gk-accent: #354b40;
+  --gk-ink: #29332e;
+  --gk-muted: #617067;
+  --gk-line: rgba(35, 58, 48, .22);
+  background:
+    linear-gradient(90deg, transparent 0 7.8%, rgba(33, 59, 47, .08) 7.8% calc(7.8% + 1px), transparent calc(7.8% + 1px)),
+    #e2e6df;
+}
+
+body.product-exam .gk-dictation-hero {
+  position: relative;
+  max-width: 1040px;
+  min-height: 270px;
+  margin: 0 0 46px;
+  padding-left: clamp(0px, 6vw, 90px);
+}
+
+body.product-exam .gk-dictation-hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 10px;
+  width: 64px;
+  height: 1px;
+  background: var(--gk-accent);
+}
+
+body.product-exam .gk-dictation-hero h1,
+body.product-exam .gk-dictation-intro h1 {
+  max-width: 820px;
+  font-size: clamp(54px, 8vw, 108px);
+  font-weight: 500;
+  line-height: .95;
+  letter-spacing: -.08em;
+}
+
+body.product-exam .gk-dictation-hero p,
+body.product-exam .gk-dictation-intro > p {
+  max-width: 620px;
+  font-size: 15px;
+}
+
+body.product-exam .gk-dictation-modes {
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1px;
+  border: 1px solid var(--gk-ink);
+  background: var(--gk-ink);
+}
+
+body.product-exam .gk-dictation-mode {
+  grid-column: span 2;
+  min-height: 260px;
+  padding: 24px;
+  border: 0;
+  border-radius: 0;
+  background: var(--art-paper-light);
+  box-shadow: none;
+}
+
+body.product-exam .gk-dictation-mode:nth-child(4),
+body.product-exam .gk-dictation-mode:nth-child(5) {
+  grid-column: span 3;
+}
+
+body.product-exam .gk-dictation-mode:hover {
+  z-index: 1;
+  border-color: transparent;
+  background: var(--gk-accent);
+  color: #fff;
+  transform: translateY(-6px);
+  box-shadow: 7px 7px 0 var(--art-gold);
+}
+
+body.product-exam .gk-dictation-mode b {
+  margin-top: 54px;
+  font-size: 31px;
+  font-weight: 500;
+  letter-spacing: -.05em;
+}
+
+body.product-exam .gk-dictation-mode:hover i,
+body.product-exam .gk-dictation-mode:hover span,
+body.product-exam .gk-dictation-mode:hover small { color: rgba(255,255,255,.82); }
+
+body.product-exam .gk-dictation-intro {
+  max-width: 1080px;
+  padding: clamp(30px, 6vw, 76px);
+}
+
+body.product-exam .gk-dictation-facts {
+  gap: 0;
+  border: 1px solid var(--gk-ink);
+}
+
+body.product-exam .gk-dictation-facts div {
+  border: 0;
+  border-right: 1px solid var(--gk-ink);
+  border-radius: 0;
+  background: transparent;
+}
+
+body.product-exam .gk-dictation-facts div:last-child { border-right: 0; }
+
+body.product-exam .gk-dictation-status {
+  top: 12px;
+  border: 1px solid var(--gk-ink);
+  border-radius: 0;
+  background: rgba(244, 236, 223, .94);
+  box-shadow: 7px 7px 0 rgba(50, 35, 29, .13);
+}
+
+body.product-exam .gk-timer {
+  border-radius: 0;
+  background: var(--gk-ink);
+}
+
+body.product-exam .gk-question-progress {
+  height: 3px;
+  border-radius: 0;
+  background: rgba(48, 37, 32, .13);
+}
+
+body.product-exam .gk-question-progress i { border-radius: 0; }
+
+body.product-exam .gk-question-card,
+body.product-exam .gk-dictation-question {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: clamp(28px, 5vw, 68px);
+}
+
+body.product-exam .gk-question-card h1,
+body.product-exam .gk-dictation-question h1 {
+  font-size: clamp(30px, 4.5vw, 56px);
+  font-weight: 500;
+  letter-spacing: -.045em;
+}
+
+body.product-exam .gk-option,
+body.product-exam .gk-dictation-option {
+  border: 1px solid var(--gk-line);
+  border-radius: 0;
+  background: transparent;
+  transition: background .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+body.product-exam .gk-option:hover,
+body.product-exam .gk-dictation-option:hover {
+  border-color: var(--gk-ink);
+  background: #fffaf1;
+  transform: translateY(-2px);
+}
+
+body.product-exam .gk-theory-notation {
+  border-radius: 0;
+  box-shadow: inset 0 -5px 0 rgba(159,64,42,.08);
+}
+
+body.product-exam .gk-explanation {
+  border-left: 0;
+  border-top: 1px solid var(--gk-gold);
+  background: transparent;
+}
+
+body.product-exam .gk-dictation-play {
+  width: 92px;
+  height: 92px;
+  border: 1px solid var(--gk-ink);
+  background: var(--gk-accent);
+  box-shadow: 7px 7px 0 var(--art-gold);
+}
+
+body.product-exam .gk-result {
+  position: relative;
+  max-width: 1060px;
+  min-height: 620px;
+  margin: 0 auto;
+  padding: clamp(48px, 8vw, 104px);
+  overflow: hidden;
+}
+
+body.product-exam .gk-result::before {
+  content: "REPORT";
+  position: absolute;
+  left: -12px;
+  bottom: -24px;
+  color: rgba(90, 48, 34, .06);
+  font: 500 clamp(90px, 18vw, 230px)/1 Georgia, serif;
+  letter-spacing: -.08em;
+}
+
+body.product-exam .gk-result-score {
+  color: var(--gk-accent);
+  font-size: clamp(96px, 17vw, 210px);
+  font-weight: 500;
+  letter-spacing: -.1em;
+}
+
+/* ---------- Toolbox ---------- */
+body.product-exam #gkTools {
+  --gk-ink: #f8eee1;
+  --gk-muted: #baa99f;
+  --gk-line: rgba(255, 246, 235, .2);
+  --gk-accent: #dc7651;
+  background: #2b2522;
+  color: #f8eee1;
+}
+
+body.product-exam #gkTools::before {
+  background: repeating-linear-gradient(90deg, transparent 0 74px, rgba(255,255,255,.035) 74px 75px);
+}
+
+body.product-exam #gkTools .gk-brand small,
+body.product-exam #gkTools .gk-eyebrow,
+body.product-exam #gkTools .muted { color: #d4a17e; }
+
+body.product-exam #gkTools .gk-tools-head {
+  max-width: 900px;
+  min-height: 230px;
+  margin-bottom: 38px;
+}
+
+body.product-exam #gkTools .gk-tools-head h1 {
+  margin: 13px 0;
+  color: #fff4e8;
+  font: 500 clamp(58px, 9vw, 118px)/.9 Georgia, "Songti SC", serif;
+  letter-spacing: -.08em;
+}
+
+body.product-exam #gkTools .gk-tools-grid {
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border: 1px solid rgba(255,255,255,.35);
+}
+
+body.product-exam #gkTools .gk-tool-card {
+  position: relative;
+  min-height: 320px;
+  padding: 26px;
+  border: 0;
+  border-right: 1px solid rgba(255,255,255,.28);
+  border-radius: 0;
+  background: transparent;
+  color: #fff4e8;
+  box-shadow: none;
+}
+
+body.product-exam #gkTools .gk-tool-card:last-child { border-right: 0; }
+
+body.product-exam #gkTools .gk-tool-card::before {
+  content: "0" counter(art-tool);
+  color: #d4a17e;
+  font: 700 11px/1 ui-monospace, monospace;
+  letter-spacing: .12em;
+}
+
+body.product-exam #gkTools .gk-tools-grid { counter-reset: art-tool; }
+body.product-exam #gkTools .gk-tool-card { counter-increment: art-tool; }
+
+body.product-exam #gkTools .gk-tool-ico {
+  margin: 68px 0 24px;
+  font-size: 42px;
+  filter: grayscale(1) sepia(.3);
+  opacity: .76;
+}
+
+body.product-exam #gkTools .gk-tool-card b {
+  font: 500 27px/1.1 Georgia, "Songti SC", serif;
+  color: #fff4e8;
+}
+
+body.product-exam #gkTools .gk-tool-card span:last-child {
+  margin-top: 12px;
+  color: #baa99f;
+  line-height: 1.6;
+}
+
+body.product-exam #gkTools .gk-tool-card:hover {
+  border-color: rgba(255,255,255,.28);
+  background: var(--art-rust);
+  box-shadow: none;
+  transform: translateY(-9px);
+}
+
+/* ---------- Settings as an editorial index ---------- */
+body.product-exam #eduSettings {
+  --edu-ink: var(--art-ink);
+  --edu-muted: #806b62;
+  --edu-jade: var(--art-rust);
+  --edu-jade-dark: #783321;
+  --edu-jade-pale: #ead8cc;
+  --edu-paper: var(--art-paper);
+  --edu-gold: var(--art-gold);
+  background:
+    linear-gradient(90deg, transparent 0 8%, rgba(74,42,31,.09) 8% calc(8% + 1px), transparent calc(8% + 1px)),
+    var(--art-paper);
+}
+
+body.product-exam #eduSettings .settings-shell {
+  width: min(1280px, calc(100% - 56px));
+}
+
+body.product-exam #eduSettings .theory-head {
+  border: 0;
+  border-bottom: 1px solid var(--art-ink);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.product-exam #eduSettings .theory-head h1 {
+  font: 500 clamp(46px, 7vw, 86px)/1 Georgia, "Songti SC", serif;
+  letter-spacing: -.08em;
+}
+
+body.product-exam #eduSettings .settings-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px 22px;
+  margin-top: 36px;
+}
+
+body.product-exam #eduSettings .settings-section:first-child,
+body.product-exam #eduSettings .settings-section:last-child {
+  grid-column: 1 / -1;
+}
+
+body.product-exam #eduSettings .settings-section-label {
+  font: 700 10px/1.2 ui-monospace, monospace;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+body.product-exam #eduSettings .settings-group {
+  height: calc(100% - 24px);
+  border: 1px solid var(--art-ink);
+  border-radius: 0;
+  background: rgba(255,250,241,.82);
+  box-shadow: 8px 8px 0 rgba(77,44,32,.08);
+}
+
+body.product-exam #eduSettings .settings-theme-row button,
+body.product-exam #eduSettings .settings-row-btn,
+body.product-exam #eduSettings .settings-redeem input {
+  border-radius: 0;
+}
+
+/* ---------- Sight-singing: same publication, different chapter ---------- */
+body.product-exam #sightSinging {
+  --sight-ink: var(--art-ink);
+  --sight-forest: #354b40;
+  --sight-jade: var(--art-rust);
+  --sight-mint: #e7d8cb;
+  --sight-paper: var(--art-paper);
+  --sight-warm: #e4d7c8;
+  --sight-gold: var(--art-gold);
+  --sight-line: var(--art-line);
+  --sight-shadow: 13px 13px 0 rgba(71,42,32,.1);
+  background: var(--art-paper);
+}
+
+body.product-exam #sightSinging .sight-shell {
+  background:
+    linear-gradient(90deg, transparent 0 7.8%, rgba(82,46,34,.08) 7.8% calc(7.8% + 1px), transparent calc(7.8% + 1px)),
+    linear-gradient(90deg, rgba(69,42,32,.028) 1px, transparent 1px),
+    linear-gradient(rgba(69,42,32,.022) 1px, transparent 1px);
+  background-size: auto, 9px 9px, 9px 9px;
+}
+
+body.product-exam #sightSinging .sight-head {
+  height: 74px;
+  border-bottom-color: var(--art-ink);
+  background: rgba(244,236,223,.91);
+}
+
+body.product-exam #sightSinging .sight-icon-button,
+body.product-exam #sightSinging .sight-text-button,
+body.product-exam #sightSinging .sight-primary,
+body.product-exam #sightSinging .sight-secondary,
+body.product-exam #sightSinging .sight-danger {
+  border-radius: 0;
+}
+
+body.product-exam #sightSinging .sight-welcome {
+  grid-template-columns: minmax(0, 1fr) minmax(350px, .82fr);
+}
+
+body.product-exam #sightSinging .sight-welcome-copy h2 {
+  max-width: 760px;
+  font-size: clamp(54px, 7vw, 98px);
+  line-height: .96;
+  letter-spacing: -.075em;
+}
+
+body.product-exam #sightSinging .sight-import-actions {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  border: 1px solid var(--art-ink);
+  background: var(--art-ink);
+}
+
+body.product-exam #sightSinging .sight-import-actions button {
+  border: 0;
+  background: var(--art-paper-light);
+  color: var(--art-ink);
+  box-shadow: none;
+}
+
+body.product-exam #sightSinging .sight-import-actions button:hover {
+  background: var(--art-rust);
+  color: #fff;
+}
+
+body.product-exam #sightSinging .sight-score-paper {
+  border: 1px solid var(--art-ink);
+  border-radius: 0;
+  background: #fffaf1;
+  box-shadow: 18px 18px 0 var(--art-rust);
+  transform: rotate(4deg);
+}
+
+body.product-exam #sightSinging .sight-steps {
+  border-color: var(--art-ink);
+  border-radius: 0;
+  background: transparent;
+}
+
+body.product-exam #sightSinging .sight-steps button {
+  border-right-color: var(--art-ink);
+}
+
+body.product-exam #sightSinging .sight-steps button.active {
+  background: var(--art-rust);
+}
+
+body.product-exam #sightSinging .sight-steps button i,
+body.product-exam #sightSinging .sight-confirmed-badge,
+body.product-exam #sightSinging .sight-confidence {
+  border-radius: 0;
+}
+
+body.product-exam #sightSinging .sight-panel,
+body.product-exam #sightSinging .sight-history,
+body.product-exam #sightSinging .sight-source-card,
+body.product-exam #sightSinging .sight-scan-card,
+body.product-exam #sightSinging .sight-reference-pane,
+body.product-exam #sightSinging .sight-result-pane,
+body.product-exam #sightSinging .sight-player-card,
+body.product-exam #sightSinging .sight-session-card,
+body.product-exam #sightSinging .sight-note-item,
+body.product-exam #sightSinging .sight-history-card,
+body.product-exam #sightSinging .sight-practice-score-shell {
+  border-radius: 0;
+}
+
+body.product-exam #sightSinging .sight-panel,
+body.product-exam #sightSinging .sight-history {
+  border-color: var(--art-ink);
+  box-shadow: var(--sight-shadow);
+}
+
+body.product-exam #sightSinging .sight-panel-heading h2 {
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 500;
+  letter-spacing: -.055em;
+}
+
+/* ---------- Account dialogs ---------- */
+body.product-exam .auth-dialog {
+  border: 1px solid var(--art-ink);
+  border-radius: 0;
+  background: var(--art-paper-light);
+  box-shadow: 14px 14px 0 rgba(53,32,25,.25);
+}
+
+body.product-exam .auth-dialog::backdrop {
+  background: rgba(47, 30, 24, .72);
+  backdrop-filter: blur(8px);
+}
+
+body.product-exam .auth-card {
+  padding: clamp(28px, 5vw, 52px);
+}
+
+body.product-exam .auth-card h2 {
+  font: 500 clamp(32px, 5vw, 52px)/1 Georgia, "Songti SC", serif;
+  letter-spacing: -.06em;
+}
+
+body.product-exam .auth-card input,
+body.product-exam .auth-dialog button,
+body.product-exam .account-center form {
+  border-radius: 0;
+}
+
+body.product-exam .auth-dialog .submit {
+  background: var(--art-rust);
+}
+
+/* ---------- Shared tools reached from the exam toolbox ---------- */
+body.product-exam #chordFinder,
+body.product-exam #guitar,
+body.product-exam #metro,
+body.product-exam #simPiano {
+  color: var(--art-ink);
+  background:
+    linear-gradient(90deg, transparent 0 7.8%, rgba(82,46,34,.08) 7.8% calc(7.8% + 1px), transparent calc(7.8% + 1px)),
+    linear-gradient(90deg, rgba(69,42,32,.028) 1px, transparent 1px),
+    linear-gradient(rgba(69,42,32,.022) 1px, transparent 1px),
+    var(--art-paper);
+  background-size: auto, 9px 9px, 9px 9px, auto;
+}
+
+body.product-exam #chordFinder .chord-shell,
+body.product-exam #simPiano .grand-shell {
+  width: min(1360px, calc(100% - 48px));
+}
+
+body.product-exam #chordFinder .chord-head,
+body.product-exam #simPiano .grand-head,
+body.product-exam #guitar .topbar,
+body.product-exam #metro .topbar {
+  min-height: 72px;
+  margin-bottom: 34px;
+  border-bottom: 1px solid var(--art-ink);
+  background: transparent;
+}
+
+body.product-exam #chordFinder .chord-head h2,
+body.product-exam #simPiano .grand-head h2,
+body.product-exam #guitar .topbar h2,
+body.product-exam #metro .topbar h2 {
+  font: 500 clamp(34px, 4vw, 58px)/1 Georgia, "Songti SC", serif;
+  letter-spacing: -.06em;
+  color: var(--art-ink);
+}
+
+body.product-exam #chordFinder button,
+body.product-exam #guitar button,
+body.product-exam #metro button,
+body.product-exam #simPiano button,
+body.product-exam #chordFinder input,
+body.product-exam #metro input,
+body.product-exam #simPiano input,
+body.product-exam #simPiano select {
+  border-radius: 0;
+}
+
+body.product-exam #chordFinder .outline,
+body.product-exam #guitar .outline,
+body.product-exam #metro .outline,
+body.product-exam #simPiano .outline,
+body.product-exam #simPiano .sustain-btn {
+  border-color: var(--art-ink);
+  background: transparent;
+  color: var(--art-ink);
+}
+
+body.product-exam #chordFinder .primary,
+body.product-exam #metro .primary,
+body.product-exam #simPiano .primary {
+  border: 1px solid var(--art-ink);
+  background: var(--art-ink);
+  color: #fff8ed;
+  box-shadow: 4px 4px 0 var(--art-rust);
+}
+
+body.product-exam #chordFinder .chord-search {
+  gap: 0;
+  margin-bottom: 28px;
+  border: 1px solid var(--art-ink);
+  background: var(--art-paper-light);
+}
+
+body.product-exam #chordFinder .chord-search input {
+  border: 0;
+  background: transparent;
+  font-family: Georgia, serif;
+  font-size: clamp(24px, 4vw, 42px);
+}
+
+body.product-exam #chordFinder .chord-card,
+body.product-exam #simPiano .console-card,
+body.product-exam #metro .metro-box,
+body.product-exam #guitar .panel {
+  border: 1px solid var(--art-ink);
+  border-radius: 0;
+  background: rgba(255,250,241,.9);
+  box-shadow: 10px 10px 0 rgba(73,42,31,.09);
+}
+
+body.product-exam #chordFinder .chord-name {
+  font-family: Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -.08em;
+  color: var(--art-rust);
+}
+
+body.product-exam #chordFinder .chord-tone,
+body.product-exam #chordFinder .quick-chords button,
+body.product-exam #chordFinder .recent-list button,
+body.product-exam #metro .metro-opt,
+body.product-exam #simPiano .piano-switch,
+body.product-exam #simPiano .octave-switch {
+  border-radius: 0;
+}
+
+body.product-exam #metro .panel {
+  width: min(760px, calc(100% - 32px));
+  padding: clamp(20px, 4vw, 44px);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.product-exam #metro .metro-box {
+  padding: clamp(28px, 6vw, 64px);
+}
+
+body.product-exam #metro .metro-display {
+  color: var(--art-rust);
+  font: 500 clamp(100px, 20vw, 210px)/.82 Georgia, serif;
+  letter-spacing: -.1em;
+}
+
+body.product-exam #metro .beat-dot,
+body.product-exam #metro .metro-opt.on {
+  border-radius: 0;
+  background: var(--art-rust);
+}
+
+body.product-exam #guitar .panel {
+  width: min(1100px, calc(100% - 32px));
+  padding: clamp(22px, 4vw, 46px);
+}
+
+body.product-exam #guitar .headstock-container {
+  filter: saturate(.72) sepia(.08);
+}
+
+body.product-exam #simPiano .grand-shell {
+  padding-top: 24px;
+}
+
+body.product-exam #simPiano .piano-console {
+  gap: 1px;
+  border: 1px solid var(--art-ink);
+  background: var(--art-ink);
+}
+
+body.product-exam #simPiano .console-card {
+  border: 0;
+  box-shadow: none;
+}
+
+body.product-exam #simPiano .performance-piano-scroll {
+  border: 1px solid var(--art-ink);
+  box-shadow: 12px 12px 0 var(--art-rust);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 980px) {
+  body.product-exam .gk-shell { width: min(100% - 36px, 1380px); }
+  body.product-exam #gaokaoProfile .gk-profile-layout { grid-template-columns: 1fr; }
+  body.product-exam #gaokaoProfile .gk-intro-panel { min-height: 440px; }
+  body.product-exam .gk-dashboard-grid > * { grid-column: 1 / -1 !important; }
+  body.product-exam #gkTools .gk-tools-grid { grid-template-columns: repeat(2, 1fr); }
+  body.product-exam #gkTools .gk-tool-card:nth-child(2) { border-right: 0; }
+  body.product-exam #gkTools .gk-tool-card:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,.28); }
+}
+
+@media (max-width: 760px) {
+  body.product-exam .gk-shell { width: min(100% - 24px, 1380px); padding-top: 18px; }
+  body.product-exam .gk-topbar { align-items: flex-start; margin-bottom: 40px; }
+  body.product-exam .gk-brand { font-size: 18px; }
+  body.product-exam #gaokaoDashboard .gk-dashboard-head { min-height: 310px; grid-template-columns: 1fr; }
+  body.product-exam .gk-avatar { width: 62px; height: 78px; font-size: 30px; }
+  body.product-exam .gk-person h1 { font-size: 48px; }
+  body.product-exam .gk-module-grid { grid-template-columns: 1fr; }
+  body.product-exam .gk-dictation-modes { grid-template-columns: 1fr; }
+  body.product-exam .gk-dictation-mode,
+  body.product-exam .gk-dictation-mode:nth-child(4),
+  body.product-exam .gk-dictation-mode:nth-child(5) { grid-column: auto; min-height: 220px; }
+  body.product-exam .gk-dictation-hero { min-height: 220px; padding-left: 0; }
+  body.product-exam .gk-dictation-hero h1,
+  body.product-exam .gk-dictation-intro h1 { font-size: 50px; }
+  body.product-exam #gkTools .gk-tools-grid { grid-template-columns: 1fr; }
+  body.product-exam #gkTools .gk-tool-card { min-height: 230px; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.28); }
+  body.product-exam #gkTools .gk-tool-card:last-child { border-bottom: 0; }
+  body.product-exam #gkTools .gk-tool-card:nth-child(2) { border-right: 0; }
+  body.product-exam #eduSettings .settings-shell { width: min(100% - 24px, 1280px); }
+  body.product-exam #eduSettings .settings-list { grid-template-columns: 1fr; }
+  body.product-exam #eduSettings .settings-section { grid-column: auto !important; }
+  body.product-exam #sightSinging .sight-welcome { grid-template-columns: 1fr; }
+  body.product-exam #sightSinging .sight-welcome-copy h2 { font-size: 48px; }
+  body.product-exam #chordFinder .chord-shell,
+  body.product-exam #simPiano .grand-shell { width: min(100% - 24px, 1360px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.product-exam .gk-button,
+  body.product-exam .gk-module,
+  body.product-exam .gk-dictation-mode,
+  body.product-exam .gk-tool-card { transition: none; }
+}
