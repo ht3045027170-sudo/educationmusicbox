@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>海棠艺考 · 音乐试题工作台</title>
-<link rel="stylesheet" href="/admin.css">
+<link rel="stylesheet" href="./admin.css">
 <style>
 .teacher-login-footer{margin-top:18px;font-size:13px;color:#687970;line-height:1.8}
 .teacher-login-footer a{color:#4d9b73;text-decoration:none}
@@ -31,7 +31,7 @@ body.embedded .back-link,body.embedded #dashboard>header{display:none}body.embed
 </style>
 </head>
 <body>
-<div class="back-link"><a href="/?product=exam">返回海棠艺考</a></div>
+<div class="back-link"><a href="./index.html?product=exam">返回海棠艺考</a></div>
 <main class="shell">
 <section id="loginCard" class="card login">
 <h2>教师工作台登录</h2>
@@ -42,8 +42,8 @@ body.embedded .back-link,body.embedded #dashboard>header{display:none}body.embed
 <p id="loginMessage" class="error"></p>
 </form>
 <div class="teacher-login-footer">
-还没有账号？<a href="/?product=exam">前往海棠艺考注册</a>，注册后联系项目负责人开通教师权限。<br>
-<a href="/?product=exam">← 返回海棠艺考</a>
+还没有账号？<a href="./index.html?product=exam">前往海棠艺考注册</a>，注册后联系项目负责人开通教师权限。<br>
+<a href="./index.html?product=exam">← 返回海棠艺考</a>
 </div>
 </section>
 <div id="dashboard" hidden>
@@ -56,10 +56,10 @@ body.embedded .back-link,body.embedded #dashboard>header{display:none}body.embed
 </nav>
 </div>
 </main>
-<script src="/sight-singing/piano-sampler.js" defer></script>
-<script src="/admin-music-editor.js" defer></script>
+<script src="./sight-singing/piano-sampler.js" defer></script>
+<script src="./admin-music-editor.js?v=20261007-8" defer></script>
 <script>if(new URLSearchParams(location.search).get('embedded')==='1')document.body.classList.add('embedded')</script>
-<script src="/product-context.js" defer></script>
-<script src="/teacher.js" defer></script>
+<script src="./product-context.js" defer></script>
+<script src="./teacher.js?v=20261007-13" defer></script>
 </body>
 </html>

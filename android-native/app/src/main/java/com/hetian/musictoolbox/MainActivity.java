@@ -8,6 +8,7 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Base64;
 import android.webkit.JavascriptInterface;
 import android.webkit.PermissionRequest;
@@ -27,6 +28,7 @@ public class MainActivity extends Activity {
     private final Object audioLock = new Object();
     private volatile boolean nativeAudioRunning = false;
     private volatile byte[] latestPcm = new byte[0];
+    private long latestPcmAt = 0;
     private AudioRecord nativeAudioRecord;
     private Thread nativeAudioThread;
     private int nativeSampleRate = 48000;
@@ -138,11 +140,17 @@ public class MainActivity extends Activity {
         public String readPcmBase64() {
             byte[] snapshot;
             synchronized (audioLock) {
+                if (!nativeAudioRunning || SystemClock.elapsedRealtime() - latestPcmAt > 250) return "";
                 snapshot = latestPcm.clone();
             }
             return snapshot.length == 0
                     ? ""
                     : Base64.encodeToString(snapshot, Base64.NO_WRAP);
+        }
+
+        @JavascriptInterface
+        public boolean isCaptureRunning() {
+            synchronized (audioLock) { return nativeAudioRunning && nativeAudioRecord != null; }
         }
 
         @JavascriptInterface
@@ -212,19 +220,44 @@ public class MainActivity extends Activity {
             nativeAudioRecord = recorder;
             nativeAudioRunning = true;
             latestPcm = new byte[0];
+            latestPcmAt = 0;
         }
         nativeAudioThread = new Thread(() -> {
             short[] samples = new short[4096];
+            try {
             while (nativeAudioRunning) {
-                int count = recorder.read(samples, 0, samples.length, AudioRecord.READ_BLOCKING);
-                if (count <= 0) continue;
+                synchronized (audioLock) {
+                    if (nativeAudioRecord != recorder) break;
+                }
+                int count;
+                try { count = recorder.read(samples, 0, samples.length, AudioRecord.READ_BLOCKING); }
+                catch (RuntimeException error) { break; }
+                if (count <= 0) break;
                 byte[] pcm = new byte[count * 2];
                 for (int i = 0; i < count; i++) {
                     pcm[i * 2] = (byte) (samples[i] & 0xff);
                     pcm[i * 2 + 1] = (byte) ((samples[i] >> 8) & 0xff);
                 }
                 synchronized (audioLock) {
+                    if (!nativeAudioRunning || nativeAudioRecord != recorder) break;
                     latestPcm = pcm;
+                    latestPcmAt = SystemClock.elapsedRealtime();
+                }
+            }
+            } finally {
+                boolean release = false;
+                synchronized (audioLock) {
+                    if (nativeAudioRecord == recorder) {
+                        nativeAudioRunning = false;
+                        nativeAudioRecord = null;
+                        latestPcm = new byte[0];
+                        latestPcmAt = 0;
+                        release = true;
+                    }
+                }
+                if (release) {
+                    try { recorder.stop(); } catch (RuntimeException ignored) {}
+                    recorder.release();
                 }
             }
         }, "MusicToolboxNativeAudio");
@@ -240,6 +273,7 @@ public class MainActivity extends Activity {
             recorder = nativeAudioRecord;
             nativeAudioRecord = null;
             latestPcm = new byte[0];
+            latestPcmAt = 0;
         }
         if (recorder != null) {
             try { recorder.stop(); } catch (RuntimeException ignored) {}

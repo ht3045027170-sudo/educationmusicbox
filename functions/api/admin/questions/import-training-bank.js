@@ -1,7 +1,9 @@
+import { prepareQuestionMusic } from '../../question-music.js';
+import { validQuestionAnswer, canonicalQuestionContent } from '../../homework-grading.js';
 import { json, verifyCsrfRequest, currentUser } from '../../shared.js';
 
 const typeFor = (item) => ['multi_choice', 'true_false', 'text_input'].includes(item.type)
-  ? item.type : 'single_choice';
+  ? item.type : item.type === 'staff_dictation' ? 'text_input' : 'single_choice';
 
 const musicTypeFor = (item) => {
   const category = String(item.category || '');
@@ -12,9 +14,9 @@ const musicTypeFor = (item) => {
   return 'single_note';
 };
 
-const normalize = (item) => {
+export const normalize = (item) => {
   const subject = item.domain === 'dictation' ? 'dictation' : 'theory';
-  return {
+  const normalized = {
     sourceId: String(item.id || '').trim(),
     subject,
     knowledgeId: String(item.knowledgeId || `gaokao.${subject}.general`).trim(),
@@ -26,7 +28,7 @@ const normalize = (item) => {
       category: String(item.category || ''),
       prompt: String(item.prompt || '').trim(),
       options: Array.isArray(item.options) ? item.options : [],
-      answer: Array.isArray(item.answer) ? item.answer.join('|') : String(item.answer ?? '').trim(),
+      answer: Array.isArray(item.answer) ? [...item.answer] : String(item.answer ?? '').trim(),
       explanation: String(item.explanation || '').trim(),
       ...(item.answerLetter ? { answerLetter: item.answerLetter } : {}),
       ...(item.audioId ? { audioId: item.audioId } : {}),
@@ -38,6 +40,13 @@ const normalize = (item) => {
       } : { studentSettings: { score: 2, timeLimit: 90 } }),
     },
   };
+  normalized.content = canonicalQuestionContent(normalized.content, normalized.questionType);
+  const music = prepareQuestionMusic(normalized.content, subject);
+  if (!music.error) normalized.content = music.content;
+  const reason = [music.error, !validQuestionAnswer(normalized.content,normalized.questionType) ? '标准答案或选项无效，请校对后审核。' : ''].filter(Boolean).join('；');
+  normalized.status = reason ? 'draft' : 'published';
+  if (reason) normalized.content.reviewReason = reason;
+  return normalized;
 };
 
 const buildExtraTheory = () => {
@@ -96,8 +105,8 @@ export async function onRequestPost({ request, env }) {
     for (let offset = 0; offset < missing.length; offset += 40) {
       const statements = missing.slice(offset, offset + 40).map((item) => env.DB.prepare(
         'INSERT INTO questions (system_code, subject, instrument, knowledge_id, question_type, difficulty, source_label, content, status, version_no, created_by) ' +
-        "VALUES ('gaokao', ?, '', ?, ?, ?, ?, ?, 'published', 1, ?)"
-      ).bind(item.subject, item.knowledgeId, item.questionType, item.difficulty, item.sourceLabel, JSON.stringify(item.content), user.id));
+        "VALUES ('gaokao', ?, '', ?, ?, ?, ?, ?, ?, 1, ?)"
+      ).bind(item.subject, item.knowledgeId, item.questionType, item.difficulty, item.sourceLabel, JSON.stringify(item.content), item.status, user.id));
       if (statements.length) await env.DB.batch(statements);
     }
 
@@ -105,7 +114,7 @@ export async function onRequestPost({ request, env }) {
       output[item.subject] = (output[item.subject] || 0) + 1;
       return output;
     }, {});
-    return json({ ok: true, imported: missing.length, skipped: unique.length - missing.length, total: unique.length, totals });
+    return json({ ok: true, imported: missing.length, skipped: unique.length - missing.length, total: unique.length, totals, needsReview: missing.filter(item => item.status === 'draft').length, reviewItems: missing.filter(item => item.status === 'draft').map(item => ({ sourceId: item.sourceId, reason: item.content.reviewReason })) });
   } catch (error) {
     return json({ ok: false, error: '同步内置题库失败：' + (error.message || String(error)) }, 500);
   }

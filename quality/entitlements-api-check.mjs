@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';import {DatabaseSync} from 'node:sqlite';
+import {onRequestGet,onRequestPost} from '../functions/api/auth/entitlements.js';
+import {onRequestPost as issue} from '../functions/api/admin/entitlements.js';
+const db=new DatabaseSync(':memory:');db.exec(`CREATE TABLE users(id INTEGER,username TEXT,email TEXT,display_name TEXT,role TEXT,learning_system TEXT,status TEXT);CREATE TABLE sessions(token TEXT,user_id INTEGER,expires_at TEXT,csrf TEXT);INSERT INTO users VALUES(1,'student','s@test','S','learner','hobby','active'),(2,'admin','admin@haitang.local','A','admin','hobby','active'),(3,'other','o@test','O','learner','hobby','active');INSERT INTO sessions VALUES('s',1,'2099-01-01','csrf'),('a',2,'2099-01-01','csrf'),('o',3,'2099-01-01','csrf');`);
+const env={DB:{prepare(sql){const make=args=>({bind(...v){return make(v)},async first(){return db.prepare(sql).get(...args)||null},async run(){return db.prepare(sql).run(...args)}});return make([])}}};
+const req=(sid,body)=>new Request('https://test.local/api/test',{method:body?'POST':'GET',headers:{cookie:`mb_sid=${sid}`,'x-csrf-token':'csrf','content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
+let response=await onRequestGet({request:req('s'),env});assert.equal((await response.json()).license.type,'free');
+assert.equal((await onRequestPost({request:req('s',{code:'200791'}),env})).status,400);
+assert.equal((await issue({request:req('s',{plan:'student_pro'}),env})).status,403);
+response=await issue({request:req('a',{plan:'student_pro',days:30}),env});assert.equal(response.status,200);const {code}=await response.json();
+assert.equal(db.prepare('SELECT code_hash FROM entitlement_codes').get().code_hash.length,64);assert(!db.prepare('SELECT code_hash FROM entitlement_codes').get().code_hash.includes(code));
+response=await onRequestPost({request:req('s',{code}),env});assert.equal(response.status,200);assert.equal((await response.json()).license.type,'student_pro');
+assert.equal((await onRequestPost({request:req('o',{code}),env})).status,400);
+assert.equal((await onRequestPost({request:req('s',{code}),env})).status,200,'same account may retry redemption');
+db.exec("UPDATE entitlement_codes SET expires_at='2000-01-01'");response=await onRequestGet({request:req('s'),env});assert.equal((await response.json()).license.type,'free');
+response=await onRequestGet({request:req('a'),env});assert.equal((await response.json()).license.type,'developer');
+assert.equal((await onRequestPost({request:req('',{code}),env})).status,401);
+console.log('PASS server entitlements: local test code rejected, admin issuance, hashed codes, account binding, retry, expiration and server admin');db.close();

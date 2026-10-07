@@ -1,0 +1,15 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const listeners=new Map(),storage=new Map(),calls=[],checkbox={checked:false},other={checked:false};
+const context={document:{querySelectorAll:()=>[checkbox,other]},window:{addEventListener:(name,fn)=>listeners.set(name,fn)},localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)},navigator:{userAgent:'Mozilla/5.0 (iPhone) AppleWebKit Safari/604.1',platform:'iPhone',maxTouchPoints:1},AbortController,fetch:(url,options)=>{calls.push({url,options});return new Promise(()=>{})}};
+vm.runInNewContext(fs.readFileSync('vocal-pitch/tuner-experience.js','utf8'),context);
+const event=detail=>listeners.get('haitang:tuner-attempt')({detail}),read=stable=>listeners.get('haitang:tuner-reading')({detail:{stable}});
+event({phase:'begin',instrument:'guitar'});event({phase:'started'});read(true);event({phase:'end'});assert.equal(calls.length,0,'default disabled');
+checkbox.checked=true;checkbox.onchange();assert.equal(other.checked,true);
+event({phase:'begin',instrument:'guitar'});event({phase:'started'});for(let i=0;i<500;i++)read(false);assert.equal(calls.length,0,'never report per frame');read(true);event({phase:'end'});event({phase:'end'});assert.equal(calls.length,1,'one report per attempt');
+const first=calls[0];assert.equal(first.url,'/api/tuner-experience');assert.equal(first.options.credentials,'omit');assert.equal(first.options.referrerPolicy,'no-referrer');assert.deepEqual(JSON.parse(first.options.body),{consent:true,platform:'ios',browser:'safari',instrument:'guitar',result:'stable',failure:'none'});
+checkbox.checked=false;checkbox.onchange();assert.equal(first.options.signal.aborted,true);assert.equal(other.checked,false);
+event({phase:'begin',instrument:'guitar'});event({phase:'started'});checkbox.checked=true;checkbox.onchange();read(true);event({phase:'end'});assert.equal(calls.length,1,'enable mid-attempt only applies to next attempt');
+event({phase:'begin',instrument:'erhu'});event({phase:'failed',failure:'permission'});event({phase:'end'});assert.equal(JSON.parse(calls[1].options.body).result,'input_failed');assert.equal(JSON.parse(calls[1].options.body).failure,'permission');
+event({phase:'begin',instrument:'guitar'});event({phase:'end'});assert.equal(JSON.parse(calls[2].options.body).result,'cancelled');
+event({phase:'begin',instrument:'guitar'});event({phase:'started'});event({phase:'end'});assert.equal(JSON.parse(calls[3].options.body).result,'no_stable');
+console.log('PASS default off, explicit consent, one anonymous result per attempt, no raw audio, cancellation and opt-out abort');

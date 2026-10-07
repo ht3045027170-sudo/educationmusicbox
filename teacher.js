@@ -4,6 +4,21 @@
     location.replace('/');
     return;
   }
+  // Bundled pages have no same-origin account service.
+  if (location.hostname === 'appassets.androidplatform.net' || window.HAITANG_OFFLINE) {
+    document.getElementById('loginForm').hidden = true;
+    document.querySelector('.teacher-login-footer').hidden = true;
+    document.querySelector('#loginCard h2').textContent = '教师工作台需要联网';
+    const message = document.getElementById('loginMessage');
+    message.textContent = '出题、班级作业和学生报告需要登录网页版教师工作台。手机内的调音器和练习工具可以继续使用。';
+    const link = document.createElement('a');
+    link.href = 'https://educationmusicbox.pages.dev/teacher.html?product=exam';
+    link.textContent = '打开网页版教师工作台';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    message.after(link);
+    return;
+  }
   const $ = (id) => document.getElementById(id);
   let csrfToken = '';
 
@@ -47,7 +62,7 @@
     };
 
     // Load teacher modules — they will find CONTENT_MANAGER already set
-    Promise.all([import('/teacher-workbench.js'), import('/admin-homework.js')]).then(() => {
+    Promise.all([import('/teacher-workbench.js?v=20261007-8'), import('/admin-homework.js?v=20261007-12')]).then(() => {
       document.getElementById('teacherWorkbenchTab')?.click();
     });
 

@@ -1,3 +1,5 @@
+import { prepareQuestionMusic } from '../../../question-music.js';
+import { validQuestionAnswer, canonicalQuestionContent } from '../../../homework-grading.js';
 import { json, readBody, verifyCsrfRequest, currentUser, clientIp } from '../../../shared.js';
 
 // ============ 审核流 ============
@@ -37,7 +39,7 @@ export async function onRequestPost({ request, env, params }) {
     const nextStatus = ACTION_STATUS[action];
     if (!nextStatus) return json({ ok: false, error: '未知的审核动作。' }, 400);
 
-    const row = await env.DB.prepare('SELECT id, created_by, knowledge_id, version_no FROM questions WHERE id = ?').bind(Number(params.id)).first();
+    const row = await env.DB.prepare('SELECT id, created_by, knowledge_id, version_no, content, subject, question_type FROM questions WHERE id = ?').bind(Number(params.id)).first();
     if (!row) return json({ ok: false, error: '题目不存在。' }, 404);
 
     const isOwner = row.created_by === user.id;
@@ -45,9 +47,19 @@ export async function onRequestPost({ request, env, params }) {
       return json({ ok: false, error: '教师仅能送审或发布自己的题目；审核、退回、归档需管理员。' }, 403);
     }
 
+    let contentJson=row.content;
+    if (['approve','publish'].includes(action)) {
+      let content;
+      try { content=canonicalQuestionContent(JSON.parse(row.content),row.question_type); } catch (_) { return json({ok:false,error:'题目内容损坏，请修正后审核。'},400); }
+      if (!validQuestionAnswer(content,row.question_type)) return json({ok:false,error:'标准答案或选项无效；选择题答案必须在不重复的选项中，文字占位说明不能作为答案。'},400);
+      const music=prepareQuestionMusic(content,row.subject);
+      if (music.error) return json({ok:false,error:music.error},400);
+      content=music.content;delete content.reviewReason;contentJson=JSON.stringify(content);
+    }
+
     await env.DB.prepare(
-      'UPDATE questions SET status = ?, review_notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
-    ).bind(nextStatus, String(body.notes || '').trim(), Number(params.id)).run();
+      'UPDATE questions SET content = ?, status = ?, review_notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+    ).bind(contentJson, nextStatus, String(body.notes || '').trim(), Number(params.id)).run();
 
     await logAudit(env, user.id, `question:${action}`, `题#${row.id} ${row.knowledge_id} v${row.version_no}`, clientIp(request));
 

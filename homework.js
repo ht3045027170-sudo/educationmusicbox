@@ -6,9 +6,18 @@
   document.body.append(dialog);
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
   const user = () => window.HetianAuth?.getUser?.() || null;
+  let viewGeneration=0;
+  function beginView() {
+    const generation=++viewGeneration, actor=String(user()?.id??'guest');
+    return ()=>generation===viewGeneration && String(user()?.id??'guest')===actor;
+  }
   const isTeacher = () => ['teacher', 'admin'].includes(user()?.role);
   const teacherLabel = value => /老师$/.test(String(value || '')) ? String(value) : `${value || '教师'}老师`;
-  const dateText = value => value ? new Date(String(value).endsWith('Z') ? value : `${value}Z`).toLocaleString() : '—';
+  function serverDate(value) {
+    const text=String(value||'').trim();
+    return new Date(/(?:Z|[+-]\d{2}:?\d{2})$/i.test(text)?text:`${text.replace(' ','T')}Z`);
+  }
+  const dateText = value => value && Number.isFinite(serverDate(value).getTime()) ? serverDate(value).toLocaleString() : '—';
 
   async function csrf() {
     if (csrfToken) return csrfToken;
@@ -33,7 +42,7 @@
   </div>`;
 
   async function open(systemCode = 'gaokao', initialClassId = null) {
-    selectedSystem = systemCode;
+    beginView(); selectedSystem = systemCode;
     clearInterval(refreshTimer);
     try {
       const data = await api(`/api/learning/${systemCode}/classes`);
@@ -103,7 +112,7 @@
     if (Number(messages.viewer?.id) !== Number(user()?.id)) return location.reload();
     chatSnapshot = messages;
     const classAssignments = assignments.items.filter(item => Number(item.class_id) === Number(selectedClass));
-    const localDay = value => value ? new Date(String(value).endsWith('Z') ? value : `${value}Z`).toLocaleDateString() : '';
+    const localDay = value => value ? serverDate(value).toLocaleDateString() : '';
     const today = classAssignments.filter(item => !item.submitted_at && localDay(item.created_at) === new Date().toLocaleDateString()).slice(0, 4);
     target.className = 'class-conversation';
     target.innerHTML = `<header class="conversation-head"><div><b>${esc(messages.class.name)}</b><small>${messages.class.member_count} 人</small></div><div><button type="button" data-search>搜索</button><button type="button" data-settings>···</button></div></header>
@@ -232,9 +241,10 @@
   }
 
   async function openAssignments(systemCode = 'gaokao', filter = 'all') {
-    selectedSystem = systemCode; clearInterval(refreshTimer);
+    const current=beginView(); selectedSystem = systemCode; clearInterval(refreshTimer);
     try {
       const data = await api(`/api/learning/${systemCode}/assignments`);
+      if(!current())return;
       const groups = { today:[], soon:[], later:[], past:[] }, now = Date.now(), tomorrow = now + 86400000, week = now + 7*86400000;
       data.items.forEach(item => { const due = item.due_at ? Date.parse(item.due_at) : Infinity; (due < now ? groups.past : due < tomorrow ? groups.today : due < week ? groups.soon : groups.later).push(item); });
       const visible = item => filter === 'all' || (filter === 'pending' && !item.submitted_at && (!item.due_at || Date.parse(item.due_at) >= now)) || (filter === 'done' && item.submitted_at) || (filter === 'overdue' && !item.submitted_at && item.due_at && Date.parse(item.due_at) < now);
@@ -244,7 +254,7 @@
       dialog.querySelector('[data-close]').onclick = () => dialog.close();
       dialog.querySelectorAll('[data-assignment-filter]').forEach(button => button.onclick = () => openAssignments(systemCode, button.dataset.assignmentFilter));
       dialog.querySelectorAll('[data-assignment]').forEach(button => button.onclick = () => openAssignment(systemCode, button.dataset.assignment, button.dataset.review === '1'));
-    } catch (error) { showError('作业中心', error); }
+    } catch (error) { if(current())showError('作业中心', error); }
   }
   function assignmentRow(item) {
     const [,label] = assignmentStatus(item), canRetry = item.submitted_at && item.allow_retry && (!item.max_attempts || item.attempt_count < item.max_attempts);
@@ -253,23 +263,56 @@
 
   function questionInput(question, disabled = false) {
     const content = question.content || {}, options = Array.isArray(content.options) ? content.options : [];
-    if (options.length) return `<div class="student-options">${options.map(option => `<label><input type="radio" name="q${question.question_id}" value="${esc(option)}" ${question.answer === option ? 'checked' : ''} ${disabled ? 'disabled' : ''}> ${esc(option)}</label>`).join('')}</div>`;
+    if (options.length) return `<div class="student-options">${options.map(option => `<label><input type="${question.question_type === 'multi_choice' ? 'checkbox' : 'radio'}" name="q${question.question_id}" value="${esc(option)}" ${(Array.isArray(question.answer) ? question.answer.includes(option) : question.answer === option) ? 'checked' : ''} ${disabled ? 'disabled' : ''}> ${esc(option)}</label>`).join('')}</div>`;
     return `<textarea name="q${question.question_id}" ${disabled ? 'disabled' : ''} placeholder="填写答案">${esc(question.answer ?? '')}</textarea>`;
   }
 
+  let musicLoader;
+  function ensureMusicRenderer() {
+    if (window.MusicEditor) return Promise.resolve();
+    if (!musicLoader) musicLoader = new Promise((resolve, reject) => {
+      const script = document.createElement('script'); script.src = 'admin-music-editor.js?v=20261007-8';
+      script.onload = resolve; script.onerror = () => { script.remove(); musicLoader = null; reject(new Error('乐谱组件加载失败，请重试。')); };
+      document.head.append(script);
+    });
+    return musicLoader;
+  }
+  function musicQuestion(question, review = false, listening = false) {
+    const content = question.content || {};
+    if (content.musicError) return `<p class="auth-message">题目音频待老师校对：${esc(content.musicError)}</p>`;
+    if (!Array.isArray(content.notes) || !content.notes.length) return '';
+    const staff = !review && (listening || content.listenOnly) ? '' : window.MusicEditor.renderStaffPreview(content.notes, content.keySignature, content.meter, content.category, content.clef);
+    return `<div class="homework-music"><div style="overflow:auto">${staff || '<p>先听音作答，提交后显示谱例。</p>'}</div><button type="button" data-question-play="${question.question_id}">▶ 播放题目${Number(content.audioSettings?.playCount) > 1 ? `（${Number(content.audioSettings.playCount)}遍）` : ''}</button><button type="button" data-music-stop>停止播放</button></div>`;
+  }
+
   async function openAssignment(systemCode, id, review = false) {
+    const current=beginView();
+    try {
     const data = await api(`/api/learning/${systemCode}/assignments/${id}${review ? '?review=1' : ''}`), submitted = Boolean(data.assignment.submitted_at), canSubmit = Boolean(data.assignment.can_submit) && !review;
+    if(!current())return;
+    window.MusicEditor?.stopPlayback();
+    if (data.questions.some(question => question.content?.notes?.length)) await ensureMusicRenderer();
+    if(!current())return;
     const attempts = data.attempts || [];
     const questionMap=new Map(data.questions.map(question=>[Number(question.question_id),question])), fallback=[{title:'练习题',question_ids:data.questions.map(question=>Number(question.question_id))}], sections=data.assignment.sections?.length?data.assignment.sections:fallback;let questionNo=0;
-    const paper=sections.map(section=>`<section class="assignment-section"><header><span>${esc(section.type||'PAPER')}</span><h3>${esc(section.title)}</h3></header>${section.question_ids.map(qid=>questionMap.get(Number(qid))).filter(Boolean).map(question=>{questionNo++;return `<article class="student-question"><h3>${questionNo}. ${esc(question.content.prompt || question.content.question || '题目')}</h3>${questionInput(question, review)}${review ? `<p class="${question.correct ? 'answer-correct' : 'answer-wrong'}">${question.correct ? '回答正确' : '回答错误'} · 标准答案：${esc(question.content.answer ?? '')}</p><p>${esc(question.content.explanation || '')}</p>` : ''}</article>`}).join('')}</section>`).join('');
-    dialog.innerHTML = `<form class="assignment-paper"><button type="button" class="assignment-back" data-back>← 返回作业中心</button><header><span>ASSIGNMENT</span><h2>${esc(data.assignment.title)}</h2><p>${esc(data.assignment.instructions || '完成后统一提交。')}</p><div class="assignment-meta">${data.assignment.due_at ? `截止 ${dateText(data.assignment.due_at)}` : '不设截止时间'} · ${data.questions.length} 题 · ${data.assignment.allow_retry ? `允许重做${data.assignment.max_attempts ? ` ${data.assignment.max_attempts} 次` : ''}` : '不可重做'} · 取最高分</div></header>${paper}
+    const paper=sections.map(section=>`<section class="assignment-section"><header><span>${esc(section.type||'PAPER')}</span><h3>${esc(section.title)}</h3></header>${section.question_ids.map(qid=>questionMap.get(Number(qid))).filter(Boolean).map(question=>{questionNo++;return `<article class="student-question"><h3>${questionNo}. ${esc(question.content.prompt || question.content.question || '题目')}</h3>${musicQuestion(question, review, section.type === 'dictation' || data.assignment.subject === 'dictation')}${questionInput(question, review || !canSubmit)}${review ? `<p class="${question.correct ? 'answer-correct' : 'answer-wrong'}">${question.correct ? '回答正确' : '回答错误'} · 标准答案：${esc(question.content.answer ?? '')}</p><p>${esc(question.content.explanation || '')}</p>` : ''}</article>`}).join('')}</section>`).join('');
+    dialog.innerHTML = `<form class="assignment-paper"><button type="button" class="assignment-back" data-back>← 返回作业中心</button><header><span>ASSIGNMENT</span><h2>${esc(data.assignment.title)}</h2><p>${esc(data.assignment.instructions || '完成后统一提交。')}</p><div class="assignment-meta">${data.assignment.due_at ? `截止 ${dateText(data.assignment.due_at)}` : '不设截止时间'} · ${data.questions.length} 题 · ${data.assignment.allow_retry ? `允许重做${data.assignment.max_attempts ? ` ${data.assignment.max_attempts} 次` : ''}` : '不可重做'} · 取最高分${data.assignment.versioned ? ' · 使用发布时题目版本' : ' · 历史作业未保存题目版本'}</div></header>${data.assignment.issue ? `<p class="auth-message">${esc(data.assignment.issue)}</p>` : ''}${paper}
       ${review ? `<div class="score-card">最高成绩：${data.assignment.score} 分</div><div class="attempt-history"><b>作答记录</b>${attempts.map(item=>`<span>第 ${item.attempt_no} 次 · ${item.score} 分 · ${dateText(item.submitted_at)}</span>`).join('')}</div>${data.assignment.can_submit ? '<button type="button" class="assignment-submit" data-retry>重新作答</button>' : ''}` : '<button class="assignment-submit">提交整份作业</button><p class="auth-message"></p>'}</form>`;
-    dialog.querySelector('[data-back]').onclick = () => openAssignments(systemCode);
+    dialog.querySelector('[data-back]').onclick = () => { window.MusicEditor?.stopPlayback(); openAssignments(systemCode); };
+    dialog.querySelectorAll('[data-question-play]').forEach(button => button.onclick = async () => {
+      const content = questionMap.get(Number(button.dataset.questionPlay)).content;
+      window.MusicVocal?.tuner?.stop();
+      try { await window.MusicEditor.playNotes(content.notes, { ...content.audioSettings, bpm: content.bpm }); }
+      catch (error) { button.textContent = '播放失败，点击重试'; }
+    });
+    dialog.querySelectorAll('[data-music-stop]').forEach(button => button.onclick = () => window.MusicEditor?.stopPlayback());
+    if (!canSubmit && !review) dialog.querySelector('.assignment-submit').disabled = true;
     dialog.querySelector('[data-retry]')?.addEventListener('click', () => openAssignment(systemCode,id,false));
     if (canSubmit) dialog.querySelector('form').onsubmit = async event => {
-      event.preventDefault(); const fd=new FormData(event.currentTarget), answers={}; data.questions.forEach(question=>answers[question.question_id]=fd.get(`q${question.question_id}`)??'');
-      try { await api(`/api/learning/${systemCode}/assignments/${id}/submit`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({answers})}); openAssignment(systemCode,id,true); } catch(error){ event.currentTarget.querySelector('.auth-message').textContent=error.message; }
+      event.preventDefault(); if(!current())return; const form = event.currentTarget; const submitButton=form.querySelector('.assignment-submit'); if(submitButton.disabled)return; submitButton.disabled=true; const fd=new FormData(form), answers={}; data.questions.forEach(question=>answers[question.question_id]=question.question_type === 'multi_choice' ? fd.getAll(`q${question.question_id}`) : fd.get(`q${question.question_id}`)??'');
+      try { await api(`/api/learning/${systemCode}/assignments/${id}/submit`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({answers})}); if(current())openAssignment(systemCode,id,true); } catch(error){ if(current())form.querySelector('.auth-message').textContent=error.message; } finally { if(form.isConnected)submitButton.disabled=false; }
     };
+    } catch(error) { if(current())showError('作业详情',error); }
   }
 
   function showError(title, error) {
@@ -277,7 +320,9 @@
     dialog.querySelector('[data-close]').onclick = () => dialog.close(); if (!dialog.open) dialog.showModal();
   }
 
-  dialog.addEventListener('close', () => { clearInterval(refreshTimer); replyTo = null; });
+  window.addEventListener('hetian:auth-changed',()=>{viewGeneration++;dialog.close();dialog.innerHTML='';});
+  document.addEventListener('visibilitychange', () => { if (document.hidden) window.MusicEditor?.stopPlayback(); });
+  dialog.addEventListener('close', () => { viewGeneration++; window.MusicEditor?.stopPlayback(); clearInterval(refreshTimer); replyTo = null; });
   window.addEventListener('hetian:auth-changed', () => { csrfToken=''; selectedClass=null; clearInterval(refreshTimer); if(dialog.open)dialog.close(); });
   const style=document.createElement('style'); style.textContent=`
     .class-dialog{width:min(1160px,calc(100% - 24px));height:min(820px,calc(100dvh - 24px));padding:0;border:0;border-radius:22px;overflow:hidden;background:#f3eee7;color:#3d2a23;box-shadow:0 30px 90px rgba(49,24,15,.3)}.class-dialog::backdrop{background:rgba(42,24,17,.5);backdrop-filter:blur(7px)}

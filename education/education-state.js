@@ -151,13 +151,9 @@
     state.license.type = String(state.license.type || 'free');
     state.license.status = String(state.license.status || 'active');
     state.license.features = Array.isArray(state.license.features) ? [...new Set(state.license.features.map(String))] : [];
-    // 兼容此前的创作者测试状态：旧数据升级为正式的 developer 授权记录。
-    if (state.unlockState.allLevels && state.unlockState.creatorTest && state.license.type === 'free') {
-      state.license = {
-        type: 'developer', status: 'active', expireDate: '', features: ['*'],
-        activatedCode: state.unlockState.activatedCode || '200791', activatedAt: state.unlockState.activatedAt || now()
-      };
-    }
+    // Local imports and legacy test flags cannot grant paid entitlements.
+    state.unlockState = defaultEducationState().unlockState;
+    state.license = defaultEducationState().license;
     state.sessions = Array.isArray(state.sessions) ? state.sessions.slice(-365) : [];
     state.meta.updatedAt = now();
     return state;

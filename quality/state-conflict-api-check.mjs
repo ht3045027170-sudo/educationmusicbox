@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';import{DatabaseSync}from'node:sqlite';
+import {onRequestGet,onRequestPut} from '../functions/api/auth/state/[code].js';
+const db=new DatabaseSync(':memory:');db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY,username TEXT,email TEXT,display_name TEXT,role TEXT,learning_system TEXT,status TEXT);CREATE TABLE sessions(token TEXT,user_id INTEGER,expires_at TEXT,csrf TEXT);INSERT INTO users VALUES(1,'student','s@test','S','learner','hobby','active');INSERT INTO sessions VALUES('s',1,'2099-01-01','csrf');`);
+const env={DB:{prepare(sql){const make=args=>({bind(...v){return make(v)},async first(){return db.prepare(sql).get(...args)||null},async run(){const v=db.prepare(sql).run(...args);return{meta:{changes:Number(v.changes)}}}});return make([])}}};
+const req=body=>new Request('https://test.local/',{method:body?'PUT':'GET',headers:{cookie:'mb_sid=s','x-csrf-token':'csrf','content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
+const put=body=>onRequestPut({request:req(body),env,params:{code:'hobby'}});
+let response=await onRequestGet({request:req(),env,params:{code:'hobby'}});assert.equal((await response.json()).revision,null);
+assert.equal((await put({state:{},userId:2,expectedRevision:null})).status,409);
+assert.equal((await put({state:{},userId:1})).status,428);
+response=await put({state:{learning:{totalQuestions:2},license:{type:'developer'},unlockState:{allLevels:true}},userId:1,expectedRevision:null});assert.equal(response.status,200);const a=await response.json();
+response=await onRequestGet({request:req(),env,params:{code:'hobby'}});let data=await response.json();assert.equal(data.state.license,undefined);assert.equal(data.state.unlockState,undefined);
+const [first,second]=await Promise.all([3,4].map(totalQuestions=>put({state:{learning:{totalQuestions}},userId:1,expectedRevision:a.revision})));
+assert.deepEqual([first.status,second.status].sort(),[200,409]);
+response=await put({state:{learning:{totalQuestions:99}},userId:1,expectedRevision:a.revision});assert.equal(response.status,409);
+response=await onRequestGet({request:req(),env,params:{code:'hobby'}});data=await response.json();assert([3,4].includes(data.state.learning.totalQuestions));
+response=await put({state:{learning:{totalQuestions:99}},userId:1,expectedRevision:data.revision});assert.equal(response.status,200);
+console.log('PASS atomic two-device conflict detection, stale-write rejection, explicit resolution, account-switch guard and local entitlement stripping');db.close();

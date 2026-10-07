@@ -6,6 +6,15 @@
   if (!Store || !App) return;
   const $ = id => document.getElementById(id);
   const CATEGORIES = ['综合训练', '音与音高', '音长与节奏', '乐谱符号', '音程', '和弦', '调式调性'];
+  const CATEGORY_TEXT = {
+    综合训练: '混合各考纲知识点，按考试节奏完成一套综合卷。',
+    音与音高: '音名、唱名、等音、音级与五线谱音高。',
+    音长与节奏: '音符、休止符、附点、连音与节奏组合。',
+    乐谱符号: '谱号、力度、速度、演奏法与常用记号。',
+    音程: '音程度数、音数、性质、转位与协和性。',
+    和弦: '三和弦、七和弦、转位、结构与性质。',
+    调式调性: '调号、音阶、关系调与调式判断。'
+  };
   const FALLBACK_QUESTIONS = [
     { id:'fallback-pitch', category:'音与音高', knowledgeId:'gaokao.theory.pitch.enharmonic', difficulty:1, prompt:'下列哪一组是等音？', options:['C♯与D♭','C与D♭','E与F♯','B与C♯'], answer:'C♯与D♭', explanation:'C♯与D♭在十二平均律中音高相同。' },
     { id:'fallback-rhythm', category:'音长与节奏', knowledgeId:'gaokao.theory.rhythm.dotted', difficulty:1, prompt:'附点四分音符有几拍？', options:['1.5拍','1拍','2拍','0.5拍'], answer:'1.5拍', explanation:'附点增加原时值的一半。' },
@@ -19,6 +28,7 @@
   let bankStatus = 'loading';
   let activeCategory = '综合训练';
   let session = null;
+  const saveTheoryDraft = () => Store.update(state => { state.activeTheorySession = session && !session.finished ? JSON.parse(JSON.stringify(session)) : null; });
   let questionStartedAt = 0;
   let theoryTimerId = 0;
 
@@ -123,9 +133,9 @@
     setTimeout(() => form.elements.name.focus(), 30);
   }
 
-  function dashboardPercent(category) {
-    const accuracy = Store.accuracyFor(category);
-    return accuracy === null ? { width: 0, label: '—' } : { width: accuracy, label: `${accuracy}%` };
+  function dashboardPercent(completed, target) {
+    const percent = Math.min(100, Math.max(0, Math.round((completed || 0) / target * 100)));
+    return { width: percent, label: `${percent}%` };
   }
 
   function setProgress(prefix, value) {
@@ -146,8 +156,28 @@
     const map = {
       pitch: '音高与等音', rhythm: '音长与节奏', sign: '乐谱符号', interval: '音程', chord: '和弦', key: '调式调性', scale: '音阶'
     };
-    const segment = String(item.knowledgeId || '').split('.')[2] || '';
+    const parts = String(item.knowledgeId || '').split('.');
+    if (parts[1] === 'dictation' || item.category === 'dictation') {
+      const labels = { single: '单音听记', interval: '音程听记', chord: '和弦听记', rhythm: '节奏听记', melody: '旋律听记' };
+      return labels[parts[2]] || '听记训练';
+    }
+    const segment = parts[2] || '';
     return map[segment] || item.category || item.knowledgeId;
+  }
+
+  function dashboardWeakKnowledge() {
+    const groups = new Map();
+    for (const item of Store.weakKnowledge(Infinity)) {
+      const label = knowledgeLabel(item);
+      const group = groups.get(label) || { label, attempts: 0, recent: [] };
+      group.attempts += item.attempts;
+      group.recent.push(...item.recent);
+      groups.set(label, group);
+    }
+    return [...groups.values()].map(group => ({
+      ...group,
+      recentAccuracy: Math.round(group.recent.reduce((sum, value) => sum + value, 0) / group.recent.length * 100)
+    })).sort((a, b) => a.recentAccuracy - b.recentAccuracy || b.attempts - a.attempts).slice(0, 4);
   }
 
   function adaptiveQuestions(source, targetCount) {
@@ -164,27 +194,37 @@
     const state = Store.getState();
     const profile = state.profile;
     $('gkAvatar').textContent = (profile.name || '音').trim().slice(0, 1);
-    $('gkStudentName').textContent = profile.name || '高考音乐生';
+    $('gkStudentName').textContent = profile.name || '艺考生';
     $('gkProfileSummary').textContent = [profile.province, profile.direction, profile.primarySubject && `主项：${profile.primarySubject}`, profile.secondarySubject && `副项：${profile.secondarySubject}`].filter(Boolean).join(' · ');
     const countdown = daysUntilExam(profile.examDate);
     $('gkExamCountdown').textContent = countdown === null
       ? '尚未设置考试时间'
       : countdown < 0 ? `考试日期已过 ${Math.abs(countdown)} 天` : countdown === 0 ? '今天考试' : `距离考试 ${countdown} 天`;
-    setProgress('gkTheory', dashboardPercent('theory'));
-    setProgress('gkDictation', dashboardPercent('dictation'));
-    setProgress('gkSight', dashboardPercent('sight_singing'));
     const today = state.daily[Store.isoDate()] || {};
     const theoryCount = today.theoryQuestions || 0;
     const dictationCount = today.dictationQuestions || 0;
     const sightCount = today.sightSingingCount || 0;
+    setProgress('gkTheory', dashboardPercent(theoryCount, 30));
+    setProgress('gkDictation', dashboardPercent(dictationCount, 20));
+    setProgress('gkSight', dashboardPercent(sightCount, 1));
+    function todayAccuracy(count, key) {
+      if (!count) return '暂无作答';
+      if (!Number.isFinite(Number(today[key])) || today[key] == null) return '暂无正确率记录';
+      const correct = Math.max(0, Math.min(count, Number(today[key])));
+      return `${Math.round(correct / count * 100)}%（${correct}/${count}）`;
+    }
+    $('gkTheoryStats').textContent = `完成 ${theoryCount}/30 题 · 今日正确率 ${todayAccuracy(theoryCount, 'theoryCorrect')}`;
+    $('gkDictationStats').textContent = `完成 ${dictationCount}/20 题 · 今日正确率 ${todayAccuracy(dictationCount, 'dictationCorrect')}`;
+    $('gkSightStats').textContent = `完成 ${sightCount} 条 · 今日目标 1 条`;
+
     $('gkTaskList').innerHTML = [
       [theoryCount >= 30, `乐理训练 ${Math.min(theoryCount, 30)}/30题`],
       [dictationCount >= 20, `听写训练 ${Math.min(dictationCount, 20)}/20题`],
       [sightCount >= 1, `视唱训练 ${Math.min(sightCount, 1)}/1条`]
     ].map(([done, label]) => `<div class="gk-task${done ? ' done' : ''}"><i>${done ? '✓' : ''}</i><span>${escapeHTML(label)}</span></div>`).join('');
-    const weak = Store.weakKnowledge(4);
+    const weak = dashboardWeakKnowledge();
     $('gkWeakList').innerHTML = weak.length
-      ? `<div class="gk-weak-item"><b>下一组自适应训练</b><br><small>将优先安排下列薄弱知识点，占综合训练约 60%。</small></div>` + weak.map(item => `<div class="gk-weak-item"><b>${escapeHTML(knowledgeLabel(item))}</b><br><small>最近正确率 ${item.recentAccuracy}% · ${item.attempts} 次练习</small></div>`).join('')
+      ? `<div class="gk-weak-item"><b>下一组自适应训练</b><br><small>乐理综合训练将优先安排薄弱乐理知识点，目标占比约 60%；听记可进入对应专项练习。</small></div>` + weak.map(item => `<div class="gk-weak-item"><b>${escapeHTML(item.label)}</b><br><small>最近正确率 ${item.recentAccuracy}% · ${item.attempts} 次练习</small></div>`).join('')
       : '<div class="gk-weak-item"><b>等待真实训练数据</b><br><small>完成至少两次同类知识点后生成薄弱分析。</small></div>';
   }
 
@@ -194,24 +234,52 @@
   }
 
   function renderCategoryList() {
-    $('gkCategoryList').innerHTML = CATEGORIES.map((category, index) =>
-      `<button class="gk-category-button${category === activeCategory ? ' active' : ''}" type="button" data-gk-category="${escapeHTML(category)}"><b>${index + 1}. ${escapeHTML(category)}${category === '综合训练' ? '模拟卷' : '专项卷'}</b><small>10 题 · ${category === '综合训练' ? 20 : 15} 分钟</small></button>`
-    ).join('');
+    $('gkCategoryList').innerHTML = CATEGORIES.map((category, index) => {
+      const available = category === '综合训练' ? bank.length : bank.filter(item => item.category === category).length;
+      const questionCount = Math.min(10, available);
+      return `<button class="gk-dictation-mode" type="button" data-gk-category="${escapeHTML(category)}" ${questionCount ? '' : 'disabled'}><i>${String(index + 1).padStart(2, '0')} / ${category === '综合训练' ? 20 : 15} MIN</i><b>${escapeHTML(category)}${category === '综合训练' ? '模拟卷' : '专项卷'}</b><span>${escapeHTML(CATEGORY_TEXT[category])}</span><small>${questionCount || '暂无'} 题 · 限时 ${category === '综合训练' ? 20 : 15} 分钟 →</small></button>`;
+    }).join('');
     $('gkCategoryList').querySelectorAll('[data-gk-category]').forEach(button => {
-      button.addEventListener('click', () => startTheorySession(button.dataset.gkCategory));
+      button.addEventListener('click', () => showTheoryIntro(button.dataset.gkCategory));
     });
+  }
+
+  function showTheoryLanding() {
+    clearInterval(theoryTimerId);
+    $('gkTheoryLanding').classList.remove('hidden');
+    $('gkTheoryIntro').classList.add('hidden');
+    $('gkTheoryExam').classList.add('hidden');
+    $('gkTheoryResult').classList.add('hidden');
+    renderCategoryList();
+  }
+
+  function showTheoryIntro(category) {
+    activeCategory = category;
+    $('gkTheoryLanding').classList.add('hidden');
+    $('gkTheoryIntro').classList.remove('hidden');
+    $('gkTheoryExam').classList.add('hidden');
+    $('gkTheoryResult').classList.add('hidden');
+    $('gkTheoryIntroTitle').textContent = `${category}${category === '综合训练' ? '模拟卷' : '专项卷'}`;
+    $('gkTheoryIntroText').textContent = CATEGORY_TEXT[category];
+    $('gkTheoryMinutes').textContent = category === '综合训练' ? '20' : '15';
+    $('gkTheoryCount').textContent = String(Math.min(10, category === '综合训练' ? bank.length : bank.filter(item => item.category === category).length));
   }
 
   function openTheory() {
     App.showPage('gaokaoTheory');
-    $('gkQuestionCard').classList.remove('hidden');
-    $('gkTheoryResult').classList.add('hidden');
-    renderCategoryList();
-    if (!session || session.finished) startTheorySession(activeCategory);
-    else { renderQuestion(); startTheoryTimer(); }
+    session = Store.getState().activeTheorySession || session;
+    if (session && !session.finished) {
+      $('gkTheoryLanding').classList.add('hidden');
+      $('gkTheoryIntro').classList.add('hidden');
+      $('gkTheoryExam').classList.remove('hidden');
+      $('gkQuestionCard').classList.remove('hidden');
+      $('gkTheoryResult').classList.add('hidden');
+      renderQuestion();
+      startTheoryTimer();
+    } else showTheoryLanding();
   }
 
-  function startTheorySession(category = '综合训练') {
+  function startTheorySession(category = '综合训练', mode = 'exam') {
     activeCategory = category;
     renderCategoryList();
     const source = category === '综合训练' ? bank : bank.filter(item => item.category === category);
@@ -225,7 +293,7 @@
       : shuffle(source).slice(0, targetCount);
     session = {
       id: `gk-session-${Date.now()}`,
-      category,
+      category, mode: mode === 'practice' ? 'practice' : 'exam',
       questions: shuffle(selected),
       answers: Array(targetCount).fill(null),
       index: 0,
@@ -233,6 +301,11 @@
       deadline: Date.now() + (category === '综合训练' ? 20 : 15) * 60000,
       finished: false
     };
+    session.optionOrders = session.questions.map(question => shuffle(question.options));
+    saveTheoryDraft();
+    $('gkTheoryLanding').classList.add('hidden');
+    $('gkTheoryIntro').classList.add('hidden');
+    $('gkTheoryExam').classList.remove('hidden');
     $('gkQuestionCard').classList.remove('hidden');
     $('gkTheoryResult').classList.add('hidden');
     renderQuestion();
@@ -241,6 +314,7 @@
 
   function updateTheoryTimer() {
     if (!session || session.finished) return;
+    if (session.mode === 'practice') { $('gkTheoryTimer').textContent = '不限时练习'; return; }
     const remaining = Math.max(0, Math.ceil((session.deadline - Date.now()) / 1000));
     $('gkTheoryTimer').textContent = `${String(Math.floor(remaining / 60)).padStart(2, '0')}:${String(remaining % 60).padStart(2, '0')}`;
     $('gkTheoryTimer').classList.toggle('warning', remaining <= 60);
@@ -250,13 +324,14 @@
   function startTheoryTimer() {
     clearInterval(theoryTimerId);
     updateTheoryTimer();
-    theoryTimerId = setInterval(updateTheoryTimer, 250);
+    if (session && !session.finished && session.mode !== 'practice') theoryTimerId = setInterval(updateTheoryTimer, 250);
   }
 
   function renderQuestion() {
     if (!session) return;
     const question = session.questions[session.index];
     const stored = session.answers[session.index];
+    const revealed = session.finished || (session.mode === 'practice' && Boolean(stored));
     questionStartedAt = Date.now();
     $('gkQuestionCategory').textContent = `${question.category} · 难度 ${question.difficulty}`;
     $('gkQuestionCounter').textContent = `${session.index + 1} / ${session.questions.length}`;
@@ -266,44 +341,38 @@
     const notation = $('gkTheoryNotation');
     notation.classList.toggle('hidden', !promptNotes.length);
     notation.innerHTML = notationSVG(promptNotes);
-    const orderedOptions = stored?.optionOrder || shuffle(question.options);
+    const orderedOptions = stored?.optionOrder || session.optionOrders?.[session.index] || shuffle(question.options);
     $('gkOptions').innerHTML = orderedOptions.map(option => {
-      const classes = stored ? option === question.answer ? ' correct' : (!stored.correct && option === stored.userAnswer ? ' wrong' : '') : '';
+      const classes = revealed && stored ? option === question.answer ? ' correct' : (!stored.correct && option === stored.userAnswer ? ' wrong' : '') : stored?.userAnswer === option ? ' selected' : '';
       const optionNotes = notationFromText(option);
       const optionText = optionNotes.length ? textWithoutPitchCodes(option, '') : option;
-      return `<button class="gk-option${optionNotes.length ? ' notation' : ''}${classes}" type="button" data-gk-answer="${escapeHTML(option)}" ${stored ? 'disabled' : ''} aria-label="${optionNotes.length ? '五线谱答案选项' : escapeHTML(option)}">${optionText.trim() ? `<span>${escapeHTML(optionText)}</span>` : ''}${notationSVG(optionNotes, true)}</button>`;
+      return `<button class="gk-option${optionNotes.length ? ' notation' : ''}${classes}" type="button" data-gk-answer="${escapeHTML(option)}" ${revealed ? 'disabled' : ''} aria-pressed="${stored?.userAnswer === option}" aria-label="${optionNotes.length ? '五线谱答案选项' : escapeHTML(option)}">${optionText.trim() ? `<span>${escapeHTML(optionText)}</span>` : ''}${notationSVG(optionNotes, true)}</button>`;
     }).join('');
-    if (!stored) {
+    if (!revealed) {
       $('gkOptions').querySelectorAll('[data-gk-answer]').forEach(button => button.addEventListener('click', () => answerQuestion(button.dataset.gkAnswer, orderedOptions)));
-      $('gkExplanation').textContent = '选择答案后显示解析。题目不会自动跳走。';
+      $('gkExplanation').textContent = session.mode === 'practice' ? '练习模式：选择后立即显示解析。' : '考试模式：交卷后统一显示答案和解析，提交前可以修改选择或跳过题目。';
     } else {
       const answerHasNotation = notationFromText(question.answer).length > 0;
       const answerLabel = answerHasNotation ? '正确答案见绿色五线谱' : `正确答案：${escapeHTML(question.answer)}`;
       $('gkExplanation').innerHTML = `<b>${stored.correct ? '回答正确' : answerLabel}</b><br>${escapeHTML(textWithoutPitchCodes(question.explanation, '谱例所示音'))}`;
     }
     $('gkPrevQuestion').disabled = session.index === 0;
-    $('gkNextQuestion').disabled = !stored;
+    $('gkNextQuestion').disabled = false;
     $('gkTheorySubmit').classList.toggle('hidden', Boolean(session.reviewing));
     $('gkTheoryReturnResult').classList.toggle('hidden', !session.reviewing);
     $('gkNextQuestion').textContent = session.index === session.questions.length - 1 ? (session.reviewing ? '返回成绩 →' : '完成训练 →') : '下一题 →';
   }
 
   function answerQuestion(answer, optionOrder) {
-    if (!session || session.answers[session.index]) return;
+    if (!session || session.finished || (session.mode === 'practice' && session.answers[session.index])) return;
     const question = session.questions[session.index];
-    const correct = answer === question.answer;
-    Store.recordAnswer({
-      questionId: question.id,
-      category: 'theory',
-      knowledgeId: question.knowledgeId,
-      difficulty: question.difficulty,
-      userAnswer: answer,
-      correctAnswer: question.answer,
-      correct,
-      responseTime: Date.now() - questionStartedAt,
-      mode: session.category === '综合训练' ? 'theory-mixed' : 'theory-category'
-    });
-    session.answers[session.index] = { userAnswer: answer, correct, optionOrder };
+    session.answers[session.index] = { userAnswer: answer, correct: answer === question.answer, optionOrder, responseTime: Date.now() - questionStartedAt };
+    if (session.mode === 'practice') {
+      const answerRecord = session.answers[session.index];
+      Store.recordAnswer({ questionId:question.id, category:'theory', knowledgeId:question.knowledgeId, difficulty:question.difficulty, userAnswer:answer, correctAnswer:question.answer, correct:answerRecord.correct, responseTime:answerRecord.responseTime, mode:'theory-practice' });
+      answerRecord.recorded = true;
+    }
+    saveTheoryDraft();
     renderQuestion();
   }
 
@@ -316,15 +385,16 @@
     session.finished = true;
     clearInterval(theoryTimerId);
     session.answers.forEach((answer, index) => {
-      if (answer) return;
       const question = session.questions[index];
-      session.answers[index] = { userAnswer:'未作答', correct:false, optionOrder:shuffle(question.options) };
-      Store.recordAnswer({ questionId:question.id, category:'theory', knowledgeId:question.knowledgeId, difficulty:question.difficulty, userAnswer:'未作答', correctAnswer:question.answer, correct:false, responseTime:0, mode:session.category === '综合训练' ? 'theory-mixed' : 'theory-category' });
+      if (!answer) answer = session.answers[index] = { userAnswer: '未作答', correct: false, optionOrder: session.optionOrders?.[index] || shuffle(question.options) };
+      if (!answer.recorded) Store.recordAnswer({ questionId: question.id, category: 'theory', knowledgeId: question.knowledgeId, difficulty: question.difficulty, userAnswer: answer.userAnswer, correctAnswer: question.answer, correct: answer.correct, responseTime: answer.responseTime || 0, mode: session.mode === 'practice' ? 'theory-practice' : session.category === '综合训练' ? 'theory-mixed' : 'theory-category' });
     });
+    saveTheoryDraft();
     const answered = session.answers.filter(Boolean);
     const correct = answered.filter(item => item.correct).length;
     const accuracy = Math.round(correct / session.questions.length * 100);
-    Store.finishSession({ id: session.id, type: 'theory', category: session.category, questionCount: session.questions.length, correct, accuracy, startedAt: session.startedAt, timedOut });
+    Store.finishSession({ id: session.id, type: 'theory', practiceMode:session.mode || 'exam', category: session.category, questionCount: session.questions.length, correct, accuracy, startedAt: session.startedAt, timedOut });
+    $('gkTheoryExam').classList.add('hidden');
     $('gkQuestionCard').classList.add('hidden');
     $('gkTheoryResult').classList.remove('hidden');
     $('gkResultScore').textContent = `${accuracy}%`;
@@ -335,6 +405,7 @@
 
   function showTheoryResult() {
     session.reviewing = false;
+    $('gkTheoryExam').classList.add('hidden');
     $('gkQuestionCard').classList.add('hidden');
     $('gkTheoryResult').classList.remove('hidden');
   }
@@ -346,19 +417,15 @@
     session.reviewing = true;
     session.index = firstWrong;
     $('gkTheoryResult').classList.add('hidden');
+    $('gkTheoryExam').classList.remove('hidden');
     $('gkQuestionCard').classList.remove('hidden');
     renderQuestion();
   }
 
   function showBlueprint() { window.GaokaoDictation?.openIntro?.('guangdong_mock'); }
 
-  $('portalEducation')?.addEventListener('click', () => {
-    if (window.HetianEducationUI?.goEducationHome) window.HetianEducationUI.goEducationHome();
-    else App.showPage('home');
-  });
   $('portalToolbox')?.addEventListener('click', () => App.showPage('menu'));
-  $('portalGaokao')?.addEventListener('click', enterGaokao);
-  $('gkProfileForm')?.addEventListener('submit', event => {
+  $('gkProfileForm')?.addEventListener('submit', async event => {
     event.preventDefault();
     const form = event.currentTarget;
     const data = Object.fromEntries(new FormData(form).entries());
@@ -366,10 +433,21 @@
       $('gkProfileError').textContent = '请填写姓名、高考时间、考试省份、未来方向和主项。';
       return;
     }
-    Store.saveProfile({
+    const profile = {
       name: data.name.trim(), examDate: data.examDate, province: data.province,
       direction: data.direction, primarySubject: data.primarySubject.trim(), secondarySubject: data.secondarySubject.trim()
-    });
+    };
+    try {
+      if (window.HetianAuth?.getUser?.()) {
+        await window.HetianAuth.saveProfile('gaokao', {
+          name: profile.name, examDate: profile.examDate, province: profile.province, direction: profile.direction,
+          primaryMajor: profile.primarySubject, secondaryMajor: profile.secondarySubject
+        });
+      } else Store.saveProfile(profile);
+    } catch (error) {
+      $('gkProfileError').textContent = `档案暂未同步：${error.message}`;
+      return;
+    }
     openDashboard();
   });
   $('gkEditProfile')?.addEventListener('click', () => openProfile(true));
@@ -387,18 +465,36 @@
   $('gkOpenTheory')?.addEventListener('click', openTheory);
   $('gkOpenDictation')?.addEventListener('click', () => window.GaokaoDictation?.open?.());
   $('gkOpenSight')?.addEventListener('click', () => App.showPage('sightSinging'));
+  $('gkOpenTools')?.addEventListener('click', () => App.showPage('gkTools'));
+  $('gkOpenTeacherCenter')?.addEventListener('click', () => {
+    if (!['teacher', 'admin'].includes(window.HetianAuth?.getUser?.()?.role)) return;
+    const frame = $('gkTeacherFrame');
+    if (frame && !frame.src) frame.src = 'teacher.html?embedded=1';
+    App.showPage('gkTeacherCenter');
+  });
+  $('gkOpenTeacherClass')?.addEventListener('click', () => window.MusicHomework?.open?.('gaokao'));
+  $('gkOpenStudentClass')?.addEventListener('click', () => window.MusicHomework?.open?.('gaokao'));
+  $('gkOpenStudentHomework')?.addEventListener('click', () => window.MusicHomework?.openAssignments?.('gaokao'));
+  $('gkTeacherBack')?.addEventListener('click', openDashboard);
+  $('gkToolsBack')?.addEventListener('click', openDashboard);
+  document.querySelectorAll('#gkTools .gk-tool-card').forEach(card => {
+    card.addEventListener('click', () => App.showPage(card.dataset.tool));
+  });
   $('gkMockExam')?.addEventListener('click', showBlueprint);
   $('gkTheoryDashboard')?.addEventListener('click', openDashboard);
-  $('gkPrevQuestion')?.addEventListener('click', () => { if (session && session.index > 0) { session.index -= 1; renderQuestion(); } });
+  $('gkTheoryIntroBack')?.addEventListener('click', showTheoryLanding);
+  $('gkTheoryStart')?.addEventListener('click', () => startTheorySession(activeCategory, 'exam'));
+  $('gkTheoryPractice')?.addEventListener('click', () => startTheorySession(activeCategory, 'practice'));
+  $('gkPrevQuestion')?.addEventListener('click', () => { if (session && session.index > 0) { session.index -= 1; saveTheoryDraft(); renderQuestion(); } });
   $('gkNextQuestion')?.addEventListener('click', () => {
-    if (!session?.answers?.[session.index]) return;
+    if (!session) return;
     if (session.index >= session.questions.length - 1) session.reviewing ? showTheoryResult() : finishTheorySession();
-    else { session.index += 1; renderQuestion(); }
+    else { session.index += 1; saveTheoryDraft(); renderQuestion(); }
   });
   $('gkTheorySubmit')?.addEventListener('click', () => finishTheorySession(false));
   $('gkTheoryReturnResult')?.addEventListener('click', showTheoryResult);
   $('gkReviewTheory')?.addEventListener('click', reviewTheoryMistakes);
-  $('gkRetryTheory')?.addEventListener('click', () => startTheorySession(activeCategory));
+  $('gkRetryTheory')?.addEventListener('click', () => startTheorySession(activeCategory, session?.mode || 'exam'));
   $('gkResultDashboard')?.addEventListener('click', openDashboard);
 
   const previousBack = App.handleBack;
@@ -406,10 +502,11 @@
     const current = App.getCurrentPage();
     if (current === 'eduSettings') { openDashboard(); return true; }
     if (current === 'gaokaoTheory' || current === 'gaokaoProfile') { openDashboard(); return true; }
-    if (current === 'gaokaoDashboard') { App.showPage('modeSelect'); return true; }
-    if (current === 'modeSelect') return false;
+    if (current === 'gaokaoDashboard') return false;
     return previousBack ? previousBack() : false;
   };
+
+  window.addEventListener('hetian:auth-changed', () => { session = null; clearInterval(theoryTimerId); });
 
   window.addEventListener('musictoolbox:pagechange', event => {
     if (event.detail.id === 'gaokaoDashboard') renderDashboard();
@@ -420,6 +517,5 @@
     if (bankStatus === 'fallback') toast('当前为直接打开HTML模式，已启用内置最小题库。');
   });
   renderCategoryList();
-  App.showPage('modeSelect');
   window.GaokaoApp = { enterGaokao, openDashboard, openTheory, startTheorySession, getBankStatus: () => bankStatus };
 })();

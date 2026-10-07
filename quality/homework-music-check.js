@@ -1,0 +1,24 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const code=fs.readFileSync('homework.js','utf8'),start=code.indexOf('  function musicQuestion('),end=code.indexOf('  async function openAssignment(',start);
+let renderCalls=0,clef;
+const scope={esc:String,window:{MusicEditor:{renderStaffPreview(notes,key,meter,category,value){renderCalls++;clef=value;return 'AUTHORED_STAFF'}}}};
+vm.runInNewContext(code.slice(start,end)+'\nrender=musicQuestion;',scope);
+const question={question_id:2,content:{notes:[{midi:48,dur:1}],listenOnly:true,clef:'bass',audioSettings:{playCount:3}}};
+let html=scope.render(question,false);assert.equal(renderCalls,0);assert(!html.includes('AUTHORED_STAFF'));assert.match(html,/提交后显示谱例/);assert.match(html,/3遍/);
+html=scope.render(question,true);assert.equal(renderCalls,1);assert(html.includes('AUTHORED_STAFF'));assert.equal(clef,'bass');
+html=scope.render({...question,content:{...question.content,listenOnly:false}},false,true);assert.equal(renderCalls,1,'listening section also hides notation');
+html=scope.render({...question,content:{...question.content,musicError:'拍号不匹配'}},false);assert.match(html,/拍号不匹配/);assert(!html.includes('data-question-play'));
+const workbench=fs.readFileSync('teacher-workbench.js','utf8'), answerStart=workbench.indexOf('  function setMusicAnswer('), answerEnd=workbench.indexOf('  function autoMusic(',answerStart);
+const answerScope={form:{elements:{answer:{value:''},options:{value:'小三度\n大三度\n大二度\n纯四度'}}}};
+vm.runInNewContext(workbench.slice(answerStart,answerEnd)+'\nsetAnswer=setMusicAnswer;',answerScope);
+answerScope.setAnswer('小二度');assert.equal(answerScope.form.elements.answer.value,'小二度');assert.equal(answerScope.form.elements.options.value,'小二度\n大三度\n大二度\n纯四度');
+const preserved=answerScope.form.elements.options.value;answerScope.setAnswer('大三度');assert.equal(answerScope.form.elements.options.value,preserved,'existing valid options are preserved');
+(async()=>{
+ const music=fs.readFileSync('admin-music-editor.js','utf8'),a=music.indexOf('  function buildPlaybackPlan('),b=music.indexOf('  /* ==================== 导出',a),played=[];
+ let resolvePiano;
+ const player={state:{bpm:60},playbackEpoch:0,playbackDoneTimer:0,stopPlayback(){player.playbackEpoch++},ensurePiano:async()=>{},getAudio:()=>({currentTime:10}),playNote:(...args)=>played.push(args),setTimeout:()=>1};
+ vm.runInNewContext(music.slice(a,b)+'\nplay=playNotes;',player);
+ await player.play([{midi:60,dur:1},{midi:64,dur:1}],{bpm:60,playCount:3,gapBeats:2});assert.equal(played.length,6);assert.deepEqual(played.map(args=>Math.round((args[1]-10.06)*100)/100),[0,1,4,5,8,9]);
+ player.ensurePiano=()=>new Promise(resolve=>resolvePiano=resolve);const before=played.length;const pending=player.play([{midi:60,dur:1}]);player.stopPlayback();resolvePiano();await pending;assert.equal(played.length,before,'exit while loading cannot schedule sound');
+ console.log('PASS listening notation hidden until review, bass-clef preview, explicit invalid audio, repeated playback and load cancellation');
+})().catch(error=>{console.error(error);process.exitCode=1});

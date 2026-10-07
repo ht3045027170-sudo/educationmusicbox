@@ -23,11 +23,12 @@
     { value: 1, label: '四分音符' },
     { value: 0.5, label: '八分音符' },
     { value: 0.25, label: '十六分音符' },
+    { value: 0.125, label: '三十二分音符' },
     { value: 1/3, label: '三连音' },
   ];
 
   const DURATION_LABEL = {
-    4: '𝅝', 2: '𝅗𝅥', 1: '♩', 0.5: '♪', 0.25: '♬', [1/3]: '♩₃'
+    4: '𝅝', 2: '𝅗𝅥', 1: '♩', 0.5: '♪', 0.25: '♬', 0.125: '三十二分', [1/3]: '♩₃'
   };
   // 附点等衍生时值显示
   const durationLabel = d => {
@@ -64,6 +65,7 @@
     duration: 1,
     dotted: false,
     keySignature: 'C',
+    clef: 'treble',
     meter: '4/4',
     bpm: 100,
     category: 'single',
@@ -72,9 +74,14 @@
   };
   let audioContext = null;
   let midiAccess = null;
+  let changeListener = null;
   let activeKeys = new Set(); // 当前按下的键 (防止重复触发)
   let history = [];
   let historyIndex = -1;
+  let playbackEpoch = 0;
+  let playbackDoneTimer = 0;
+  const playbackVoices = new Set();
+  const voiceCleanupTimers = new Set();
 
   /* ==================== 工具函数 ==================== */
   const $ = sel => document.querySelector(sel);
@@ -135,51 +142,83 @@
     return piano;
   }
 
+  function resetPlayButton() {
+    const playBtn = document.getElementById('mePlay');
+    if (playBtn) { playBtn.disabled = false; playBtn.textContent = '▶ 播放'; }
+  }
+
+  function stopPlayback() {
+    playbackEpoch++;
+    if (playbackDoneTimer) clearTimeout(playbackDoneTimer);
+    playbackDoneTimer = 0;
+    voiceCleanupTimers.forEach(timer => clearTimeout(timer));
+    voiceCleanupTimers.clear();
+    playbackVoices.forEach(voice => {
+      voice?.sources?.forEach(source => { try { source.stop(audioContext?.currentTime || 0); } catch (_) {} });
+      try { voice?.release?.(.04); } catch (_) {}
+    });
+    playbackVoices.clear();
+    resetPlayButton();
+  }
+
   function playNote(midi, when = null, duration = 0.5, velocity = 0.7) {
     try {
       const ctx = getAudio();
       const t = when ?? ctx.currentTime;
       const piano = window.HetianPiano;
       if (!piano || !piano.isReady?.()) return;
-      piano.play(ctx, midi, t, duration, velocity);
+      const voice = piano.play(ctx, midi, t, duration, velocity);
+      if (!voice) return;
+      playbackVoices.add(voice);
+      const timer = setTimeout(() => {
+        playbackVoices.delete(voice);
+        voiceCleanupTimers.delete(timer);
+      }, Math.max(250, (t - ctx.currentTime + duration + .5) * 1000));
+      voiceCleanupTimers.add(timer);
+      return voice;
     } catch (e) { /* 静默 */ }
   }
 
   async function playSequence() {
     if (!state.notes.length) return;
+    stopPlayback();
+    const token = playbackEpoch;
     const playBtn = document.getElementById('mePlay');
     if (playBtn) { playBtn.disabled = true; playBtn.textContent = '播放中…'; }
     try {
       await ensurePiano();
     } catch (e) {
-      if (playBtn) { playBtn.disabled = false; playBtn.textContent = '▶ 播放'; }
+      resetPlayButton();
       alert('钢琴采样加载失败：' + e.message + '\n请确保 sight-singing/piano-samples 文件完整。');
       return;
     }
+    if (token !== playbackEpoch || !isEditorActive()) return;
     const ctx = getAudio();
     const beat = 60 / state.bpm;
     let t = ctx.currentTime + 0.06;
+    const simultaneous = state.category === 'interval' || state.category === 'chord' || state.notes.length > 1 && state.notes.every(n => n.rest || n.simultaneous);
     for (const n of state.notes) {
       const dur = n.dur * beat;
       if (!n.rest) {
         playNote(n.midi, t, Math.max(0.08, dur * 0.92), 0.72);
       }
-      t += dur;
+      if (!simultaneous) t += dur;
     }
+    if (simultaneous) t += Math.max(...state.notes.map(n => (Number(n.dur) || 1) * beat));
     const totalMs = (t - ctx.currentTime) * 1000 + 200;
-    setTimeout(() => {
-      if (playBtn) { playBtn.disabled = false; playBtn.textContent = '▶ 播放'; }
+    playbackDoneTimer = setTimeout(() => {
+      playbackDoneTimer = 0;
+      if (token === playbackEpoch) resetPlayButton();
     }, totalMs);
   }
 
   /* ==================== 五线谱渲染 ==================== */
-  function renderStaff(notes, keySig, meter, category) {
+  function renderStaff(notes, keySig, meter, category, clef = 'treble') {
     const seq = notes && notes.length ? notes : [{ midi: 60, dur: 1, rest: true }];
-    const ink = '#263c48';
-    const line = '#60727d';
+    const ink = '#45271e', line = '#80685f', staffSpace = 8;
     const md = String(meter || '4/4').split('/');
     const beatsPerBar = Math.max(1, (+md[0] || 4) * 4 / (+md[1] || 4));
-    const keyData = KEY_SIGNATURES[keySig] || KEY_SIGNATURES['C'];
+    const keyData = KEY_SIGNATURES[keySig] || KEY_SIGNATURES.C;
 
     // 初始化调号状态：调号内的升/降号默认生效
     const initState = new Map();
@@ -203,17 +242,28 @@
       const letterIdx = LETTERS[pc];
       const octave = Math.floor(midi / 12) - 1;
       const key = `${octave}:${letterIdx}`;
-      const wanted = isSharp(midi) ? 'sharp' : 'natural';
+      const explicit = { sharp: 'sharp', flat: 'flat', natural: 'natural', '♯': 'sharp', '♭': 'flat', '♮': 'natural' }[n.accidental];
+      const wanted = explicit || (isSharp(midi) ? 'sharp' : 'natural');
       const previous = accState.get(key) || 'natural';
       accState.set(key, wanted);
       if (wanted === 'sharp' && previous !== 'sharp') return '♯';
+      if (wanted === 'flat' && previous !== 'flat') return '♭';
       if (wanted === 'natural' && previous === 'sharp') return '♮';
+      if (wanted === 'natural' && previous === 'flat') return '♮';
       return '';
     }
 
-    function drawNote(n, x, bottom, gap, accState, accShift = 0) {
-      if (n.rest) return `<path d="M${x-5} ${bottom-gap*2.8}h10l-7 7 7 7-9 10" fill="none" stroke="${ink}" stroke-width="2.3" stroke-linejoin="round"/>`;
-      const y = bottom - (diatonicPos(n.midi) - 30) * (gap / 2);
+    const staffBottomPosition = clef === 'bass' ? 18 : 30; // 低音谱表第一线 G2；高音谱表第一线 E4
+    const noteY = (n, bottom, gap) => bottom - (diatonicPos(n.midi) - staffBottomPosition) * (gap / 2);
+    function drawRest(n, x, top, gap) {
+      if (n.dur >= 4) return `<rect x="${x-7}" y="${top+gap}" width="14" height="4" fill="${ink}"/>`;
+      if (n.dur >= 2) return `<rect x="${x-7}" y="${top+gap*2-4}" width="14" height="4" fill="${ink}"/>`;
+      if (n.dur >= 1) return `<path d="M${x+3} ${top+gap*.8}l-7 11 7 6-7 11" fill="none" stroke="${ink}" stroke-width="2.4" stroke-linejoin="round"/>`;
+      return `<path d="M${x-2} ${top+gap*1.2}q10 4 1 13q9 4 0 13" fill="none" stroke="${ink}" stroke-width="2.2"/><circle cx="${x+3}" cy="${top+gap*1.2}" r="2.4" fill="${ink}"/>`;
+    }
+    function drawNote(n, x, top, bottom, gap, accState, beamed = false, forcedStemUp = null) {
+      if (n.rest) return drawRest(n, x, top, gap);
+      const y = noteY(n, bottom, gap);
       const accidental = staffAccidental(n, accState);
       let out = '';
       // 加线
@@ -221,15 +271,17 @@
         out += `<line x1="${x-11}" y1="${ly}" x2="${x+11}" y2="${ly}" stroke="${line}" stroke-width="1.2"/>`;
       for (let ly = bottom - gap * 5; ly >= y; ly -= gap)
         out += `<line x1="${x-11}" y1="${ly}" x2="${x+11}" y2="${ly}" stroke="${line}" stroke-width="1.2"/>`;
-      if (accidental)
-        out += `<text x="${x-28-accShift}" y="${y+5}" font-size="18" font-weight="700" fill="${ink}">${accidental}</text>`;
+      if (accidental) out += `<text x="${x-20}" y="${y+5}" font-size="16" font-weight="700" fill="${ink}">${accidental}</text>`;
       const whole = n.dur >= 4, hollow = whole || n.dur >= 2;
-      out += `<ellipse cx="${x}" cy="${y}" rx="7.5" ry="5" transform="rotate(-18 ${x} ${y})" fill="${hollow ? '#fff' : ink}" stroke="${ink}" stroke-width="2"/>`;
-      if (!whole)
-        out += `<line x1="${x+6.5}" y1="${y}" x2="${x+6.5}" y2="${y-25}" stroke="${ink}" stroke-width="2"/>`;
-      const flags = n.dur <= 0.25 ? 2 : n.dur <= 0.5 ? 1 : 0;
-      for (let f = 0; f < flags; f++)
-        out += `<path d="M${x+6.5} ${y-25+f*7}q14 7 4 17" fill="none" stroke="${ink}" stroke-width="2"/>`;
+      const stemUp = forcedStemUp ?? diatonicPos(n.midi) < staffBottomPosition + 4;
+      out += `<ellipse cx="${x}" cy="${y}" rx="6.4" ry="4.5" transform="rotate(-18 ${x} ${y})" fill="${hollow ? '#fff' : ink}" stroke="${ink}" stroke-width="1.8"/>`;
+      if (!whole) out += stemUp
+        ? `<line x1="${x+5.7}" y1="${y}" x2="${x+5.7}" y2="${y-27}" stroke="${ink}" stroke-width="1.8"/>`
+        : `<line x1="${x-5.7}" y1="${y}" x2="${x-5.7}" y2="${y+27}" stroke="${ink}" stroke-width="1.8"/>`;
+      const flags = n.dur <= 0.125 ? 3 : n.dur <= 0.25 ? 2 : n.dur <= 0.5 ? 1 : 0;
+      if (!beamed) for (let f = 0; f < flags; f++) out += stemUp
+        ? `<path d="M${x+5.7} ${y-27+f*7}q13 6 4 16" fill="none" stroke="${ink}" stroke-width="1.8"/>`
+        : `<path d="M${x-5.7} ${y+27-f*7}q-13-6-4-16" fill="none" stroke="${ink}" stroke-width="1.8"/>`;
       if ([3, 1.5, 0.75, 0.375, 0.1875].includes(n.dur))
         out += `<circle cx="${x+14}" cy="${y}" r="2.1" fill="${ink}"/>`;
       return out;
@@ -251,78 +303,85 @@
     }
 
     function clefSVG(x, top, gap, ink) {
-      return `<text class="staff-clef-glyph" x="${x}" y="${top + gap * 4.65}" font-family="Bravura, 'Noto Music', 'Segoe UI Symbol', serif" font-size="${gap * 6.4}" fill="${ink}">𝄞</text>`;
+      const glyph = clef === 'bass' ? '𝄢' : '𝄞';
+      const size = clef === 'bass' ? gap * 5.4 : gap * 6.4;
+      const y = clef === 'bass' ? top + gap * 3.35 : top + gap * 4.65;
+      return `<text class="staff-clef-glyph" x="${x}" y="${y}" font-family="Bravura, 'Noto Music', 'Segoe UI Symbol', serif" font-size="${size}" fill="${ink}">${glyph}</text>`;
     }
 
-    const barred = seq.some(n => Number.isInteger(n.bar));
-    if (barred) {
-      const w = 720, h = 174, gap = 7.5, systemGap = 82, barWidth = (w - 62) / 4;
-      let svg = `<svg class="me-staff-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="${meter}拍五线谱">`;
-      for (let row = 0; row < 2; row++) {
-        const top = 7 + row * systemGap, bottom = top + gap * 4;
-        for (let l = 0; l < 5; l++)
-          svg += `<line x1="4" y1="${top + l * gap}" x2="${w - 8}" y2="${top + l * gap}" stroke="${line}" stroke-width="1"/>`;
-        svg += clefSVG(5, top, gap, ink);
-        svg += drawKeySignature(46, top, gap, ink);
-        if (row === 0)
-          svg += `<text x="${46 + (keyData.sharps.length + keyData.flats.length) * 9 + 5}" y="${top + 13}" font-size="12" font-weight="800">${md[0]}</text><text x="${46 + (keyData.sharps.length + keyData.flats.length) * 9 + 5}" y="${top + 28}" font-size="12" font-weight="800">${md[1] || 4}</text>`;
-        const barlineX = 54 + (keyData.sharps.length + keyData.flats.length) * 9;
-        svg += `<line x1="${barlineX}" y1="${top}" x2="${barlineX}" y2="${bottom}" stroke="${ink}" stroke-width="1.2"/>`;
-        for (let slot = 0; slot < 4; slot++) {
-          const bar = row * 4 + slot;
-          const x0 = barlineX + slot * ((w - barlineX - 8) / 4), x1 = barlineX + (slot + 1) * ((w - barlineX - 8) / 4);
-          const barNotes = seq.filter(n => n.bar === bar);
-          const accState = new Map(initState);
-          svg += `<line x1="${x1}" y1="${top}" x2="${x1}" y2="${bottom}" stroke="${ink}" stroke-width="${bar === 7 ? 2.5 : 1.2}"/>`;
-          barNotes.forEach((n, i) => {
-            const x = x0 + 18 + (i + 0.5) * Math.max(16, (x1 - x0 - 25) / Math.max(1, barNotes.length));
-            svg += drawNote(n, x, bottom, gap, accState);
-          });
-        }
-      }
-      return svg + '</svg>';
-    }
-
-    // 非小节模式 (单行五线谱)
     const simultaneous = category === 'interval' || category === 'chord';
-    const w = simultaneous ? 290 : Math.max(360, 130 + seq.length * 66);
-    const h = 118, gap = 10, top = 28, bottom = top + gap * 4;
-    const start = 88, end = w - 13;
-    let svg = `<svg class="me-staff-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="五线谱">`;
-    for (let l = 0; l < 5; l++)
-      svg += `<line x1="4" y1="${top + l * gap}" x2="${w - 10}" y2="${top + l * gap}" stroke="${line}" stroke-width="1"/>`;
-    svg += clefSVG(5, top, gap, ink);
-    svg += drawKeySignature(46, top, gap, ink);
-    const tsX = 46 + (keyData.sharps.length + keyData.flats.length) * 9 + 5;
-    svg += `<text x="${tsX}" y="${top + 17}" font-size="15" font-weight="800">${md[0]}</text><text x="${tsX}" y="${top + 36}" font-size="15" font-weight="800">${md[1] || 4}</text>`;
-    const barlineX = tsX + 18;
-    svg += `<line x1="${barlineX}" y1="${top}" x2="${barlineX}" y2="${bottom}" stroke="${ink}" stroke-width="1.2"/>`;
-
-    const accState = new Map(initState);
-    let accumulated = 0;
-    seq.forEach((n, i) => {
-      if (simultaneous) {
-        const x = barlineX + 60 + (i - (seq.length - 1) / 2) * 16;
-        svg += drawNote(n, x, bottom, gap, accState, Math.max(0, i) * 9);
-      } else {
-        const x = barlineX + 12 + i * Math.max(30, (end - barlineX - 12) / Math.max(1, seq.length - 1));
-        svg += drawNote(n, x, bottom, gap, accState);
-        accumulated += Math.abs(+n.dur || 1);
-        if (i < seq.length - 1 && Math.abs(accumulated / beatsPerBar - Math.round(accumulated / beatsPerBar)) < 0.001) {
-          const nextX = barlineX + 12 + (i + 1) * Math.max(30, (end - barlineX - 12) / Math.max(1, seq.length - 1));
-          const barX = (x + nextX) / 2;
-          svg += `<line x1="${barX}" y1="${top}" x2="${barX}" y2="${bottom}" stroke="${ink}" stroke-width="1.2"/>`;
-          accState.clear();
-          keyData.sharps.forEach(pc => {
-            for (let oct = 3; oct <= 6; oct++) accState.set(`${oct}:${LETTERS[pc]}`, 'sharp');
-          });
-          keyData.flats.forEach(pc => {
-            for (let oct = 3; oct <= 6; oct++) accState.set(`${oct}:${LETTERS[pc]}`, 'flat');
-          });
-        }
+    const bars = [];
+    if (simultaneous) bars.push(seq);
+    else if (seq.some(n => Number.isInteger(n.bar))) {
+      const maxBar = Math.max(...seq.map(n => Number.isInteger(n.bar) ? n.bar : 0));
+      for (let bar = 0; bar <= maxBar; bar++) bars.push(seq.filter(n => n.bar === bar));
+    } else {
+      let bar = [], beats = 0;
+      seq.forEach(n => {
+        const dur = Math.max(.125, Number(n.dur) || 1);
+        if (bar.length && beats + dur > beatsPerBar + .001) { bars.push(bar); bar = []; beats = 0; }
+        bar.push(n); beats += dur;
+        if (beats >= beatsPerBar - .001) { bars.push(bar); bar = []; beats = 0; }
+      });
+      if (bar.length) bars.push(bar);
+    }
+    const measureWidth = bar => clamp(58 + bar.reduce((sum, n) => sum + (n.dur >= 2 ? 42 : n.dur >= 1 ? 34 : n.dur >= .5 ? 27 : 23) + (n.accidental ? 8 : 0), 0), 104, 270);
+    const keyWidth = (keyData.sharps.length + keyData.flats.length) * 9;
+    const pageWidth = 760, pagePad = 18, systemGap = 92, topPad = 30;
+    const systems = [];
+    bars.forEach((bar, index) => {
+      const first = systems.length === 0, prefix = 70 + keyWidth + (first ? 24 : 0), width = measureWidth(bar);
+      let system = systems.at(-1);
+      if (!system || system.used + width > pageWidth - pagePad - prefix) {
+        system = { bars: [], used: 0, prefix, first: systems.length === 0 };
+        systems.push(system);
       }
+      system.bars.push({ notes: bar, width, index }); system.used += width;
     });
-    svg += `<line x1="${end}" y1="${top}" x2="${end}" y2="${bottom}" stroke="${ink}" stroke-width="2.4"/>`;
+    const width = Math.max(360, Math.min(pageWidth, Math.max(...systems.map(s => s.prefix + s.used + pagePad))));
+    const height = topPad * 2 + (systems.length - 1) * systemGap + staffSpace * 4 + 35;
+    let svg = `<svg class="me-staff-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(meter)}拍五线谱，共${bars.length}小节">`;
+    systems.forEach((system, row) => {
+      const top = topPad + row * systemGap, bottom = top + staffSpace * 4;
+      const systemEnd = Math.min(width - pagePad, system.prefix + system.used);
+      for (let l = 0; l < 5; l++) svg += `<line x1="${pagePad}" y1="${top+l*staffSpace}" x2="${systemEnd}" y2="${top+l*staffSpace}" stroke="${line}" stroke-width="1"/>`;
+      svg += clefSVG(pagePad + 2, top, staffSpace, ink);
+      svg += drawKeySignature(pagePad + 42, top, staffSpace, ink);
+      if (system.first) {
+        const tx = pagePad + 44 + keyWidth;
+        svg += `<text x="${tx}" y="${top+14}" font-size="13" font-weight="800" fill="${ink}">${md[0]}</text><text x="${tx}" y="${top+29}" font-size="13" font-weight="800" fill="${ink}">${md[1]||4}</text>`;
+      }
+      let x0 = system.prefix;
+      svg += `<line x1="${x0}" y1="${top}" x2="${x0}" y2="${bottom}" stroke="${ink}" stroke-width="1"/>`;
+      system.bars.forEach((bar, barIndex) => {
+        const x1 = x0 + bar.width, accState = new Map(initState), total = Math.max(beatsPerBar, bar.notes.reduce((sum,n)=>sum+Math.max(.125,Number(n.dur)||1),0));
+        let elapsed = 0;
+        const positions = bar.notes.map((n, i) => {
+          const dur = Math.max(.125, Number(n.dur) || 1);
+          const x = simultaneous ? x0 + bar.width/2 + (i && Math.abs(diatonicPos(n.midi)-diatonicPos(bar.notes[i-1]?.midi||0))===1 ? 7 : 0) : x0 + 17 + (elapsed + dur/2) / total * (bar.width - 34);
+          elapsed += simultaneous ? 0 : dur;
+          return { n, x, y: n.rest ? top+staffSpace*2 : noteY(n,bottom,staffSpace) };
+        });
+        const beamGroups = [];
+        if (!simultaneous) {
+          let group=[];
+          const flush=()=>{if(group.length>1)beamGroups.push(group);group=[]};
+          positions.forEach((p,i)=>{if(!p.n.rest&&p.n.dur<=.5){group.push(i);if(group.length===4)flush()}else flush()}); flush();
+        }
+        const beamIndex = new Map();
+        beamGroups.forEach(group=>{const stemUp=group.reduce((s,i)=>s+diatonicPos(positions[i].n.midi),0)/group.length<staffBottomPosition+4;group.forEach(i=>beamIndex.set(i,stemUp))});
+        positions.forEach((p,i)=>{svg += drawNote(p.n,p.x,top,bottom,staffSpace,accState,beamIndex.has(i),beamIndex.get(i))});
+        beamGroups.forEach(group=>{
+          const stemUp=beamIndex.get(group[0]), first=positions[group[0]], last=positions[group.at(-1)], sx=stemUp?5.7:-5.7, sy=stemUp?-27:27;
+          svg += `<line x1="${first.x+sx}" y1="${first.y+sy}" x2="${last.x+sx}" y2="${last.y+sy}" stroke="${ink}" stroke-width="5"/>`;
+          if(group.every(i=>positions[i].n.dur<=.25)) svg += `<line x1="${first.x+sx}" y1="${first.y+sy+(stemUp?7:-7)}" x2="${last.x+sx}" y2="${last.y+sy+(stemUp?7:-7)}" stroke="${ink}" stroke-width="4"/>`;
+        });
+        const finalBar = bar.index === bars.length - 1;
+        svg += `<line x1="${x1}" y1="${top}" x2="${x1}" y2="${bottom}" stroke="${ink}" stroke-width="${finalBar?3:1}"/>`;
+        if(finalBar) svg += `<line x1="${x1-5}" y1="${top}" x2="${x1-5}" y2="${bottom}" stroke="${ink}" stroke-width="1"/>`;
+        x0=x1;
+      });
+    });
     return svg + '</svg>';
   }
 
@@ -333,7 +392,8 @@
       if (!SHARP_CLASSES.has(m % 12)) whiteKeys.push(m);
     }
     const whiteCount = whiteKeys.length;
-    let html = '<div class="me-piano"><div class="me-piano-white">';
+    const pianoWidth = whiteCount * 52;
+    let html = `<div class="me-piano" style="width:${pianoWidth}px"><div class="me-piano-white">`;
     whiteKeys.forEach(m => {
       const label = m % 12 === 0 ? 'C' + (Math.floor(m / 12) - 1) : '';
       html += `<button class="me-key me-white" data-midi="${m}" type="button">${label}</button>`;
@@ -342,8 +402,7 @@
     for (let m = KEYS_START; m <= KEYS_END; m++) {
       if (!SHARP_CLASSES.has(m % 12)) continue;
       const precedingWhite = whiteKeys.filter(x => x < m).length;
-      const leftPct = (precedingWhite / whiteCount * 100) - (100 / whiteCount * 0.5);
-      html += `<button class="me-key me-black" data-midi="${m}" type="button" style="left:${leftPct}%"></button>`;
+      html += `<button class="me-key me-black" data-midi="${m}" type="button" style="left:${precedingWhite * 52 - 17}px"></button>`;
     }
     html += '</div></div>';
     container.innerHTML = html;
@@ -351,19 +410,25 @@
     // 绑定鼠标/触摸事件
     container.querySelectorAll('.me-key').forEach(key => {
       const midi = +key.dataset.midi;
+      let touchStartX = 0;
       const press = (e) => {
-        e.preventDefault();
-        handleNoteOn(midi, 'mouse');
+        touchStartX = e.clientX;
+        if (e.pointerType === 'mouse') { e.preventDefault(); handleNoteOn(midi, 'mouse'); }
       };
       const release = (e) => {
-        e.preventDefault();
-        handleNoteOff(midi, 'mouse');
+        if (e.pointerType === 'mouse') { e.preventDefault(); handleNoteOff(midi, 'mouse'); return; }
+        if (Math.abs(e.clientX - touchStartX) < 8) {
+          handleNoteOn(midi, 'touch');
+          setTimeout(() => handleNoteOff(midi, 'touch'), 120);
+        }
       };
+      const cancel = e => { if (e.pointerType === 'mouse') handleNoteOff(midi, 'mouse'); };
       key.addEventListener('pointerdown', press);
       key.addEventListener('pointerup', release);
-      key.addEventListener('pointerleave', release);
-      key.addEventListener('pointercancel', release);
+      key.addEventListener('pointerleave', cancel);
+      key.addEventListener('pointercancel', cancel);
     });
+    requestAnimationFrame(() => { container.scrollLeft = Math.max(0, 7 * 52 - container.clientWidth * .18); });
   }
 
   /* ==================== 音符输入逻辑 ==================== */
@@ -538,7 +603,7 @@
   function render() {
     // 五线谱
     const staff = document.getElementById('meStaff');
-    if (staff) staff.innerHTML = renderStaff(state.notes, state.keySignature, state.meter, state.category);
+    if (staff) staff.innerHTML = renderStaff(state.notes, state.keySignature, state.meter, state.category, state.clef);
 
     // 音符列表
     const list = document.getElementById('meNoteList');
@@ -602,6 +667,9 @@
     const ksSelect = document.getElementById('meKeySig');
     if (ksSelect) ksSelect.value = state.keySignature;
 
+    const clefSelect = document.getElementById('meClef');
+    if (clefSelect) clefSelect.value = state.clef;
+
     // 节拍
     const meterSelect = document.getElementById('meMeter');
     if (meterSelect) meterSelect.value = state.meter;
@@ -618,15 +686,18 @@
       chordBtn.classList.toggle('me-active', state.chordMode);
       const isChordType = state.category === 'chord' || state.category === 'interval';
       chordBtn.style.display = isChordType ? '' : 'none';
+      chordBtn.textContent = state.category === 'interval' ? '音程模式' : '和弦模式';
     }
 
     // 分类
     const catSelect = document.getElementById('meCategory');
     if (catSelect) catSelect.value = state.category;
+    changeListener?.(getState());
   }
 
   /* ==================== 主渲染（构建完整 UI） ==================== */
   function mount(container, options = {}) {
+    destroy();
     // 注入样式（只注入一次）
     if (!document.getElementById('me-styles')) {
       const style = document.createElement('style');
@@ -636,11 +707,13 @@
     }
 
     // 从 options 恢复状态
-    if (options.notes) state.notes = JSON.parse(JSON.stringify(options.notes));
+    state.notes = JSON.parse(JSON.stringify(options.notes || []));
     if (options.keySignature) state.keySignature = options.keySignature;
+    state.clef = options.clef === 'bass' ? 'bass' : 'treble';
     if (options.meter) state.meter = options.meter;
     if (options.bpm) state.bpm = options.bpm;
     if (options.category) state.category = options.category;
+    changeListener = typeof options.onChange === 'function' ? options.onChange : null;
 
     // 初始化历史
     history = [JSON.parse(JSON.stringify(state.notes))];
@@ -664,6 +737,12 @@
               <select id="meKeySig">
                 ${Object.entries(KEY_SIGNATURES).map(([k, v]) =>
                   `<option value="${k}">${esc(v.label)}</option>`).join('')}
+              </select>
+            </label>
+            <label>谱号
+              <select id="meClef">
+                <option value="treble">𝄞 高音谱号</option>
+                <option value="bass">𝄢 低音谱号</option>
               </select>
             </label>
             <label>节拍
@@ -723,6 +802,7 @@
     document.getElementById('mePlay').onclick = playSequence;
     document.getElementById('meMidiBtn').onclick = connectMIDI;
     document.getElementById('meKeySig').onchange = e => { state.keySignature = e.target.value; render(); };
+    document.getElementById('meClef').onchange = e => { state.clef = e.target.value; render(); };
     document.getElementById('meMeter').onchange = e => { state.meter = e.target.value; render(); };
     document.getElementById('meBpm').oninput = e => { state.bpm = +e.target.value; document.getElementById('meBpmText').textContent = e.target.value; };
     document.getElementById('meCategory').onchange = e => {
@@ -746,9 +826,15 @@
   }
 
   function destroy() {
+    stopPlayback();
     document.removeEventListener('keydown', handleKeyboardDown);
     document.removeEventListener('keyup', handleKeyboardUp);
+    if (midiAccess) {
+      midiAccess.inputs.forEach(input => { input.onmidimessage = null; });
+      midiAccess.onstatechange = null;
+    }
     activeKeys.clear();
+    changeListener = null;
   }
 
   function getNotes() {
@@ -766,6 +852,7 @@
     return {
       notes: JSON.parse(JSON.stringify(state.notes)),
       keySignature: state.keySignature,
+      clef: state.clef,
       meter: state.meter,
       bpm: state.bpm,
       category: state.category,
@@ -775,6 +862,7 @@
   function setState(s) {
     if (s.notes) state.notes = JSON.parse(JSON.stringify(s.notes));
     if (s.keySignature) state.keySignature = s.keySignature;
+    if (s.clef) state.clef = s.clef;
     if (s.meter) state.meter = s.meter;
     if (s.bpm) state.bpm = s.bpm;
     if (s.category) state.category = s.category;
@@ -783,64 +871,87 @@
 
   /* ==================== 样式 ==================== */
   const ME_STYLES = `
-.me-editor{border:1px solid #dce5df;border-radius:14px;padding:18px;background:#f8faf8;margin:14px 0}
+.me-editor{border:1px solid #ead3c4;border-radius:14px;padding:18px;background:#fff8f2;margin:14px 0}
 .me-controls{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px}
 .me-control-group{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap}
-.me-control-group label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:#3a5346}
-.me-control-group select,.me-control-group input[type=range]{padding:7px 10px;border:1px solid #cad8d0;border-radius:8px;font-size:13px;background:#fff}
+.me-control-group label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:#684438}
+.me-control-group select,.me-control-group input[type=range]{padding:7px 10px;border:1px solid #dfc1af;border-radius:8px;font-size:13px;background:#fff}
 .me-control-group input[type=range]{width:120px}
-.me-toggle{padding:7px 12px;border:1px solid #cad8d0;border-radius:8px;background:#fff;color:#40534a;cursor:pointer;font-size:13px}
-.me-toggle.me-active{background:#4d9b73;color:#fff;border-color:#4d9b73}
-.me-secondary{padding:7px 12px;border:1px solid #cad8d0;border-radius:8px;background:#eef2ef;color:#40534a;cursor:pointer;font-size:13px}
-.me-primary{padding:9px 18px;border:0;border-radius:9px;background:#4d9b73;color:#fff;cursor:pointer;font-size:14px;font-weight:650}
+.me-toggle{padding:7px 12px;border:1px solid #dfc1af;border-radius:8px;background:#fff;color:#684438;cursor:pointer;font-size:13px}
+.me-toggle.me-active{background:#e76531;color:#fff;border-color:#e76531}
+.me-secondary{padding:7px 12px;border:1px solid #dfc1af;border-radius:8px;background:#f8e9de;color:#684438;cursor:pointer;font-size:13px}
+.me-primary{padding:9px 18px;border:0;border-radius:9px;background:#e76531;color:#fff;cursor:pointer;font-size:14px;font-weight:650}
 .me-danger{padding:7px 12px;border:1px solid #e8c5c5;border-radius:8px;background:#f8e8e8;color:#a23d3d;cursor:pointer;font-size:13px}
-.me-staff-container{background:#fff;border:1px solid #dce5df;border-radius:10px;padding:12px;overflow:auto;margin-bottom:12px;min-height:130px}
+.me-staff-container{background:#fff;border:1px solid #ead3c4;border-radius:10px;padding:12px;overflow:auto;margin-bottom:12px;min-height:130px}
 .me-staff-container svg{display:block;width:100%;max-width:720px;height:auto}
 .me-note-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;max-height:180px;overflow-y:auto}
-.me-empty{color:#9bacA3;font-size:13px;padding:14px;text-align:center;width:100%}
-.me-note-chip{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid #dce5df;border-radius:8px;background:#fff;font-size:12px}
-.me-note-chip.me-rest{background:#f0f4f1;border-style:dashed}
-.me-note-name{font-weight:650;color:#263c48;min-width:36px}
-.me-note-dur{color:#687970;font-size:11px}
+.me-empty{color:#a18478;font-size:13px;padding:14px;text-align:center;width:100%}
+.me-note-chip{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid #ead3c4;border-radius:8px;background:#fff;font-size:12px}
+.me-note-chip.me-rest{background:#fbefe7;border-style:dashed}
+.me-note-name{font-weight:650;color:#45271e;min-width:36px}
+.me-note-dur{color:#8b6c60;font-size:11px}
 .me-note-actions{display:flex;gap:3px}
-.me-note-actions button{padding:3px 6px;border:1px solid #dce5df;border-radius:5px;background:#fff;cursor:pointer;font-size:11px;color:#51665b}
+.me-note-actions button{padding:3px 6px;border:1px solid #ead3c4;border-radius:5px;background:#fff;cursor:pointer;font-size:11px;color:#684438}
 .me-note-actions .me-danger{padding:3px 6px;font-size:11px}
 .me-keyboard-section{margin-top:10px}
 .me-keyboard-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.me-midi-status{font-size:12px;color:#687970}
-.me-keyboard-wrap{position:relative;user-select:none}
-.me-piano{position:relative;height:140px;display:flex}
-.me-piano-white{display:flex;flex:1;position:relative;z-index:1}
-.me-piano-black{position:absolute;top:0;left:0;right:0;height:85px;z-index:2;pointer-events:none}
-.me-key{border:1px solid #8a9b94;cursor:pointer;font-size:10px;font-weight:600;transition:background .08s}
-.me-key.me-white{flex:1;height:100%;background:#fff;color:#9bacA3;border-radius:0 0 5px 5px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
-.me-key.me-black{position:absolute;width:24px;height:100%;background:#263c48;color:#c8d8d0;border:1px solid #1a2a24;border-radius:0 0 4px 4px;pointer-events:auto}
-.me-key.me-key-active.me-white{background:#4d9b73;color:#fff;transform:translateY(1px)}
-.me-key.me-key-active.me-black{background:#3a8560;transform:translateY(1px)}
-.me-hint{font-size:11px;color:#9bacA3;margin-top:8px;line-height:1.6}
+.me-midi-status{font-size:12px;color:#8b6c60}
+.me-keyboard-wrap{position:relative;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-color:#e76531 #f3dfd1;scrollbar-width:thin;user-select:none;padding:20px 14px 12px;border:1px solid #7d4631;border-radius:15px;background:linear-gradient(180deg,#6b3625 0 15px,#3b1d15 15px 100%);box-shadow:inset 0 2px 4px #fff2,inset 0 -8px 16px #16080380;touch-action:pan-x}
+.me-keyboard-wrap::-webkit-scrollbar{height:8px}.me-keyboard-wrap::-webkit-scrollbar-track{background:#f3dfd1;border-radius:99px}.me-keyboard-wrap::-webkit-scrollbar-thumb{background:#e76531;border-radius:99px}
+.me-piano{position:relative;height:148px;display:flex;flex:none;margin:0 auto}
+.me-piano-white{display:flex;position:relative;z-index:1}
+.me-piano-black{position:absolute;top:0;left:0;right:0;height:92px;z-index:2;pointer-events:none}
+.me-key{flex:none;border:1px solid #8e817b;cursor:pointer;font-size:10px;font-weight:700;transition:filter .08s,transform .08s;touch-action:pan-x}
+.me-key.me-white{width:52px;height:100%;background:linear-gradient(100deg,#f4eee8 0,#fff 30%,#fffdf9 72%,#d8cec5 100%);color:#987f73;border-radius:0 0 7px 7px;box-shadow:inset 0 -9px 12px #c9bcb560;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px}
+.me-key.me-black{position:absolute;width:34px;height:100%;background:linear-gradient(100deg,#160f0d 0,#44302a 55%,#120b09 100%);color:#e9d8ce;border:1px solid #0b0605;border-radius:0 0 5px 5px;box-shadow:3px 5px 6px #0007,inset 1px 0 #fff2;pointer-events:auto}
+.me-key.me-key-active.me-white{background:linear-gradient(#ffd4bc,#f08a5b);color:#51261a;transform:translateY(2px)}
+.me-key.me-key-active.me-black{background:linear-gradient(#ff8b5a,#b93e19);transform:translateY(2px)}
+.me-hint{font-size:11px;color:#a18478;margin-top:8px;line-height:1.6}
 @media(max-width:600px){
   .me-controls{flex-direction:column}
-  .me-piano{height:100px}
-  .me-piano-black{height:62px}
-  .me-key.me-black{width:18px}
+  .me-piano{height:118px}
+  .me-piano-black{height:74px}
 }
   `;
 
+  function buildPlaybackPlan(notes, opts = {}) {
+    if (!Array.isArray(notes) || !notes.length || notes.length > 256) throw new Error('播放音符不完整。');
+    const bpm = Number(opts.bpm ?? 100), repeat = Number(opts.playCount ?? 1), gap = Number(opts.gapBeats ?? 0), prelude = opts.prelude || [], countIn = Number(opts.countInBeats || 0), countUnit = Number(opts.countInUnit || 1);
+    if (!Number.isFinite(bpm) || bpm < 20 || bpm > 240 || !Number.isInteger(repeat) || repeat < 1 || repeat > 4 || !Number.isFinite(gap) || gap < 0 || gap > 32 || !Array.isArray(prelude) || prelude.length > 16 || !Number.isFinite(countIn) || countIn < 0 || countIn > 16 || ![1,1.5].includes(countUnit)) throw new Error('播放参数无效。');
+    const events = []; let cursor = 0;
+    function append(values, force = false) {
+      let groupDuration = 0, group = false;
+      function flush() { if (group) { cursor += groupDuration; group = false; groupDuration = 0; } }
+      for (const n of values) {
+        if (!n || !Number.isFinite(n.dur) || n.dur <= 0 || n.dur > 16 || (!n.rest && (!Number.isInteger(n.midi) || n.midi < 21 || n.midi > 108))) throw new Error('播放音符无效。');
+        const simultaneous = force || n.simultaneous === true;
+        if (!simultaneous) flush();
+        if (!n.rest) events.push({ midi:n.midi, beat:cursor, duration:n.dur });
+        if (simultaneous) { group = true; groupDuration = Math.max(groupDuration,n.dur); } else cursor += n.dur;
+      }
+      flush();
+    }
+    if (prelude.length) { append(prelude); cursor += gap; }
+    for (let beat = 0; beat < countIn; beat += countUnit) events.push({ midi:beat===0?84:76,beat:cursor+beat,duration:.12 });
+    cursor += countIn;
+    for (let pass = 0; pass < repeat; pass++) { if (pass) cursor += gap; append(notes, opts.simultaneous === true); }
+    return { bpm, events, totalBeats:cursor };
+  }
+
   async function playNotes(notes, opts = {}) {
     if (!notes || !notes.length) return;
+    const plan = buildPlaybackPlan(notes, { ...opts, bpm:opts.bpm ?? state.bpm ?? 100 });
+    stopPlayback();
+    const token = playbackEpoch;
     await ensurePiano();
-    const ctx = getAudio();
-    const bpm = opts.bpm || state.bpm || 100;
-    const beat = 60 / bpm;
-    let t = ctx.currentTime + 0.06;
-    for (const n of notes) {
-      const dur = n.dur * beat;
-      if (!n.rest) playNote(n.midi, t, Math.max(0.08, dur * 0.92), 0.72);
-      t += dur;
-    }
-    return (t - ctx.currentTime) * 1000 + 200;
+    if (token !== playbackEpoch) return;
+    const ctx = getAudio(), beat = 60 / plan.bpm, start = ctx.currentTime + .06;
+    for (const event of plan.events) playNote(event.midi, start + event.beat * beat, Math.max(.05,event.duration * beat * .92), .72);
+    const totalMs = (start + plan.totalBeats * beat - ctx.currentTime) * 1000 + 200;
+    playbackDoneTimer = setTimeout(() => { playbackDoneTimer = 0; }, totalMs);
+    return totalMs;
   }
 
   /* ==================== 导出 ==================== */
-  window.MusicEditor = { mount, destroy, getNotes, setNotes, getState, setState, playSequence, renderStaffPreview: renderStaff, playNotes };
+  window.MusicEditor = { mount, destroy, stopPlayback, getNotes, setNotes, getState, setState, playSequence, renderStaffPreview: renderStaff, playNotes, buildPlaybackPlan };
 })();

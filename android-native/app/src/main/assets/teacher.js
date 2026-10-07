@@ -1,0 +1,127 @@
+(() => {
+  'use strict';
+  if (window.HaitangProduct?.fixed && window.HaitangProduct.product !== 'exam') {
+    location.replace('/');
+    return;
+  }
+  // Bundled pages have no same-origin account service.
+  if (location.hostname === 'appassets.androidplatform.net' || window.HAITANG_OFFLINE) {
+    document.getElementById('loginForm').hidden = true;
+    document.querySelector('.teacher-login-footer').hidden = true;
+    document.querySelector('#loginCard h2').textContent = '教师工作台需要联网';
+    const message = document.getElementById('loginMessage');
+    message.textContent = '出题、班级作业和学生报告需要登录网页版教师工作台。手机内的调音器和练习工具可以继续使用。';
+    const link = document.createElement('a');
+    link.href = 'https://educationmusicbox.pages.dev/teacher.html?product=exam';
+    link.textContent = '打开网页版教师工作台';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    message.after(link);
+    return;
+  }
+  const $ = (id) => document.getElementById(id);
+  let csrfToken = '';
+
+  async function csrf() {
+    if (csrfToken) return csrfToken;
+    const r = await fetch('/api/csrf');
+    csrfToken = (await r.json()).csrfToken;
+    return csrfToken;
+  }
+
+  async function api(url, options = {}) {
+    const method = options.method || 'GET';
+    const headers = { ...(options.headers || {}) };
+    if (!['GET', 'HEAD'].includes(method)) headers['x-csrf-token'] = await csrf();
+    const response = await fetch(url, { ...options, headers, credentials: 'same-origin' });
+    const body = response.status === 204 ? null : await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body?.message || body?.error || '请求失败');
+    return body;
+  }
+
+  const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const roleName = { learner: '学生', teacher: '教师', admin: '总管理员教师' };
+  const systemName = () => '海棠艺考';
+
+  function enter(manager) {
+    manager.systems = (manager.systems || []).filter((item) => item.system_code === 'gaokao');
+    if (!manager.systems.length) manager.systems = [{ system_code: 'gaokao', role: 'teacher' }];
+    $('loginCard').hidden = true;
+    $('dashboard').hidden = false;
+    window.CONTENT_MANAGER = manager;
+    const label = roleName[manager.role] || '教师';
+    $('adminIdentity').textContent = `${label}：${manager.username}`;
+    document.body.classList.add('content-manager');
+
+    // Tab switching: show/hide sections
+    document.querySelector('nav').onclick = (event) => {
+      const tab = event.target.dataset.tab;
+      if (!tab) return;
+      document.querySelectorAll('.tab').forEach((x) => x.hidden = x.id !== tab);
+      document.querySelectorAll('[data-tab]').forEach((x) => x.classList.toggle('active', x.dataset.tab === tab));
+    };
+
+    // Load teacher modules — they will find CONTENT_MANAGER already set
+    Promise.all([import('/teacher-workbench.js?v=20261007-8'), import('/admin-homework.js?v=20261007-12')]).then(() => {
+      document.getElementById('teacherWorkbenchTab')?.click();
+    });
+
+    // Auto-activate the first teacher tab after modules inject it
+  }
+
+  // Login form handler
+  $('loginForm').onsubmit = async (event) => {
+    event.preventDefault();
+    $('loginMessage').textContent = '';
+    try {
+      const data = Object.fromEntries(new FormData(event.currentTarget));
+      data.learningSystem = 'gaokao';
+      const body = await api('/api/auth/login', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      csrfToken = body.csrfToken;
+
+      // 海棠艺考教师中心只接受教师账号。
+      if (!['teacher', 'admin'].includes(body.user.role)) {
+        $('loginMessage').textContent = `此账号角色为「${roleName[body.user.role] || body.user.role}」，没有教师权限。请联系项目负责人开通。`;
+        // Log them back out since they can't use this portal
+        await api('/api/auth/logout', { method: 'POST' }).catch(() => {});
+        csrfToken = '';
+        return;
+      }
+
+      // Enter teacher dashboard
+      enter({
+        platform: false,
+        username: body.user.displayName || body.user.username,
+        role: body.user.role,
+        systems: [
+          { system_code: 'gaokao', role: body.user.role },
+        ],
+      });
+    } catch (error) {
+      $('loginMessage').textContent = error.message;
+    }
+  };
+
+  // Logout
+  document.addEventListener('click', async (event) => {
+    if (event.target.id !== 'logout') return;
+    try { await api('/api/auth/logout', { method: 'POST' }); } catch {}
+    location.reload();
+  });
+
+  // Check existing session on load
+  api('/api/admin/session').then((body) => {
+    if (['teacher', 'admin'].includes(body.manager?.role)) return enter(body.manager);
+    if (document.body.classList.contains('embedded')) {
+      $('loginCard').querySelector('h2').textContent = '登录状态已失效';
+      $('loginForm').hidden = true;
+      $('loginMessage').textContent = '请返回海棠艺考主页重新登录教师账号。';
+    }
+  }).catch(() => {
+    if (document.body.classList.contains('embedded')) $('loginMessage').textContent = '无法读取登录状态，请返回主页后重试。';
+  });
+})();

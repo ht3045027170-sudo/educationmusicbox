@@ -1,8 +1,8 @@
 const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict');
 const html = fs.readFileSync('index.html', 'utf8');
-const parser = html.match(/function parseTunerTarget\(value\)\{.*\}/)[0];
-const tuner = vm.createContext({ midiFreq: midi => 440 * 2 ** ((midi - 69) / 12) });
-vm.runInContext(parser, tuner);
+const tunerScope = { window: {} };
+vm.runInNewContext(fs.readFileSync('vocal-pitch/tuner-engine.js', 'utf8'), tunerScope);
+const tuner = { parseTunerTarget: tunerScope.window.MusicVocal.TunerEngine.parseTarget };
 for (const name of ['E2', 'D2', 'F#3', 'Bb2', 'c4', 'C6']) assert(tuner.parseTunerTarget(name), name);
 for (const name of ['', 'E', 'H2', 'C1', 'D6', 'E22', '82.4']) assert.equal(tuner.parseTunerTarget(name), null, name);
 const target = tuner.parseTunerTarget('E2').freq;

@@ -546,6 +546,8 @@
       ? 'Windows 远程识谱已连接'
       : report.provider === 'cloud-homr' ? '云端识谱已连接' : '本地识谱引擎已就绪';
     setText('sightEngineTitle', report.message || (report.ready ? connectedText : '识谱引擎尚未连接'));
+    const remote = ['personal-remote-homr', 'cloud-homr'].includes(report.provider);
+    setText('sightEngineDetail', remote ? (report.provider === 'cloud-homr' ? '云端识别：裁剪后的图片会发送到识谱服务，需登录；每天有调用限额。原图与校对稿保存在本机。' : '远程识别：裁剪后的图片会发送到你配置的远程电脑。原图与校对稿保存在本机。') : report.ready ? '本机识别：图片由当前设备上的识谱引擎处理，不发送到云端。' : '手动校对：当前没有可用识谱引擎，可保留图片并自行录入音符。');
     $('sightRecognizeButton').disabled = !report.ready;
     $('sightRecognizeButton').textContent = report.provider === 'personal-remote-homr' || report.provider === 'cloud-homr' ? '开始远程识别' : '开始本地识别';
     $('sightRecognizeButton').title = report.ready ? '' : '当前平台尚未接通本机识谱桥，可先使用人工校对稿';
@@ -586,8 +588,11 @@
       showStatus('sightScanStatus', '请先导入一张印刷五线谱图片。', true);
       return;
     }
-    showStatus('sightScanStatus', '正在本机处理谱面，请稍候…');
     try {
+      const report = await diagnoseEngine();
+      const remote = ['personal-remote-homr', 'cloud-homr'].includes(report.provider);
+      if (remote && !window.confirm(report.provider === 'cloud-homr' ? '本次将把裁剪后的图片发送到云端识谱服务处理，消耗一次今日识谱额度。是否继续？' : '本次将把裁剪后的图片发送到你配置的远程电脑处理。是否继续？')) return;
+      showStatus('sightScanStatus', remote ? '正在远程识别谱面，请稍候…' : '正在本机识别谱面，请稍候…');
       const canvas = $('sightSourceCanvas');
       if (!hasScoreInk(canvas)) {
         throw new Error('当前裁剪区域几乎是空白，未开始识别。请先把裁剪框调整到实际五线谱区域，并适当降低去灰度。');
@@ -595,7 +600,7 @@
       const result = await window.HetianOMR.recognize({
         imageDataUrl: canvas.toDataURL('image/png'),
         preprocessing: project.preprocessing
-      });
+      }, report.provider);
       project.score.notes = (result.notes || []).map(normalizeNote);
       project.score.questions = Array.isArray(result.questionMarkers) ? result.questionMarkers : [];
       if (result.clef) project.score.clef = result.clef;

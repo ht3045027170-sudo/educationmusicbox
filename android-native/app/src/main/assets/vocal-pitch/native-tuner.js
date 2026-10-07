@@ -19,7 +19,9 @@
     try { window.AndroidAudio?.stopCapture?.(); } catch (_) {}
   }
   function loop(now=performance.now()) {
-    if(!running)return;raf=requestAnimationFrame(loop);analyser.getFloatTimeDomainData(buffer);
+    if(!running)return;raf=requestAnimationFrame(loop);
+    try { analyser.getFloatTimeDomainData(buffer); }
+    catch (error) { stop(); $('tunerFreq').textContent='— Hz'; $('tunerDetected').textContent='等待单音'; $('tunerEnableMicBtn').hidden=false; $('tunerStatus').textContent='麦克风已断开，请重新启动'; return; }
     const result=detector.detect(buffer);if(!result.frequency||result.confidence<.72)return;
     const target=targetFrequency(),cents=1200*Math.log2(result.frequency/target),midi=Math.round(69+12*Math.log2(result.frequency/440));
     $('tunerFreq').textContent=result.frequency.toFixed(1)+' Hz';

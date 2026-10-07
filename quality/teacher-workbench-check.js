@@ -5,7 +5,7 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const workbench = read('teacher-workbench.js');
 const score = read('admin-music-editor.js');
 const checks = [
-  ['教师中心进入真实出题工作台', read('teacher.js').includes("import('/teacher-workbench.js')")],
+  ['教师中心进入真实出题工作台', /import\('\/teacher-workbench\.js(?:\?[^']*)?'\)/.test(read('teacher.js'))],
   ['先选题型再进入编辑器', workbench.includes('你今天想出什么题？') && workbench.includes('data-type=')],
   ['专属单音音程和弦编辑器', ['single_note','interval','chord'].every(type => workbench.includes(`${type}:`))],
   ['桌面三栏与手机页签', workbench.includes('tw-editor-grid') && workbench.includes('tw-mobile-tabs')],

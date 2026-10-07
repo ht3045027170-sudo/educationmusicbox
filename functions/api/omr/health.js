@@ -10,11 +10,13 @@ function endpoint(env, path) {
 export async function onRequestGet({ env }) {
   const url = endpoint(env, '/health');
   if (!url) return json({ ready: false, provider: 'cloud-homr', message: '云端识谱服务尚未配置。' }, 503);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
   try {
-    const response = await fetch(url, { headers: { 'x-omr-service-token': env.OMR_SERVICE_TOKEN || '' } });
+    const response = await fetch(url, { signal: controller.signal, headers: { 'x-omr-service-token': env.OMR_SERVICE_TOKEN || '' } });
     const report = await response.json();
     return json({ ...report, provider: 'cloud-homr' }, response.status);
   } catch (_) {
     return json({ ready: false, provider: 'cloud-homr', message: '云端识谱服务暂时不可用。' }, 503);
-  }
+  } finally { clearTimeout(timeout); }
 }

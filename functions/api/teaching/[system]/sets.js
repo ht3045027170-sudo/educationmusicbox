@@ -50,7 +50,7 @@ function normalizeSet(body) {
     title:String(section.title || `第${index+1}部分`).trim().slice(0,100),
     type:['dictation','notation','theory','sight_singing','mixed'].includes(section.type)?section.type:'mixed',
     order:index+1,
-    questions:(Array.isArray(section.questions)?section.questions:[]).slice(0,100).map((item,questionIndex)=>({questionId:Number(item.questionId),score:Math.max(0,Number(item.score||1)),order:questionIndex+1})).filter(item=>Number.isInteger(item.questionId)&&item.questionId>0),
+    questions:(Array.isArray(section.questions)?section.questions:[]).slice(0,100).map((item,questionIndex)=>({questionId:Number(item.questionId),score:Math.max(0,Number(item.score ?? 1)),order:questionIndex+1})).filter(item=>Number.isInteger(item.questionId)&&item.questionId>0),
   }));
   const totalScore = sections.reduce((sum,section)=>sum+section.questions.reduce((part,item)=>part+item.score,0),0);
   return { title:String(body.title||'').trim().slice(0,120), description:String(body.description||'').trim().slice(0,2000), sections, totalScore, estimatedDuration:Math.max(0,Math.min(600,Number(body.estimatedDuration||0))), status:body.status==='published'?'published':'draft' };

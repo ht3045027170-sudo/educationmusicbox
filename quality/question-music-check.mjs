@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
+import {prepareQuestionMusic} from '../functions/api/question-music.js';import {normalize} from '../functions/api/admin/questions/import-training-bank.js';import {validAnswer,studentContent} from '../functions/api/homework-grading.js';
+const bank=JSON.parse(fs.readFileSync('gaokao_system/database/guangdong_320.json')).questions,rows=bank.filter(row=>row.domain==='dictation');
+const normalized=rows.map(normalize);assert.equal(rows.length,192);assert.equal(normalized.filter(row=>row.content.notes?.length).length,180);assert.equal(normalized.filter(row=>row.status==='draft').length,22);assert(normalized.filter(row=>row.status==='draft').every(row=>row.content.reviewReason));
+const nested=prepareQuestionMusic({musicData:{notes:[{midi:48,dur:1},{midi:51,dur:1}],tempo:84,clef:'bass',meter:'3/4',keySignature:'F'},answer:'小三度'},'dictation').content;assert.equal(nested.notes[0].midi,48);assert.equal(nested.bpm,84);assert.equal(nested.clef,'bass');
+const group=prepareQuestionMusic(rows[0],'dictation').content;assert.deepEqual(group.notes.map(note=>note.midi),[74,72,71]);assert.equal(group.audioSettings.prelude[0].midi,69);assert.equal(group.audioSettings.playCount,3);assert.equal(group.listenOnly,true);assert.equal(studentContent(group).audioScript,undefined);assert.equal(studentContent(group,true).audioScript,rows[0].audioScript);
+const chord=prepareQuestionMusic({audioScript:'钢琴同时弹奏D4-F4-Ab4，每次保持2秒，共3遍。'},'dictation').content;assert.deepEqual(chord.notes.map(note=>note.midi),[62,65,68]);assert(chord.notes.every(note=>note.simultaneous&&note.dur===2));
+const melody=prepareQuestionMusic({prompt:'2小节4/4',audioScript:'d小调，4/4；四分、四分、四分、四分｜四分、四分、二分。先弹主和弦与首音，再以♩=72播放3遍。旋律：D4-F4-A4-G4｜F4-E4-D4-。'},'dictation').content;assert.deepEqual(melody.notes.map(note=>note.dur),[1,1,1,1,1,1,2]);assert.equal(melody.keySignature,'F');
+assert.match(prepareQuestionMusic({prompt:'1小节4/4',audioScript:'节拍器预备1小节后，以♩=72击读：ti-ti｜tika-tika｜ta；播放3遍。'},'dictation').error,/3拍/);
+assert.equal(validAnswer('见播放脚本'),false);assert.equal(validAnswer('D4-F4-A4'),true);
+assert(prepareQuestionMusic({audioScript:'alert(secret);'},'dictation').error);assert(prepareQuestionMusic({notes:[{midi:60,dur:1}],bpm:0},'dictation').error);
+const source=fs.readFileSync('admin-music-editor.js','utf8'),start=source.indexOf('  function buildPlaybackPlan('),end=source.indexOf('  async function playNotes(',start),scope={};vm.runInNewContext(source.slice(start,end)+'\nplan=buildPlaybackPlan;',scope);
+const plan=scope.plan(group.notes,{...group.audioSettings,bpm:group.bpm});assert.equal(plan.events.length,10);assert.equal(plan.events[0].midi,69);assert.equal(plan.events[1].midi,74);assert.equal(plan.totalBeats,16);
+const harmony=scope.plan(chord.notes,{...chord.audioSettings,bpm:60});assert.equal(harmony.events[0].beat,harmony.events[1].beat);assert.equal(harmony.totalBeats,10);
+const prefix=scope.plan([{midi:72,dur:1}],{prelude:[{midi:60,dur:1,simultaneous:true},{midi:64,dur:1,simultaneous:true},{midi:67,dur:1,simultaneous:true},{midi:72,dur:1}],gapBeats:2});assert.deepEqual(Array.from(prefix.events,n=>n.beat),[0,0,0,1,4]);
+const rhythm=scope.plan([{midi:76,dur:.5},{rest:true,dur:.5},{midi:76,dur:1}],{bpm:72,countInBeats:4,playCount:3,gapBeats:2});assert.equal(rhythm.events.length,10);assert.equal(rhythm.events[4].beat,4);assert.equal(rhythm.totalBeats,14);
+assert.throws(()=>scope.plan([{midi:60,dur:1}],{bpm:0}));assert.throws(()=>scope.plan([{midi:60,dur:1}],{playCount:99}));
+console.log('PASS 192 imported listening items: 180 musical conversions, 22 review drafts, no placeholder grades, repeats/preludes/harmony/rest timing');

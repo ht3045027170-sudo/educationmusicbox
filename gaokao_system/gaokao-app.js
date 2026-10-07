@@ -28,6 +28,7 @@
   let bankStatus = 'loading';
   let activeCategory = '综合训练';
   let session = null;
+  const saveTheoryDraft = () => Store.update(state => { state.activeTheorySession = session && !session.finished ? JSON.parse(JSON.stringify(session)) : null; });
   let questionStartedAt = 0;
   let theoryTimerId = 0;
 
@@ -132,9 +133,9 @@
     setTimeout(() => form.elements.name.focus(), 30);
   }
 
-  function dashboardPercent(category) {
-    const accuracy = Store.accuracyFor(category);
-    return accuracy === null ? { width: 0, label: '—' } : { width: accuracy, label: `${accuracy}%` };
+  function dashboardPercent(completed, target) {
+    const percent = Math.min(100, Math.max(0, Math.round((completed || 0) / target * 100)));
+    return { width: percent, label: `${percent}%` };
   }
 
   function setProgress(prefix, value) {
@@ -155,8 +156,28 @@
     const map = {
       pitch: '音高与等音', rhythm: '音长与节奏', sign: '乐谱符号', interval: '音程', chord: '和弦', key: '调式调性', scale: '音阶'
     };
-    const segment = String(item.knowledgeId || '').split('.')[2] || '';
+    const parts = String(item.knowledgeId || '').split('.');
+    if (parts[1] === 'dictation' || item.category === 'dictation') {
+      const labels = { single: '单音听记', interval: '音程听记', chord: '和弦听记', rhythm: '节奏听记', melody: '旋律听记' };
+      return labels[parts[2]] || '听记训练';
+    }
+    const segment = parts[2] || '';
     return map[segment] || item.category || item.knowledgeId;
+  }
+
+  function dashboardWeakKnowledge() {
+    const groups = new Map();
+    for (const item of Store.weakKnowledge(Infinity)) {
+      const label = knowledgeLabel(item);
+      const group = groups.get(label) || { label, attempts: 0, recent: [] };
+      group.attempts += item.attempts;
+      group.recent.push(...item.recent);
+      groups.set(label, group);
+    }
+    return [...groups.values()].map(group => ({
+      ...group,
+      recentAccuracy: Math.round(group.recent.reduce((sum, value) => sum + value, 0) / group.recent.length * 100)
+    })).sort((a, b) => a.recentAccuracy - b.recentAccuracy || b.attempts - a.attempts).slice(0, 4);
   }
 
   function adaptiveQuestions(source, targetCount) {
@@ -179,21 +200,31 @@
     $('gkExamCountdown').textContent = countdown === null
       ? '尚未设置考试时间'
       : countdown < 0 ? `考试日期已过 ${Math.abs(countdown)} 天` : countdown === 0 ? '今天考试' : `距离考试 ${countdown} 天`;
-    setProgress('gkTheory', dashboardPercent('theory'));
-    setProgress('gkDictation', dashboardPercent('dictation'));
-    setProgress('gkSight', dashboardPercent('sight_singing'));
     const today = state.daily[Store.isoDate()] || {};
     const theoryCount = today.theoryQuestions || 0;
     const dictationCount = today.dictationQuestions || 0;
     const sightCount = today.sightSingingCount || 0;
+    setProgress('gkTheory', dashboardPercent(theoryCount, 30));
+    setProgress('gkDictation', dashboardPercent(dictationCount, 20));
+    setProgress('gkSight', dashboardPercent(sightCount, 1));
+    function todayAccuracy(count, key) {
+      if (!count) return '暂无作答';
+      if (!Number.isFinite(Number(today[key])) || today[key] == null) return '暂无正确率记录';
+      const correct = Math.max(0, Math.min(count, Number(today[key])));
+      return `${Math.round(correct / count * 100)}%（${correct}/${count}）`;
+    }
+    $('gkTheoryStats').textContent = `完成 ${theoryCount}/30 题 · 今日正确率 ${todayAccuracy(theoryCount, 'theoryCorrect')}`;
+    $('gkDictationStats').textContent = `完成 ${dictationCount}/20 题 · 今日正确率 ${todayAccuracy(dictationCount, 'dictationCorrect')}`;
+    $('gkSightStats').textContent = `完成 ${sightCount} 条 · 今日目标 1 条`;
+
     $('gkTaskList').innerHTML = [
       [theoryCount >= 30, `乐理训练 ${Math.min(theoryCount, 30)}/30题`],
       [dictationCount >= 20, `听写训练 ${Math.min(dictationCount, 20)}/20题`],
       [sightCount >= 1, `视唱训练 ${Math.min(sightCount, 1)}/1条`]
     ].map(([done, label]) => `<div class="gk-task${done ? ' done' : ''}"><i>${done ? '✓' : ''}</i><span>${escapeHTML(label)}</span></div>`).join('');
-    const weak = Store.weakKnowledge(4);
+    const weak = dashboardWeakKnowledge();
     $('gkWeakList').innerHTML = weak.length
-      ? `<div class="gk-weak-item"><b>下一组自适应训练</b><br><small>将优先安排下列薄弱知识点，占综合训练约 60%。</small></div>` + weak.map(item => `<div class="gk-weak-item"><b>${escapeHTML(knowledgeLabel(item))}</b><br><small>最近正确率 ${item.recentAccuracy}% · ${item.attempts} 次练习</small></div>`).join('')
+      ? `<div class="gk-weak-item"><b>下一组自适应训练</b><br><small>乐理综合训练将优先安排薄弱乐理知识点，目标占比约 60%；听记可进入对应专项练习。</small></div>` + weak.map(item => `<div class="gk-weak-item"><b>${escapeHTML(item.label)}</b><br><small>最近正确率 ${item.recentAccuracy}% · ${item.attempts} 次练习</small></div>`).join('')
       : '<div class="gk-weak-item"><b>等待真实训练数据</b><br><small>完成至少两次同类知识点后生成薄弱分析。</small></div>';
   }
 
@@ -236,6 +267,7 @@
 
   function openTheory() {
     App.showPage('gaokaoTheory');
+    session = Store.getState().activeTheorySession || session;
     if (session && !session.finished) {
       $('gkTheoryLanding').classList.add('hidden');
       $('gkTheoryIntro').classList.add('hidden');
@@ -247,7 +279,7 @@
     } else showTheoryLanding();
   }
 
-  function startTheorySession(category = '综合训练') {
+  function startTheorySession(category = '综合训练', mode = 'exam') {
     activeCategory = category;
     renderCategoryList();
     const source = category === '综合训练' ? bank : bank.filter(item => item.category === category);
@@ -261,7 +293,7 @@
       : shuffle(source).slice(0, targetCount);
     session = {
       id: `gk-session-${Date.now()}`,
-      category,
+      category, mode: mode === 'practice' ? 'practice' : 'exam',
       questions: shuffle(selected),
       answers: Array(targetCount).fill(null),
       index: 0,
@@ -269,6 +301,8 @@
       deadline: Date.now() + (category === '综合训练' ? 20 : 15) * 60000,
       finished: false
     };
+    session.optionOrders = session.questions.map(question => shuffle(question.options));
+    saveTheoryDraft();
     $('gkTheoryLanding').classList.add('hidden');
     $('gkTheoryIntro').classList.add('hidden');
     $('gkTheoryExam').classList.remove('hidden');
@@ -280,6 +314,7 @@
 
   function updateTheoryTimer() {
     if (!session || session.finished) return;
+    if (session.mode === 'practice') { $('gkTheoryTimer').textContent = '不限时练习'; return; }
     const remaining = Math.max(0, Math.ceil((session.deadline - Date.now()) / 1000));
     $('gkTheoryTimer').textContent = `${String(Math.floor(remaining / 60)).padStart(2, '0')}:${String(remaining % 60).padStart(2, '0')}`;
     $('gkTheoryTimer').classList.toggle('warning', remaining <= 60);
@@ -289,13 +324,14 @@
   function startTheoryTimer() {
     clearInterval(theoryTimerId);
     updateTheoryTimer();
-    theoryTimerId = setInterval(updateTheoryTimer, 250);
+    if (session && !session.finished && session.mode !== 'practice') theoryTimerId = setInterval(updateTheoryTimer, 250);
   }
 
   function renderQuestion() {
     if (!session) return;
     const question = session.questions[session.index];
     const stored = session.answers[session.index];
+    const revealed = session.finished || (session.mode === 'practice' && Boolean(stored));
     questionStartedAt = Date.now();
     $('gkQuestionCategory').textContent = `${question.category} · 难度 ${question.difficulty}`;
     $('gkQuestionCounter').textContent = `${session.index + 1} / ${session.questions.length}`;
@@ -305,44 +341,38 @@
     const notation = $('gkTheoryNotation');
     notation.classList.toggle('hidden', !promptNotes.length);
     notation.innerHTML = notationSVG(promptNotes);
-    const orderedOptions = stored?.optionOrder || shuffle(question.options);
+    const orderedOptions = stored?.optionOrder || session.optionOrders?.[session.index] || shuffle(question.options);
     $('gkOptions').innerHTML = orderedOptions.map(option => {
-      const classes = stored ? option === question.answer ? ' correct' : (!stored.correct && option === stored.userAnswer ? ' wrong' : '') : '';
+      const classes = revealed && stored ? option === question.answer ? ' correct' : (!stored.correct && option === stored.userAnswer ? ' wrong' : '') : stored?.userAnswer === option ? ' selected' : '';
       const optionNotes = notationFromText(option);
       const optionText = optionNotes.length ? textWithoutPitchCodes(option, '') : option;
-      return `<button class="gk-option${optionNotes.length ? ' notation' : ''}${classes}" type="button" data-gk-answer="${escapeHTML(option)}" ${stored ? 'disabled' : ''} aria-label="${optionNotes.length ? '五线谱答案选项' : escapeHTML(option)}">${optionText.trim() ? `<span>${escapeHTML(optionText)}</span>` : ''}${notationSVG(optionNotes, true)}</button>`;
+      return `<button class="gk-option${optionNotes.length ? ' notation' : ''}${classes}" type="button" data-gk-answer="${escapeHTML(option)}" ${revealed ? 'disabled' : ''} aria-pressed="${stored?.userAnswer === option}" aria-label="${optionNotes.length ? '五线谱答案选项' : escapeHTML(option)}">${optionText.trim() ? `<span>${escapeHTML(optionText)}</span>` : ''}${notationSVG(optionNotes, true)}</button>`;
     }).join('');
-    if (!stored) {
+    if (!revealed) {
       $('gkOptions').querySelectorAll('[data-gk-answer]').forEach(button => button.addEventListener('click', () => answerQuestion(button.dataset.gkAnswer, orderedOptions)));
-      $('gkExplanation').textContent = '选择答案后显示解析。题目不会自动跳走。';
+      $('gkExplanation').textContent = session.mode === 'practice' ? '练习模式：选择后立即显示解析。' : '考试模式：交卷后统一显示答案和解析，提交前可以修改选择或跳过题目。';
     } else {
       const answerHasNotation = notationFromText(question.answer).length > 0;
       const answerLabel = answerHasNotation ? '正确答案见绿色五线谱' : `正确答案：${escapeHTML(question.answer)}`;
       $('gkExplanation').innerHTML = `<b>${stored.correct ? '回答正确' : answerLabel}</b><br>${escapeHTML(textWithoutPitchCodes(question.explanation, '谱例所示音'))}`;
     }
     $('gkPrevQuestion').disabled = session.index === 0;
-    $('gkNextQuestion').disabled = !stored;
+    $('gkNextQuestion').disabled = false;
     $('gkTheorySubmit').classList.toggle('hidden', Boolean(session.reviewing));
     $('gkTheoryReturnResult').classList.toggle('hidden', !session.reviewing);
     $('gkNextQuestion').textContent = session.index === session.questions.length - 1 ? (session.reviewing ? '返回成绩 →' : '完成训练 →') : '下一题 →';
   }
 
   function answerQuestion(answer, optionOrder) {
-    if (!session || session.answers[session.index]) return;
+    if (!session || session.finished || (session.mode === 'practice' && session.answers[session.index])) return;
     const question = session.questions[session.index];
-    const correct = answer === question.answer;
-    Store.recordAnswer({
-      questionId: question.id,
-      category: 'theory',
-      knowledgeId: question.knowledgeId,
-      difficulty: question.difficulty,
-      userAnswer: answer,
-      correctAnswer: question.answer,
-      correct,
-      responseTime: Date.now() - questionStartedAt,
-      mode: session.category === '综合训练' ? 'theory-mixed' : 'theory-category'
-    });
-    session.answers[session.index] = { userAnswer: answer, correct, optionOrder };
+    session.answers[session.index] = { userAnswer: answer, correct: answer === question.answer, optionOrder, responseTime: Date.now() - questionStartedAt };
+    if (session.mode === 'practice') {
+      const answerRecord = session.answers[session.index];
+      Store.recordAnswer({ questionId:question.id, category:'theory', knowledgeId:question.knowledgeId, difficulty:question.difficulty, userAnswer:answer, correctAnswer:question.answer, correct:answerRecord.correct, responseTime:answerRecord.responseTime, mode:'theory-practice' });
+      answerRecord.recorded = true;
+    }
+    saveTheoryDraft();
     renderQuestion();
   }
 
@@ -355,15 +385,15 @@
     session.finished = true;
     clearInterval(theoryTimerId);
     session.answers.forEach((answer, index) => {
-      if (answer) return;
       const question = session.questions[index];
-      session.answers[index] = { userAnswer:'未作答', correct:false, optionOrder:shuffle(question.options) };
-      Store.recordAnswer({ questionId:question.id, category:'theory', knowledgeId:question.knowledgeId, difficulty:question.difficulty, userAnswer:'未作答', correctAnswer:question.answer, correct:false, responseTime:0, mode:session.category === '综合训练' ? 'theory-mixed' : 'theory-category' });
+      if (!answer) answer = session.answers[index] = { userAnswer: '未作答', correct: false, optionOrder: session.optionOrders?.[index] || shuffle(question.options) };
+      if (!answer.recorded) Store.recordAnswer({ questionId: question.id, category: 'theory', knowledgeId: question.knowledgeId, difficulty: question.difficulty, userAnswer: answer.userAnswer, correctAnswer: question.answer, correct: answer.correct, responseTime: answer.responseTime || 0, mode: session.mode === 'practice' ? 'theory-practice' : session.category === '综合训练' ? 'theory-mixed' : 'theory-category' });
     });
+    saveTheoryDraft();
     const answered = session.answers.filter(Boolean);
     const correct = answered.filter(item => item.correct).length;
     const accuracy = Math.round(correct / session.questions.length * 100);
-    Store.finishSession({ id: session.id, type: 'theory', category: session.category, questionCount: session.questions.length, correct, accuracy, startedAt: session.startedAt, timedOut });
+    Store.finishSession({ id: session.id, type: 'theory', practiceMode:session.mode || 'exam', category: session.category, questionCount: session.questions.length, correct, accuracy, startedAt: session.startedAt, timedOut });
     $('gkTheoryExam').classList.add('hidden');
     $('gkQuestionCard').classList.add('hidden');
     $('gkTheoryResult').classList.remove('hidden');
@@ -453,17 +483,18 @@
   $('gkMockExam')?.addEventListener('click', showBlueprint);
   $('gkTheoryDashboard')?.addEventListener('click', openDashboard);
   $('gkTheoryIntroBack')?.addEventListener('click', showTheoryLanding);
-  $('gkTheoryStart')?.addEventListener('click', () => startTheorySession(activeCategory));
-  $('gkPrevQuestion')?.addEventListener('click', () => { if (session && session.index > 0) { session.index -= 1; renderQuestion(); } });
+  $('gkTheoryStart')?.addEventListener('click', () => startTheorySession(activeCategory, 'exam'));
+  $('gkTheoryPractice')?.addEventListener('click', () => startTheorySession(activeCategory, 'practice'));
+  $('gkPrevQuestion')?.addEventListener('click', () => { if (session && session.index > 0) { session.index -= 1; saveTheoryDraft(); renderQuestion(); } });
   $('gkNextQuestion')?.addEventListener('click', () => {
-    if (!session?.answers?.[session.index]) return;
+    if (!session) return;
     if (session.index >= session.questions.length - 1) session.reviewing ? showTheoryResult() : finishTheorySession();
-    else { session.index += 1; renderQuestion(); }
+    else { session.index += 1; saveTheoryDraft(); renderQuestion(); }
   });
   $('gkTheorySubmit')?.addEventListener('click', () => finishTheorySession(false));
   $('gkTheoryReturnResult')?.addEventListener('click', showTheoryResult);
   $('gkReviewTheory')?.addEventListener('click', reviewTheoryMistakes);
-  $('gkRetryTheory')?.addEventListener('click', () => startTheorySession(activeCategory));
+  $('gkRetryTheory')?.addEventListener('click', () => startTheorySession(activeCategory, session?.mode || 'exam'));
   $('gkResultDashboard')?.addEventListener('click', openDashboard);
 
   const previousBack = App.handleBack;
@@ -474,6 +505,8 @@
     if (current === 'gaokaoDashboard') return false;
     return previousBack ? previousBack() : false;
   };
+
+  window.addEventListener('hetian:auth-changed', () => { session = null; clearInterval(theoryTimerId); });
 
   window.addEventListener('musictoolbox:pagechange', event => {
     if (event.detail.id === 'gaokaoDashboard') renderDashboard();

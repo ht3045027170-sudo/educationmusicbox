@@ -1,0 +1,33 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>调音器合成音验证</title>
+<style>body{margin:0;font:15px system-ui;background:#f7f4ec}header{padding:12px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;border-bottom:1px solid #bbb}select{font:inherit;padding:8px}iframe{width:100%;height:calc(100vh - 72px);border:0}small{color:#665}</style>
+<header><b>调音器合成音验证</b><label>输入声音 <select id="signal"><option value="pure">E2 标准音</option><option value="flat">E2 偏低 20 音分</option><option value="sharp">E2 偏高 20 音分</option><option value="harmonic">E2 强泛音与噪声</option><option value="noise">仅白噪声</option><option value="silence">静音</option><option value="other">A2 换弦</option><option value="permission">模拟麦克风权限拒绝</option></select></label><small>测试声音通过本机音频管线输入；不使用真实麦克风，不播放到扬声器。</small></header>
+<iframe id="app" title="调音器测试应用"></iframe>
+<script>
+const setup = function() {
+  let kind = 'pure', source = null, destination = null, ctx = null;
+  function build() {
+    if (!ctx || !destination) return;
+    if (source) { source.stop(); source.disconnect(); }
+    const rate = ctx.sampleRate, audio = ctx.createBuffer(1, rate * 3, rate), data = audio.getChannelData(0);
+    let seed = 23459;
+    const random = () => { seed=(Math.imul(seed,1664525)+1013904223)>>>0; return seed/4294967296*2-1; };
+    const base = 440 * 2 ** ((40-69)/12), hz = kind === 'flat' ? base * 2 ** (-20/1200) : kind === 'sharp' ? base * 2 ** (20/1200) : kind === 'other' ? 110 : base;
+    for(let i=0;i<data.length;i++) {
+      const phase=2*Math.PI*hz*i/rate;
+      data[i] = kind === 'silence' ? 0 : kind === 'noise' ? random()*.15 : kind === 'harmonic' ? .16*Math.sin(phase)+.25*Math.sin(phase*2)+.1*Math.sin(phase*3)+.02*random() : .3*Math.sin(phase);
+    }
+    source=ctx.createBufferSource();source.buffer=audio;source.loop=true;source.connect(destination);source.start();
+  }
+  Object.defineProperty(navigator.mediaDevices, 'getUserMedia', { configurable:true, value:async()=>{
+    if(kind==='permission')throw new DOMException('Simulated permission denial','NotAllowedError');
+    ctx=window.HetianCore.audio.getContext();await ctx.resume();
+    destination=ctx.createMediaStreamDestination();build();
+    return destination.stream;
+  }});
+  window.addEventListener('message', event=>{if(event.source===parent && event.data?.tunerTest){kind=event.data.tunerTest;build();}});
+};
+fetch(new URLSearchParams(location.search).get('app') === 'public' ? '../tuner.html' : '../index.html').then(response=>response.text()).then(html=>{
+  document.getElementById('app').srcdoc=html.replace('<head>','<head><base href="../"><script>('+setup.toString()+')();<\/script>');
+});
+document.getElementById('signal').onchange=event=>document.getElementById('app').contentWindow.postMessage({tunerTest:event.target.value},location.origin);
+</script></html>

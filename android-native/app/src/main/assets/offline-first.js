@@ -89,7 +89,7 @@
 
   function activateOffline() {
     const serverDialog = document.querySelector('.auth-dialog');
-    serverDialog?.remove();
+    if (serverDialog?.open) serverDialog.close();
     const dialog = document.createElement('dialog');
     dialog.className = 'auth-dialog';
     document.body.append(dialog);
@@ -149,5 +149,5 @@
     render();
   }
 
-  detectCloud().then(available => { if (!available) activateOffline(); });
+  detectCloud().then(available => { window.HAITANG_OFFLINE = !available; if (!available) activateOffline(); });
 })();

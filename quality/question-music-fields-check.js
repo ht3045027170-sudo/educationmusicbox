@@ -1,0 +1,13 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const code=fs.readFileSync('admin-questions.js','utf8');
+const fields={subject:{value:'dictation'}},container={style:{display:'block'}},state={notes:[{midi:48,dur:1}],meter:'3/4',bpm:72,keySignature:'F',category:'single',clef:'bass'};
+let mounted;
+const context={f:{elements:fields},meContainer:container,window:{MusicEditor:{mount:(element,options)=>mounted=options,getState:()=>state}},document:{getElementById:()=>container},dialog:{querySelector:()=>({})},current:{content:{answer:'C3'}},FormData:class {get(key){return ({options:'',prompt:'识别低音谱例',answer:'C3',explanation:'低音谱号',questionType:'text_input',subject:'dictation'})[key]||''}}};
+const mountStart=code.indexOf('function syncME('),mountEnd=code.indexOf('    f.elements.subject.onchange',mountStart);
+vm.runInNewContext(code.slice(mountStart,mountEnd)+'\nsyncME([], "F", "3/4", 72, "single", "bass");',context);
+assert.equal(mounted.clef,'bass');assert.equal(mounted.bpm,72);
+const start=code.indexOf('  function payload()'),end=code.indexOf('  async function openById',start);
+vm.runInNewContext(code.slice(start,end)+'\nresult=payload();',context);
+assert.equal(context.result.content.clef,'bass');assert.equal(context.result.content.notes[0].midi,48);assert.equal(context.result.content.meter,'3/4');assert.equal(context.result.content.bpm,72);assert.equal(context.result.content.keySignature,'F');
+assert(code.includes('renderStaffPreview(p.notes,p.keySignature,p.meter,p.category,p.clef)'));
+console.log('PASS question editor restores and saves bass clef, notes, meter, tempo and key with matching preview');

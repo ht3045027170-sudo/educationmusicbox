@@ -93,19 +93,29 @@
     return !message;
   }
 
-  function saveProfile() {
+  async function saveProfile() {
     if (!validateStep()) return;
     const profile = {
       username: form.elements.nickname.value.trim(),
       age: Number(form.elements.age.value),
       grade: '',
-      examDirection: ['音乐爱好者'],
+      examDirection: ['海棠音乐'],
       primaryMajor: form.elements.instrument.value,
       dailyMinutes: Number(form.elements.dailyMinutes.value),
       examDate: '',
       selfReportedWeaknesses: []
     };
-    Education.saveProfile(profile);
+    const account = window.HetianAuth?.getUser?.();
+    if (account) {
+      try {
+        await window.HetianAuth.saveProfile('hobby', {
+          name: profile.username, instrument: profile.primaryMajor, age: profile.age, dailyMinutes: profile.dailyMinutes
+        });
+      } catch (error) {
+        showToast(`档案暂未同步：${error.message}`, true);
+        return;
+      }
+    } else Education.saveProfile(profile);
     // 立即从统一状态读取一次，避免旧版 WebView 在表单切页时出现“看似提交、实际未保存”的假象。
     const saved = Education.getState();
     if (!saved.profile.username || !saved.onboarding.completed) {
@@ -166,7 +176,9 @@
       'ear.interval.major_seventh': '大七度',
       'ear.interval.octave': '纯八度'
     };
-    return labels[id] || String(id || '').split('.').at(-1) || '暂无';
+    const question = window.GUITAR_THEORY_DATABASE?.questions?.find(item => item.knowledgeId === id);
+    if (question) return `${question.type}：${question.question}`;
+    return labels[id] || (String(id || '').startsWith('guitar.') ? '吉他乐理知识点' : String(id || '').split('.').at(-1)) || '暂无';
   }
 
   function planRows(state) {
@@ -207,9 +219,14 @@
     $('eduAccuracy').textContent = `${totalAccuracy}%`;
     $('eduStudyTime').textContent = formatDuration(learning.totalStudySeconds);
     $('eduWeaknessText').textContent = currentWeakness(state);
-    $('eduInsightText').textContent = learning.totalQuestions
-      ? `已记录 ${learning.totalQuestions} 道题；继续训练后，这里会显示具体知识点与常见混淆项。`
-      : '目前只有自评信息，还没有足够的答题数据。系统不会用假分数填充学习报告。';
+    const weakness = Object.values(state.theoryMastery || {})
+      .filter(record => String(record.knowledgeId || '').startsWith('guitar.') && record.attempts >= 3)
+      .sort((a, b) => a.accuracy - b.accuracy)[0];
+    $('eduInsightText').textContent = weakness
+      ? `这个知识点已练 ${weakness.attempts} 次，答对 ${weakness.correct || 0} 次。正确率来自累计作答，重复练习也会计入；可回到对应章节复习。`
+      : learning.totalQuestions
+        ? `已记录 ${learning.totalQuestions} 道题。单个吉他知识点至少练习 3 次后，这里会显示具体薄弱点。`
+        : '目前只有自评信息，还没有足够的答题数据。系统不会用假分数填充学习报告。';
   }
 
   function renderSettings() {
@@ -223,8 +240,8 @@
     ].map(([term, value]) => `<dt>${term}</dt><dd>${value}</dd>`).join('');
     const license = window.LicenseManager?.getLicense?.() || state.license || {};
     $('eduUnlockStatus').textContent = window.LicenseManager?.canAccess?.('advanced_level')
-      ? `当前权限：${window.LicenseManager.label()} · 所有关卡、MIDI、制谱、AI 与报告功能已解锁。`
-      : `当前权限：免费版 · 基础工具与游客模式可用；教师题库与云同步权限需后续激活。`;
+      ? `当前权限：${window.LicenseManager.label()} · 各功能按当前账号权益开放。`
+      : `当前权限：免费版 · 基础工具与游客模式可用；登录后可同步学习数据，教师题库由教师账号管理。`;
     $('eduRedeemCode').value = '';
     $('eduRedeemMessage').textContent = '';
     $('eduRedeemMessage').className = 'settings-message';
@@ -253,7 +270,7 @@
   }
 
   function resetHobbyData() {
-    const phrase = window.prompt('将清除爱好者档案、训练记录、关卡进度和设置，但不会删除高考音乐生档案，也不会删除制谱、MIDI 或自制题库。请输入“确认删除”继续。');
+    const phrase = window.prompt('将清除海棠音乐档案、训练记录、关卡进度和设置，但不会删除制谱、MIDI 或自制题库。请输入“确认删除”继续。');
     if (phrase !== '确认删除') return;
     Education.resetEducationState();
     const reset = Education.getState();
@@ -263,20 +280,18 @@
     }
     fillForm(reset);
     App.showPage('home');
-    showToast('音乐爱好者档案与学习数据已清除，高考档案不受影响。');
+    showToast('海棠音乐档案与学习数据已清除。');
   }
 
-  function redeemCode() {
+  async function redeemCode() {
     const code = $('eduRedeemCode').value.trim();
     const message = $('eduRedeemMessage');
     message.className = 'settings-message';
-    const result = window.LicenseManager?.toggleTestCode?.(code);
-    if (!result?.ok) { message.textContent = '兑换码错误，请重新输入。'; message.classList.add('error'); return; }
+    const result = await window.LicenseManager?.activateCode?.(code);
+    if (!result?.ok) { message.textContent = result?.error || '兑换失败，请稍后重试。'; message.classList.add('error'); return; }
     renderDashboard();
     renderSettings();
-    $('eduRedeemMessage').textContent = result.active
-      ? '兑换成功！开发者测试权限已开启，所有功能已解锁；再次输入可关闭。'
-      : '开发者测试权限已关闭，专业功能与高级关卡已重新锁定。';
+    $('eduRedeemMessage').textContent = '兑换成功，会员权益已绑定当前账号。';
   }
 
   function openOnboarding(edit = false) {
@@ -308,18 +323,18 @@
 
   $('eduCreateProfile').addEventListener('click', () => openOnboarding(false));
   $('eduGuestEntry').addEventListener('click', () => App.showPage('menu'));
-  $('eduWelcomeSwitchGaokao').addEventListener('click', () => window.GaokaoApp?.enterGaokao?.());
+  $('eduWelcomeSwitchGaokao')?.addEventListener('click', () => location.assign('?product=exam'));
   $('eduWelcomeGuitar')?.addEventListener('click', () => window.GuitarAcademy?.open?.());
   $('eduOnboardingClose').addEventListener('click', goEducationHome);
   $('eduPrevStep').addEventListener('click', () => setStep(step - 1));
-  $('eduNextStep').addEventListener('click', () => {
+  $('eduNextStep').addEventListener('click', async () => {
     if (!validateStep()) return;
     if (step < totalSteps) setStep(step + 1);
-    else saveProfile();
+    else await saveProfile();
   });
-  form.addEventListener('submit', event => {
+  form.addEventListener('submit', async event => {
     event.preventDefault();
-    if (step === totalSteps) saveProfile();
+    if (step === totalSteps) await saveProfile();
   });
 
   document.addEventListener('click', event => {
@@ -334,7 +349,7 @@
   });
 
   $('eduOpenToolbox').addEventListener('click', () => App.showPage('menu'));
-  $('eduSwitchGaokao').addEventListener('click', () => window.GaokaoApp?.enterGaokao?.());
+  $('eduSwitchGaokao')?.addEventListener('click', () => location.assign('?product=exam'));
   $('eduOpenSettings').addEventListener('click', openSettings);
   $('eduSettingsBack').addEventListener('click', () => {
     if (window.HetianSettings?.getMode?.() === 'gaokao' && window.GaokaoApp?.openDashboard) window.GaokaoApp.openDashboard();
@@ -346,6 +361,7 @@
   $('eduSettingsImportFile').addEventListener('change', async event => { const file = event.target.files?.[0]; if (!file) return; try { await Education.importEducationState(file); renderSettings(); renderDashboard(); showToast('学习数据已导入。'); } catch (error) { showToast(error.message || '导入失败。', true); } finally { event.target.value = ''; } });
   $('eduSettingsClearRecords').addEventListener('click', clearLearningRecords);
   $('eduSettingsReset').addEventListener('click', resetHobbyData);
+  window.addEventListener('hetian:license-changed', () => { renderDashboard(); });
   $('eduRedeemButton').addEventListener('click', redeemCode);
   $('eduRedeemCode').addEventListener('keydown', event => { if (event.key === 'Enter') redeemCode(); });
   $('eduToolboxCardButton').addEventListener('click', () => App.showPage('menu'));
@@ -390,8 +406,7 @@
   };
   App.handleBack = () => {
     const current = App.getCurrentPage();
-    if (current === 'modeSelect') return false;
-    if (current === 'home' || current === 'eduDashboard') { App.showPage('modeSelect'); return true; }
+    if (current === 'home' || current === 'eduDashboard') return false;
     if (current === 'eduSettings') { goEducationHome(); return true; }
     if (current === 'theoryAcademy') {
       renderDashboard();
@@ -425,5 +440,4 @@
 
   fillForm(Education.getState());
   if (Education.profileExists()) renderDashboard();
-  App.showPage('modeSelect');
 })();

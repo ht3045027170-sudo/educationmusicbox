@@ -914,28 +914,44 @@
 }
   `;
 
+  function buildPlaybackPlan(notes, opts = {}) {
+    if (!Array.isArray(notes) || !notes.length || notes.length > 256) throw new Error('播放音符不完整。');
+    const bpm = Number(opts.bpm ?? 100), repeat = Number(opts.playCount ?? 1), gap = Number(opts.gapBeats ?? 0), prelude = opts.prelude || [], countIn = Number(opts.countInBeats || 0), countUnit = Number(opts.countInUnit || 1);
+    if (!Number.isFinite(bpm) || bpm < 20 || bpm > 240 || !Number.isInteger(repeat) || repeat < 1 || repeat > 4 || !Number.isFinite(gap) || gap < 0 || gap > 32 || !Array.isArray(prelude) || prelude.length > 16 || !Number.isFinite(countIn) || countIn < 0 || countIn > 16 || ![1,1.5].includes(countUnit)) throw new Error('播放参数无效。');
+    const events = []; let cursor = 0;
+    function append(values, force = false) {
+      let groupDuration = 0, group = false;
+      function flush() { if (group) { cursor += groupDuration; group = false; groupDuration = 0; } }
+      for (const n of values) {
+        if (!n || !Number.isFinite(n.dur) || n.dur <= 0 || n.dur > 16 || (!n.rest && (!Number.isInteger(n.midi) || n.midi < 21 || n.midi > 108))) throw new Error('播放音符无效。');
+        const simultaneous = force || n.simultaneous === true;
+        if (!simultaneous) flush();
+        if (!n.rest) events.push({ midi:n.midi, beat:cursor, duration:n.dur });
+        if (simultaneous) { group = true; groupDuration = Math.max(groupDuration,n.dur); } else cursor += n.dur;
+      }
+      flush();
+    }
+    if (prelude.length) { append(prelude); cursor += gap; }
+    for (let beat = 0; beat < countIn; beat += countUnit) events.push({ midi:beat===0?84:76,beat:cursor+beat,duration:.12 });
+    cursor += countIn;
+    for (let pass = 0; pass < repeat; pass++) { if (pass) cursor += gap; append(notes, opts.simultaneous === true); }
+    return { bpm, events, totalBeats:cursor };
+  }
+
   async function playNotes(notes, opts = {}) {
     if (!notes || !notes.length) return;
+    const plan = buildPlaybackPlan(notes, { ...opts, bpm:opts.bpm ?? state.bpm ?? 100 });
     stopPlayback();
     const token = playbackEpoch;
     await ensurePiano();
     if (token !== playbackEpoch) return;
-    const ctx = getAudio();
-    const bpm = opts.bpm || state.bpm || 100;
-    const beat = 60 / bpm;
-    let t = ctx.currentTime + 0.06;
-    const simultaneous = opts.simultaneous || notes.length > 1 && notes.every(n => n.rest || n.simultaneous);
-    for (const n of notes) {
-      const dur = n.dur * beat;
-      if (!n.rest) playNote(n.midi, t, Math.max(0.08, dur * 0.92), 0.72);
-      if (!simultaneous) t += dur;
-    }
-    if (simultaneous) t += Math.max(...notes.map(n => (Number(n.dur) || 1) * beat));
-    const totalMs = (t - ctx.currentTime) * 1000 + 200;
+    const ctx = getAudio(), beat = 60 / plan.bpm, start = ctx.currentTime + .06;
+    for (const event of plan.events) playNote(event.midi, start + event.beat * beat, Math.max(.05,event.duration * beat * .92), .72);
+    const totalMs = (start + plan.totalBeats * beat - ctx.currentTime) * 1000 + 200;
     playbackDoneTimer = setTimeout(() => { playbackDoneTimer = 0; }, totalMs);
     return totalMs;
   }
 
   /* ==================== 导出 ==================== */
-  window.MusicEditor = { mount, destroy, stopPlayback, getNotes, setNotes, getState, setState, playSequence, renderStaffPreview: renderStaff, playNotes };
+  window.MusicEditor = { mount, destroy, stopPlayback, getNotes, setNotes, getState, setState, playSequence, renderStaffPreview: renderStaff, playNotes, buildPlaybackPlan };
 })();

@@ -1,3 +1,4 @@
+import { assignmentQuestions, answersEqual } from '../../../../homework-grading.js';
 import { json, requireTeacher, ensureCollaborationSchema } from '../../../../shared.js';
 
 // GET /api/teaching/{system}/assignments/{id}/results
@@ -12,8 +13,8 @@ export async function onRequestGet({ request, env, params }) {
 
     const assignment = await env.DB.prepare(
       'SELECT a.id, a.class_id, a.question_ids FROM homework_assignments a ' +
-      'JOIN classes c ON c.id = a.class_id WHERE a.id = ? AND c.teacher_id = ?'
-    ).bind(assignmentId, auth.user.id).first();
+      'JOIN classes c ON c.id = a.class_id WHERE a.id = ? AND c.teacher_id = ? AND c.system_code = ?'
+    ).bind(assignmentId, auth.user.id, String(params.system || '')).first();
     if (!assignment) return json({ ok: false, error: '作业不存在或无权访问。' }, 404);
 
     // 题目元信息（教师端可见标准答案）
@@ -21,10 +22,7 @@ export async function onRequestGet({ request, env, params }) {
     try { const arr = JSON.parse(assignment.question_ids || '[]'); questionIds = Array.isArray(arr) ? arr : []; } catch {}
     const questions = [];
     if (questionIds.length) {
-      const placeholders = questionIds.map(() => '?').join(',');
-      const { results: qRows } = await env.DB.prepare(
-        `SELECT id, content FROM questions WHERE id IN (${placeholders})`
-      ).bind(...questionIds).all();
+      const { rows: qRows } = await assignmentQuestions(env, assignment, questionIds);
       const byId = new Map(qRows.map((r) => {
         let c = {}; try { c = JSON.parse(r.content || '{}'); } catch {}
         return [r.id, c];
@@ -35,7 +33,7 @@ export async function onRequestGet({ request, env, params }) {
           question_id: qid,
           prompt: c.prompt || c.question || `题目 #${qid}`,
           options: Array.isArray(c.options) ? c.options : [],
-          answer: Array.isArray(c.answer) ? c.answer.join('|') : String(c.answer ?? ''),
+          answer: c.answer,
         });
       }
     }
@@ -53,8 +51,8 @@ export async function onRequestGet({ request, env, params }) {
       let answers = {};
       try { answers = JSON.parse(row.answers || '{}'); } catch {}
       const detail = questions.map((q) => {
-        const given = answers[q.question_id] !== undefined ? String(answers[q.question_id]) : '';
-        const ok = given.trim().toLowerCase() === String(q.answer).trim().toLowerCase();
+        const given = answers[q.question_id] !== undefined ? answers[q.question_id] : '';
+        const ok = answersEqual(given, q.answer);
         return { question_id: q.question_id, given, ok };
       });
       return {
@@ -67,6 +65,17 @@ export async function onRequestGet({ request, env, params }) {
         attempt_count: Number(row.attempt_count || 0),
       };
     });
+    for (const question of questions) {
+      const submitted = items.filter(item => item.submitted_at);
+      const detail = submitted.map(item => item.detail.find(entry => entry.question_id === question.question_id));
+      question.stats = {
+        submitted: submitted.length,
+        correct: detail.filter(entry => entry.ok).length,
+        wrong: detail.filter(entry => !entry.ok).length,
+        unanswered: detail.filter(entry => entry.given === '' || entry.given == null || (Array.isArray(entry.given) && !entry.given.length)).length,
+        accuracy: submitted.length ? Math.round(detail.filter(entry => entry.ok).length / submitted.length * 100) : null,
+      };
+    }
     const completed = items.filter(item => item.submitted_at && Number.isFinite(Number(item.score)));
     const scores = completed.map(item => Number(item.score));
     const summary = {

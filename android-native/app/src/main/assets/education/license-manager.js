@@ -12,19 +12,29 @@
     developer: { features:['*'] }
   };
 
-  // 兑换策略集中在此处；UI 与关卡不得直接写入“全部解锁”。
-  const TEST_CODES = {
-    '200791': { type:'developer', status:'active', expireDate:'', features:['*'] }
-  };
-
-  function getLicense() {
-    const license = Education.getState().license || {};
-    return { type:'free', status:'active', expireDate:'', features:[], ...license };
+  const freeLicense = () => ({ type:'free', status:'active', expireDate:'', features:[...LICENSES.free.features] });
+  let verifiedLicense = freeLicense(), generation = 0;
+  function getLicense() { return { ...verifiedLicense, features:[...verifiedLicense.features] }; }
+  async function requestLicense(code) {
+    const token = ++generation, userId = window.HetianAuth?.getUser?.()?.id || null;
+    const headers = { 'content-type':'application/json' };
+    if (code !== undefined) {
+      const csrfResponse = await fetch('/api/csrf', { credentials:'same-origin', cache:'no-store' });
+      headers['x-csrf-token'] = (await csrfResponse.json()).csrfToken || '';
+    }
+    const response = await fetch('/api/auth/entitlements', { method:code === undefined ? 'GET' : 'POST', credentials:'same-origin', cache:'no-store', headers, ...(code === undefined ? {} : { body:JSON.stringify({ code }) }) });
+    const data = await response.json();
+    if (!response.ok || !data.ok) throw new Error(data.error || '暂时无法确认会员权限。');
+    if (token !== generation || String(window.HetianAuth?.getUser?.()?.id || '') !== String(userId || '') || String(data.license.userId || '') !== String(userId || '')) return {ok:false,error:'登录账号已改变，请重新确认权限。'};
+    verifiedLicense = { ...data.license, features:Array.isArray(data.license.features) ? data.license.features : [] };
+    window.dispatchEvent(new CustomEvent('hetian:license-changed'));
+    return {ok:true,license:getLicense()};
   }
+  async function refresh() { verifiedLicense = freeLicense(); try { return await requestLicense(); } catch (error) { return {ok:false,error:error.message}; } }
 
   function isActive(license = getLicense()) {
     if (license.status !== 'active') return false;
-    return !license.expireDate || new Date(`${license.expireDate}T23:59:59`).getTime() >= Date.now();
+    return !license.expireDate || new Date(license.expireDate).getTime() >= Date.now();
   }
 
   function featuresFor(license = getLicense()) {
@@ -33,9 +43,7 @@
     return [...new Set([...(base || []), ...(license.features || [])])];
   }
 
-  function hasAdminUnlock() {
-    return window.HetianAuth?.getUser?.()?.role === 'admin';
-  }
+  function hasAdminUnlock() { return isActive() && verifiedLicense.type === 'developer' && verifiedLicense.verified === true; }
 
   function canAccess(feature) {
     if (!feature) return true;
@@ -46,39 +54,19 @@
 
   const canUse = canAccess;
 
-  function activateCode(code) {
-    const config = TEST_CODES[String(code || '').trim()];
-    if (!config) return { ok:false, reason:'invalid' };
-    Education.updateState(state => {
-      state.license = { ...config, activatedCode:String(code).trim(), activatedAt:Date.now() };
-      return state;
-    });
-    return { ok:true, license:getLicense() };
+  async function activateCode(code) {
+    try { return await requestLicense(String(code || '').trim()); }
+    catch (error) { return {ok:false,error:error.message}; }
   }
-
-  function deactivate() {
-    Education.updateState(state => {
-      state.license = { type:'free', status:'active', expireDate:'', features:[...LICENSES.free.features], activatedCode:'', activatedAt:0 };
-      return state;
-    });
-    return getLicense();
-  }
-
-  function toggleTestCode(code) {
-    const current = getLicense();
-    if (current.type === 'developer' && current.status === 'active' && current.activatedCode === String(code).trim()) {
-      deactivate();
-      return { ok:true, active:false, license:getLicense() };
-    }
-    const result = activateCode(code);
-    return { ...result, active:result.ok };
-  }
+  function deactivate() { generation++; verifiedLicense = freeLicense(); return getLicense(); }
 
   function label() {
     if (hasAdminUnlock()) return '管理员权限（全部解锁）';
     const type = getLicense().type;
-    return ({ free:'免费版', student_pro:'学生专业版', ai_teacher:'AI 教师版', teacher:'教师版', developer:'开发者测试权限' })[type] || '免费版';
+    return ({ free:'免费版', student_pro:'学生专业版', ai_teacher:'AI 教师版', teacher:'教师版', developer:'管理员权限' })[type] || '免费版';
   }
 
-  window.LicenseManager = { LICENSES, getLicense, isActive, featuresFor, canAccess, canUse, activateCode, deactivate, toggleTestCode, label, hasAdminUnlock };
+  window.LicenseManager = { LICENSES, getLicense, isActive, featuresFor, canAccess, canUse, activateCode, deactivate, refresh, label, hasAdminUnlock };
+  window.addEventListener('hetian:auth-changed', () => { deactivate(); refresh(); });
+  window.addEventListener('online', refresh);
 })();

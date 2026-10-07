@@ -170,7 +170,11 @@
       const analyser = this.manager.analyser;
       if (!analyser || !this.detector || !this.buffer) return;
 
-      analyser.getFloatTimeDomainData(this.buffer);
+      try { analyser.getFloatTimeDomainData(this.buffer); }
+      catch (error) {
+        this.stop('麦克风已断开，请重新启动');
+        return;
+      }
       const detection = this.detector.detect(this.buffer);
       const smoothedFrequency = this.smoothFrequency(detection.frequency);
       // The product's teaching notation intentionally transposes detected
@@ -352,7 +356,7 @@
     const page = document.getElementById('vocalPitch');
     if (!page || page.dataset.ready === '1') return;
     page.dataset.ready = '1';
-    const menu = document.querySelector('#menu .tool-grid');
+    const menu = document.querySelector('#menu .secondary-tools .tool-grid') || document.querySelector('#menu .tool-grid');
     if (menu && !menu.querySelector('[data-page="vocalPitch"]')) {
       const button = document.createElement('button');
       button.className = 'tool-card';

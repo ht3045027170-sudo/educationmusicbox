@@ -297,6 +297,8 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
 <link rel="stylesheet" href="education/guitar-theory.css">
 <link rel="stylesheet" href="gaokao_system/gaokao.css">
 <link rel="stylesheet" href="gaokao_system/exam-art-direction.css">
+<link rel="stylesheet" href="vocal-pitch/tuner.css">
+<style>.gk-option.selected{outline:3px solid #d7653a;outline-offset:2px;background:#fff0e4}</style>
 </head>
 <body>
 <div id="runtimeError"></div>
@@ -310,6 +312,7 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
         <button id="gaokaoLoginButton" class="product-login-primary" type="button">登录账号</button>
         <button id="gaokaoRegisterButton" class="product-login-secondary" type="button">注册学生账号</button>
       </div>
+      <p><a href="tuner.html">免登录使用免费调音器 →</a></p>
       <p id="gaokaoLoginStatus" class="product-login-status" role="status">正在确认登录状态…</p>
     </section>
     <aside class="product-login-rail" aria-label="海棠艺考功能">
@@ -335,9 +338,10 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
       </div>
       <div class="edu-welcome-actions">
         <button id="eduCreateProfile" class="edu-button primary" type="button">创建学习档案</button>
+        <a class="edu-button text" href="tuner.html">直接开始免费调音</a>
         <button id="eduGuestEntry" class="edu-button text" type="button">进入音乐工具</button>
       </div>
-      <p class="edu-signature">离线处理 · 原图与校正稿只保存在本机</p>
+      <p class="edu-signature">原图与校正稿在本机保存 · 识别前说明处理位置</p>
     </div>
     <div class="edu-jade-stage" aria-hidden="true">
       <div class="edu-jade-stone">
@@ -384,14 +388,14 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
       <section class="gk-panel">
         <span class="gk-eyebrow">DAILY PROGRESS</span><h2>今日训练进度</h2>
         <div class="gk-progress-list">
-          <div class="gk-progress-row"><b>乐理</b><div class="gk-progress-track"><i id="gkTheoryBar" style="width:0%"></i></div><strong id="gkTheoryPercent">—</strong></div>
-          <div class="gk-progress-row"><b>听写</b><div class="gk-progress-track"><i id="gkDictationBar" style="width:0%"></i></div><strong id="gkDictationPercent">—</strong></div>
-          <div class="gk-progress-row"><b>视唱</b><div class="gk-progress-track"><i id="gkSightBar" style="width:0%"></i></div><strong id="gkSightPercent">—</strong></div>
+          <div class="gk-progress-row"><b>乐理</b><div class="gk-progress-track"><i id="gkTheoryBar" style="width:0%"></i></div><strong id="gkTheoryPercent">—</strong><small id="gkTheoryStats" style="grid-column:1/-1;color:inherit;font-size:12px;line-height:1.6">等待今日记录</small></div>
+          <div class="gk-progress-row"><b>听写</b><div class="gk-progress-track"><i id="gkDictationBar" style="width:0%"></i></div><strong id="gkDictationPercent">—</strong><small id="gkDictationStats" style="grid-column:1/-1;color:inherit;font-size:12px;line-height:1.6">等待今日记录</small></div>
+          <div class="gk-progress-row"><b>视唱</b><div class="gk-progress-track"><i id="gkSightBar" style="width:0%"></i></div><strong id="gkSightPercent">—</strong><small id="gkSightStats" style="grid-column:1/-1;color:inherit;font-size:12px;line-height:1.6">等待今日记录</small></div>
         </div>
         <div class="gk-module-grid">
           <button id="gkOpenTheory" class="gk-module" type="button"><b>乐理训练</b><span>六大考纲分类 · 已开放</span></button>
           <button id="gkOpenDictation" class="gk-module" type="button"><b>听记训练</b><span>五类限时训练 · 已开放</span></button>
-          <button id="gkOpenSight" class="gk-module" type="button"><b>视唱工作室</b><span>离线识谱、逐音校对与跟谱练习</span></button>
+          <button id="gkOpenSight" class="gk-module" type="button"><b>视唱工作室</b><span>谱面识别、逐音校对与跟谱练习</span></button>
           <button id="gkOpenTools" class="gk-module" type="button"><b>通用工具箱</b><span>调音器、节拍器、钢琴、听音、和弦查询等</span></button>
           <button id="gkOpenTeacherCenter" class="gk-module gk-teacher-entry hidden" type="button"><b>题库与作业</b><span>直接出题、审核题目与布置作业</span></button>
           <button id="gkOpenTeacherClass" class="gk-module gk-teacher-entry hidden" type="button"><b>班级群聊</b><span>直接进入班级消息与今日作业</span></button>
@@ -431,13 +435,13 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
   <main class="gk-shell">
     <nav class="gk-topbar"><div class="gk-brand">海棠艺考<small>乐理训练 · GUANGDONG EXAM SCOPE</small></div><div class="gk-actions"><button id="gkOpenSettings" class="gk-button secondary" type="button">⚙️ 设置</button><button id="gkTheoryDashboard" class="gk-button secondary" type="button">返回训练首页</button></div></nav>
     <section id="gkTheoryLanding" class="gk-dictation-landing">
-      <header class="gk-dictation-hero"><span class="gk-eyebrow">EXAM THEORY / 01</span><h1 id="gkTheoryLandingTitle">选择一项限时乐理</h1><p>每个分区都是一套十题试卷。进入前先查看范围，提交或倒计时结束后统一评分。</p></header>
+      <header class="gk-dictation-hero"><span class="gk-eyebrow">EXAM THEORY / 01</span><h1 id="gkTheoryLandingTitle">选择一项限时乐理</h1><p>每个分区可选择不限时练习或限时考试。练习即时讲解，考试交卷后统一评分。</p></header>
       <div id="gkCategoryList" class="gk-dictation-modes"></div>
     </section>
     <section id="gkTheoryIntro" class="gk-panel gk-dictation-intro hidden">
       <span class="gk-eyebrow">READY / 准备</span><h1 id="gkTheoryIntroTitle">综合训练模拟卷</h1><p id="gkTheoryIntroText">混合广东音乐统考基础乐理考纲知识点。</p>
       <div class="gk-dictation-facts"><div><strong id="gkTheoryMinutes">20</strong><span>分钟</span></div><div><strong id="gkTheoryCount">10</strong><span>道题</span></div><div><strong>统一</strong><span>提交评分</span></div></div>
-      <div class="gk-actions"><button id="gkTheoryIntroBack" class="gk-button secondary" type="button">← 重选分区</button><button id="gkTheoryStart" class="gk-button" type="button">开始学习</button></div>
+      <div class="gk-actions"><button id="gkTheoryIntroBack" class="gk-button secondary" type="button">← 重选分区</button><button id="gkTheoryPractice" class="gk-button secondary" type="button">练习 · 即时解析</button><button id="gkTheoryStart" class="gk-button" type="button">考试 · 交卷评分</button></div>
     </section>
     <section id="gkTheoryExam" class="hidden">
       <section id="gkQuestionCard" class="gk-panel gk-question-card">
@@ -446,7 +450,7 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
         <h1 id="gkTheoryTitle">选择左侧分类，或开始综合训练</h1>
         <div id="gkTheoryNotation" class="gk-theory-notation hidden" aria-label="题目五线谱谱例"></div>
         <div id="gkOptions" class="gk-options"></div>
-        <div id="gkExplanation" class="gk-explanation">题目作答后会停留显示解析，由你决定何时进入下一题。</div>
+        <div id="gkExplanation" class="gk-explanation">提交前可以修改选择，答案和解析将在交卷后显示。</div>
         <div class="gk-question-actions"><button id="gkPrevQuestion" class="gk-button secondary" type="button" disabled>← 上一题</button><button id="gkTheoryReturnResult" class="gk-button secondary hidden" type="button">返回成绩</button><button id="gkTheorySubmit" class="gk-button secondary" type="button">提交整套试题</button><button id="gkNextQuestion" class="gk-button" type="button" disabled>下一题 →</button></div>
       </section>
     </section>
@@ -826,6 +830,7 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
         <h2 class="settings-section-label">账户</h2>
         <div class="settings-group" id="eduSettingsAccount"><p class="settings-muted">正在获取登录状态…</p></div>
       </section>
+<section class="settings-section"><h2 class="settings-section-label">调音体验统计</h2><div class="settings-group"><label><input type="checkbox" data-tuner-experience-consent> 自愿帮助改进调音体验</label><p class="share-note">默认关闭。开启后从下一次调音开始，仅发送设备/浏览器类别、乐器类型和本次结果或故障类别，应用统计不保存账号、IP、目标音或录音；按天汇总用于分析近30天体验，可随时关闭。</p></div></section>
       <section class="settings-section">
         <h2 class="settings-section-label">显示模式</h2>
         <div class="settings-group">
@@ -870,7 +875,7 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
         <h2 class="settings-section-label">兑换码</h2>
         <div class="settings-group">
           <div class="settings-redeem">
-            <input id="eduRedeemCode" autocomplete="off" inputmode="numeric" maxlength="32" placeholder="输入兑换码">
+            <input id="eduRedeemCode" autocomplete="off" maxlength="64" placeholder="登录后输入兑换码">
             <button id="eduRedeemButton" class="edu-button primary" type="button">兑换</button>
           </div>
           <p id="eduUnlockStatus" class="settings-hint">尚未激活额外权限。</p>
@@ -959,7 +964,7 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
           <input id="sightCameraInput" type="file" accept="image/*" capture="environment" hidden>
           <input id="sightImageInput" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" hidden>
           <input id="sightPdfInput" type="file" accept="application/pdf,.pdf" hidden>
-          <p class="sight-privacy">本地优先：源文件、识别稿与练习记录不会离开本机。</p>
+          <p class="sight-privacy">源文件与校对稿在本机保存。使用云端或远程识别时，裁剪图片会发送到对应服务，开始前会请你确认。</p>
         </div>
         <div class="sight-hero-score" aria-hidden="true">
           <div class="sight-score-paper">
@@ -1001,9 +1006,9 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
               </div>
             </div>
             <aside class="sight-scan-card">
-              <span class="sight-eyebrow">离线识别引擎</span>
+              <span class="sight-eyebrow">识谱处理位置</span>
               <h3 id="sightEngineTitle">正在检查模型…</h3>
-              <p id="sightEngineDetail">识别只在本机运行。模型未安装时仍可建立校对稿，但不会生成虚假音符。</p>
+              <p id="sightEngineDetail">正在检查可用识谱方式；未连接引擎时可手动建立校对稿。</p>
               <div class="sight-engine-checks">
                 <div><i id="sightRuntimeDot"></i><span>运行环境</span><b id="sightRuntimeText">检查中</b></div>
                 <div><i id="sightModelDot"></i><span>印刷谱模型</span><b id="sightModelText">检查中</b></div>
@@ -1154,19 +1159,38 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
 
 <div id="eduToast" class="edu-toast" role="status" aria-live="polite"></div>
 
-<section id="menu" class="page center hidden"><div class="panel"><div class="topbar"><button class="outline" type="button" data-education-home>← 返回</button><h2>音乐学习与工具</h2></div><div class="tool-grid">
-<button class="tool-card" data-page="ear"><span class="ico">🎧</span><b>练耳与听记</b><span class="muted">单音、音程、和弦、节奏与旋律</span></button>
-<button class="tool-card" data-page="theoryAcademy"><span class="ico">♬</span><b>音乐理论学院</b><span class="muted">音符、谱号、时值与基础节拍</span></button>
-<button class="tool-card" data-page="guitar"><span class="ico">🎸</span><b>吉他调音器</b><span class="muted">六弦标准调音</span></button>
-<button class="tool-card" data-page="erhu"><span class="ico">🎻</span><b>二胡调音器</b><span class="muted">多调定弦</span></button>
-<button class="tool-card" data-page="metro"><span class="ico">⏱</span><b>节拍器</b><span class="muted">速度与拍号设置</span></button>
-<button class="tool-card" data-page="simPiano"><span class="ico">🎹</span><b>模拟钢琴</b><span class="muted">演奏、延音与片段录制</span></button>
-<button class="tool-card" data-page="chordFinder"><span class="ico">🎸</span><b>和弦查询器</b><span class="muted">钢琴组成音与吉他指板</span></button>
-</div></div></section>
+<section id="menu" class="page center hidden"><div class="panel"><div class="topbar"><button class="outline" type="button" data-education-home>← 返回</button><h2>音乐学习与工具</h2></div><p class="muted">先调音，再跟节拍练习；课后回看老师的任务。</p><div class="tool-grid"><button class="tool-card" data-page="guitar"><span class="ico">🎸</span><b>吉他调音器</b><span class="muted">六弦标准调音</span></button><button class="tool-card" data-page="metro"><span class="ico">⏱</span><b>节拍器</b><span class="muted">速度与拍号设置</span></button><button class="tool-card" data-page="ear"><span class="ico">🎧</span><b>练耳与听记</b><span class="muted">单音、音程、和弦、节奏与旋律</span></button><button class="tool-card" id="menuHomeworkEntry" type="button"><span class="ico">📝</span><b>老师作业</b><span class="muted">查看本周任务与错题</span></button></div><details class="secondary-tools" style="margin-top:20px"><summary style="cursor:pointer;padding:12px;font-weight:700">更多工具与乐理</summary><div class="tool-grid"><button class="tool-card" data-page="theoryAcademy"><span class="ico">♬</span><b>音乐理论学院</b><span class="muted">音符、谱号、时值与基础节拍</span></button><button class="tool-card" data-page="erhu"><span class="ico">🎻</span><b>二胡调音器</b><span class="muted">多调定弦</span></button><button class="tool-card" data-page="simPiano"><span class="ico">🎹</span><b>模拟钢琴</b><span class="muted">演奏、延音与片段录制</span></button><button class="tool-card" data-page="chordFinder"><span class="ico">🎸</span><b>和弦查询器</b><span class="muted">钢琴组成音与吉他指板</span></button></div></details></div></section>
 <!-- ===== [新增模块：大学音乐生和弦查询器] ===== -->
 <section id="chordFinder" class="page chord-page hidden"><div class="chord-shell"><header class="chord-head"><button class="outline" data-page="menu">← 返回</button><h2>和弦查询器</h2><button id="chordFavorite" class="outline">☆ 收藏</button></header><div class="chord-search"><input id="chordInput" value="Cmaj7" autocomplete="off" autocapitalize="off" placeholder="输入 C、Cm7、C#m7(b5)、Bbmaj7…"><button id="chordSearchBtn" class="primary">查询</button></div><div class="chord-layout"><div><section class="chord-card"><div id="chordName" class="chord-name">Cmaj7</div><div id="chordTones" class="chord-tones"></div><div class="chord-info-grid"><div><small>根音</small><b id="chordRoot">C</b></div><div><small>类型</small><b id="chordType">大七和弦</b></div><div><small>音程结构</small><b id="chordFormula">1 3 5 7</b></div></div><div id="chordMessage" class="muted"></div></section><section class="chord-card" style="margin-top:14px"><h3>钢琴组成音</h3><div class="mini-piano-wrap"><div id="chordPiano" class="chord-piano"><div id="chordWhiteRow" class="chord-white-row"></div></div></div><p class="muted">高亮键为和弦组成音；所有琴键均可触摸发声。</p></section></div><div><section class="chord-card"><h3>常用和弦库</h3><div id="quickChords" class="quick-chords"></div><h3 style="margin-top:15px">最近查询</h3><div id="chordRecent" class="recent-list"></div><h3 style="margin-top:15px">收藏和弦</h3><div id="chordFavorites" class="recent-list"></div></section></div></div><section class="chord-card" style="margin-top:14px"><h3>横向吉他指板 · 0–12 品</h3><p class="muted">每根弦选择一个品位；再次点击取消。点击“×”可设为不弹。</p><div class="fret-scroll"><div id="fretboard" class="fretboard"></div></div><div id="fretResult" class="fret-result">按法：—<br>当前组成音：—<br>可能和弦：—</div><div class="chord-actions"><button id="clearFretboard" class="outline">清空指板</button><button id="playFretboard" class="primary">▶ 播放按法</button></div></section></div></section>
-<section id="guitar" class="page center instrument-page hidden"><div class="panel"><div class="topbar"><button class="outline" data-page="menu">← 返回菜单</button><h2>吉他调音器</h2></div><div class="headstock-container"><div class="headstock"><div class="headstock-inlay"><div class="brand">海棠</div><div class="ornament">◆</div></div><div class="truss-cover" aria-hidden="true"></div><div class="tuner-meter-area headstock-meter"><div class="tuner-dial"><canvas id="meterCanvas" width="340" height="220"></canvas><div class="tuner-dial-readout"><div id="tunerNote" class="tuner-note-cn">E2</div><div id="tunerFreq" class="tuner-frequency">--.- Hz</div><div id="tunerDetected" class="tuner-detected">等待声音</div></div></div><div id="tunerString" class="tuner-note-sub">⑥弦 · 82.4 Hz</div><div id="tunerTarget" class="tuner-target-hint">目标 82.41 Hz</div><div id="tunerStatus" class="tuner-status" role="status">点击琴钮开始调音</div></div></div><div class="nut"></div><button class="peg peg-left peg-low-e" data-tune="E2,82.41,⑥弦 (低音)" data-string="E2" data-note="E" data-cn="mi" data-pitch="E2" data-freq="82.41" aria-label="选择六弦 E2"><span class="peg-label"><span class="note-name">E</span><br><span class="note-cn">mi</span></span></button><button class="peg peg-left peg-a" data-tune="A2,110,⑤弦" data-string="A2" data-note="A" data-cn="la" data-pitch="A2" data-freq="110" aria-label="选择五弦 A2"><span class="peg-label"><span class="note-name">A</span><br><span class="note-cn">la</span></span></button><button class="peg peg-left peg-d" data-tune="D3,146.83,④弦" data-string="D3" data-note="D" data-cn="re" data-pitch="D3" data-freq="146.83" aria-label="选择四弦 D3"><span class="peg-label"><span class="note-name">D</span><br><span class="note-cn">re</span></span></button><button class="peg peg-right peg-high-e" data-tune="E4,329.63,①弦 (高音)" data-string="E4" data-note="E" data-cn="mi" data-pitch="E4" data-freq="329.63" aria-label="选择一弦 E4"><span class="peg-label"><span class="note-name">E</span><br><span class="note-cn">mi</span></span></button><button class="peg peg-right peg-b" data-tune="B3,246.94,②弦" data-string="B3" data-note="B" data-cn="si" data-pitch="B3" data-freq="246.94" aria-label="选择二弦 B3"><span class="peg-label"><span class="note-name">B</span><br><span class="note-cn">si</span></span></button><button class="peg peg-right peg-g" data-tune="G3,196,③弦" data-string="G3" data-note="G" data-cn="so" data-pitch="G3" data-freq="196" aria-label="选择三弦 G3"><span class="peg-label"><span class="note-name">G</span><br><span class="note-cn">so</span></span></button></div><div class="guitar-tuner-actions"><button id="guitarAutoMode" class="outline" type="button">智能弦识别：OFF</button><button id="guitarFreeMode" class="outline" type="button">自由调音：OFF</button></div><p class="muted guitar-tuner-help">选择琴弦进行标准调音，或使用自由调音识别十二平均律中最接近的音</p></div></section>
-<section id="erhu" class="page center instrument-page hidden"><div class="panel"><div class="topbar"><button class="outline" data-page="menu">← 返回菜单</button><h2>二胡调音器</h2></div><div class="erhu-neck-area"><div class="erhu-neck"></div><div class="erhu-resonator"></div><div class="erhu-skin"></div><div class="erhu-bridge"></div><div class="erhu-string-line left"></div><div class="erhu-string-line right"></div><button id="erhuInner" class="erhu-peg inner">D4<br>内弦</button><button id="erhuOuter" class="erhu-peg outer">A4<br>外弦</button><div id="erhuKeybar" class="erhu-keybar"><button class="on" data-erhu="D4,A4">D调</button><button data-erhu="G3,D4">G调</button><button data-erhu="F3,C4">F调</button><button data-erhu="C4,G4">C调</button><button data-erhu="Bb3,F4">降B调</button><button data-erhu="A3,E4">A调</button></div></div><div class="tuner-meter-area"><div id="erhuTunerNote" class="tuner-note-cn">—</div><div id="erhuTunerString" class="tuner-note-sub">等待选择琴弦</div><canvas id="erhuMeterCanvas" width="340" height="220"></canvas><div id="erhuTunerTarget" class="tuner-target-hint">目标 — Hz</div><div id="erhuTunerFreq" class="tuner-frequency">--.- Hz</div><div id="erhuTunerStatus" class="tuner-status">点击琴钮开始调音</div><div id="erhuTunerDetected" class="tuner-detected">--</div></div></div></section>
+<section id="guitar" class="page center precision-tuner hidden"><div class="panel"><div class="topbar"><button class="outline" data-page="menu">← 返回菜单</button><h2>吉他调音器</h2></div>
+<p class="precision-kicker">海棠 · 听清每一次变化</p>
+<div class="precision-modes" role="group" aria-label="调音模式"><button id="guitarManualMode" type="button" aria-pressed="true">选弦调音</button><button id="guitarAutoMode" type="button" aria-pressed="false">自动识弦</button><button id="guitarFreeMode" type="button" aria-pressed="false">自定目标</button></div>
+<div class="precision-strings" role="group" aria-label="选择目标琴弦"><button data-tune="E2" data-note="E2" type="button" aria-label="选择6弦 E2" aria-pressed="false"><small>6弦</small><b>E2</b></button><button data-tune="A2" data-note="A2" type="button" aria-label="选择5弦 A2" aria-pressed="false"><small>5弦</small><b>A2</b></button><button data-tune="D3" data-note="D3" type="button" aria-label="选择4弦 D3" aria-pressed="false"><small>4弦</small><b>D3</b></button><button data-tune="G3" data-note="G3" type="button" aria-label="选择3弦 G3" aria-pressed="false"><small>3弦</small><b>G3</b></button><button data-tune="B3" data-note="B3" type="button" aria-label="选择2弦 B3" aria-pressed="false"><small>2弦</small><b>B3</b></button><button data-tune="E4" data-note="E4" type="button" aria-label="选择1弦 E4" aria-pressed="false"><small>1弦</small><b>E4</b></button></div><div id="tunerFreeTargetWrap" class="precision-free" hidden><label for="tunerFreeTarget">固定目标音</label><input id="tunerFreeTarget" value="E2" maxlength="4" autocomplete="off" spellcheck="false" aria-describedby="tunerFreeError"><span>例如 D2、F#3、Bb2</span><p id="tunerFreeError" role="alert"></p></div><div class="precision-readout">
+      <div class="precision-target"><span id="tunerString">⑥弦</span><strong id="tunerNote">E2</strong><span id="tunerTarget">目标 82.41 Hz</span></div>
+      <div class="precision-offset"><strong id="tunerCents">—</strong><span>音分</span></div>
+      <div class="precision-scale" id="tunerMeter" data-state="idle" aria-label="音分偏差，左侧偏低，右侧偏高"><span class="precision-zone"></span><i id="tunerNeedle" hidden></i><div class="precision-ticks"><span>−50</span><span>−25</span><span>0</span><span>+25</span><span>+50</span></div></div>
+      <div class="precision-directions"><span>← 偏低</span><span>偏高 →</span></div>
+      <div class="precision-frequency"><span id="tunerDetected">等待单音</span><strong id="tunerFreq">— Hz</strong></div>
+      <p id="tunerStatus" class="tuner-status" role="status" aria-live="polite">先选目标音，再点“开始调音”</p>
+      <label class="precision-level">输入音量 <meter id="tunerLevel" min="0" max="100" value="0">0</meter></label>
+    </div>
+    <div class="precision-actions"><button id="tunerMic" class="primary" type="button" aria-pressed="false">开始调音</button><button id="tunerTone" class="outline" type="button">播放参考音</button></div>
+    <div class="precision-calibration"><label for="tunerReference">标准音 A4</label><input id="tunerReference" type="number" min="430" max="450" step="1" value="440"><span>Hz</span><span>十二平均律 · C2–C6</span></div>
+    <p class="precision-help">一次只弹一根弦，止住其他弦；让乐器靠近麦克风。参考音播放时会暂停收音。</p>
+    <p class="precision-privacy">音频仅在本机分析，不上传、不保存。</p></div></section>
+<section id="erhu" class="page center precision-tuner hidden"><div class="panel"><div class="topbar"><button class="outline" data-page="menu">← 返回菜单</button><h2>二胡调音器</h2></div><p class="precision-kicker">海棠 · 长音稳定后再读数</p><div class="precision-modes" role="group" aria-label="二胡定弦"><button type="button" data-erhu="D4,A4" aria-pressed="true">标准 D4 / A4</button><button type="button" data-erhu="C4,G4" aria-pressed="false">C4 / G4</button><button type="button" data-erhu="G3,D4" aria-pressed="false">G3 / D4</button></div><div class="precision-strings erhu-strings"><button id="erhuInner" type="button" data-erhu-string="inner" aria-pressed="true">内弦 D4</button><button id="erhuOuter" type="button" data-erhu-string="outer" aria-pressed="false">外弦 A4</button></div><div class="precision-readout">
+      <div class="precision-target"><span id="erhuTunerString">⑥弦</span><strong id="erhuTunerNote">E2</strong><span id="erhuTunerTarget">目标 82.41 Hz</span></div>
+      <div class="precision-offset"><strong id="erhuTunerCents">—</strong><span>音分</span></div>
+      <div class="precision-scale" id="erhuTunerMeter" data-state="idle" aria-label="音分偏差，左侧偏低，右侧偏高"><span class="precision-zone"></span><i id="erhuTunerNeedle" hidden></i><div class="precision-ticks"><span>−50</span><span>−25</span><span>0</span><span>+25</span><span>+50</span></div></div>
+      <div class="precision-directions"><span>← 偏低</span><span>偏高 →</span></div>
+      <div class="precision-frequency"><span id="erhuTunerDetected">等待单音</span><strong id="erhuTunerFreq">— Hz</strong></div>
+      <p id="erhuTunerStatus" class="tuner-status" role="status" aria-live="polite">先选目标音，再点“开始调音”</p>
+      <label class="precision-level">输入音量 <meter id="erhuTunerLevel" min="0" max="100" value="0">0</meter></label>
+    </div>
+    <div class="precision-actions"><button id="erhuTunerMic" class="primary" type="button" aria-pressed="false">开始调音</button><button id="erhuTunerTone" class="outline" type="button">播放参考音</button></div>
+    <div class="precision-calibration"><label for="erhuTunerReference">标准音 A4</label><input id="erhuTunerReference" type="number" min="430" max="450" step="1" value="440"><span>Hz</span><span>十二平均律 · C2–C6</span></div>
+    <p class="precision-help">一次只弹一根弦，止住其他弦；让乐器靠近麦克风。参考音播放时会暂停收音。</p>
+    <p class="precision-privacy">音频仅在本机分析，不上传、不保存。</p></div></section>
 <section id="metro" class="page center metro-page hidden"><div class="panel"><div class="topbar"><button class="outline" data-page="menu">← 返回</button><h2>节拍器</h2></div><div class="metro-box"><div id="beatDots" class="beat-dots"></div><div id="bpmText" class="metro-display">120</div><div class="metro-label">BPM</div><div style="margin:15px 0"><input id="bpm" class="range" type="range" min="20" max="400" value="120"></div><input id="bpmInput" class="metro-input" type="number" min="20" max="400" value="120"><div class="metro-section"><label>拍号</label><div id="meterOptions" class="metro-options"><button class="metro-opt" data-meter="2">2/4</button><button class="metro-opt on" data-meter="4">4/4</button><button class="metro-opt" data-meter="3">3/4</button><button class="metro-opt" data-meter="6">6/8</button></div></div><div class="metro-section"><label>音色</label><div id="metroTones" class="metro-options"><button class="metro-opt on" data-mtone="wood">木鱼</button><button class="metro-opt" data-mtone="electronic">电子音</button><button class="metro-opt" data-mtone="cowbell">牛铃</button><button class="metro-opt" data-mtone="gunshot">强拍噪声</button><button class="metro-opt" data-mtone="voice">真人 1·2·3·4</button></div></div><div class="metro-section"><label>重拍</label><button id="accentToggle" class="metro-opt on">重拍强化：开</button></div><button id="metroToggle" class="primary metro-start">▶ 开始</button></div></div></section>
 <!-- ===== [新增模拟钢琴：c0-c3 演奏、录制与题库导入] ===== -->
 <section id="simPiano" class="page piano-page hidden"><div class="grand-shell"><header class="grand-head"><button class="outline" data-page="menu">← 返回</button><h2>模拟三角钢琴</h2><div class="piano-switch"><button id="pianoTonePiano" class="on">三角钢琴</button><button id="pianoToneGuitar">原声吉他</button></div><button id="pianoSustain" class="sustain-btn">延音踏板：关</button></header><p class="piano-caption">c0–c3 完整音域 · 支持鼠标、触屏多指与电脑键盘和弦 · 手机可横向滑动琴键区域</p><div class="performance-piano-scroll" id="performancePianoScroll"><div id="performancePiano" class="performance-piano" aria-label="c0到c3模拟钢琴键盘"><div id="performanceWhiteKeys" class="perf-white-row"></div></div></div><div class="piano-console"><section class="console-card"><h3>演奏控制</h3><div class="row"><div class="octave-switch"><button id="pianoOctDown">−</button><button id="pianoOctaveLabel" class="on">电脑键盘：c1</button><button id="pianoOctUp">＋</button></div><span class="muted" style="color:#c8b48a">A W S E D F T G Y H U J K</span></div><div class="field" style="margin-top:14px"><label>速度 <b id="pianoBpmText">100</b> BPM</label><input id="pianoBpm" class="range" type="range" min="60" max="140" value="100"></div><div class="field"><label>节拍</label><select id="pianoMeter"><option>2/4</option><option selected>4/4</option><option>3/8</option><option>6/8</option></select></div></section><section class="console-card"><h3><span id="recordLight" class="record-light"></span>片段录制</h3><div class="row"><button id="pianoRecordBtn" class="danger">● 开始录制</button><button id="pianoPlaybackBtn" class="outline">▶ 播放</button><button id="pianoClearBtn" class="outline">清空</button></div><div id="pianoRecordTrack" class="record-track"></div><div id="pianoRecordStatus" class="muted" style="color:#c8b48a">尚未录制</div></section><section class="console-card" style="grid-column:1/-1"><h3>导入听音练习</h3><div class="row"><label>分类 <select id="pianoImportCategory"><option value="single">单音</option><option value="interval">音程</option><option value="chord">和弦</option><option value="melody" selected>旋律</option><option value="rhythm">节奏</option></select></label><input id="pianoImportTitle" maxlength="40" placeholder="自定义题目名称" style="min-width:220px;padding:9px 11px;border-radius:9px;border:1px solid #8e6d36;background:#fffdf7"><button id="pianoImportBtn" class="primary">导入自制题库</button></div><div id="pianoImportMsg" class="piano-msg"></div></section></div></div></section>
@@ -1500,7 +1524,7 @@ window.HetianSettings=HetianSettings;
 const NOTE_NAMES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const CATEGORY_LABEL={single:'单音',interval:'音程',chord:'和弦',melody:'旋律',rhythm:'节奏'};
 const DURATION_LABEL={4:'全音符',2:'二分音符',1:'四分音符',0.5:'八分音符',0.25:'十六分音符',0.3333333333333333:'三连音八分',0.125:'三十二分音符',3:'附点二分音符',1.5:'附点四分音符',0.75:'附点八分音符',0.375:'附点十六分音符',0.1875:'附点三十二分音符'};
-let audioCtx=null,micStream=null,micRAF=0,metroTimer=0,metroBeat=0,globalTone='piano',earVolumeLevel=1.5;
+let audioCtx=null,metroTimer=0,metroBeat=0,globalTone='piano',earVolumeLevel=1.5;
 const audioScopes=new Map();let earPlaybackTimer=0;
 function trackAudio(scope,node,gain){if(!node)return node;const key=scope||'general',entry={node,gain};if(!audioScopes.has(key))audioScopes.set(key,new Set());audioScopes.get(key).add(entry);node.addEventListener?.('ended',()=>audioScopes.get(key)?.delete(entry),{once:true});return node}
 function stopAudioScope(scope){const entries=audioScopes.get(scope);if(!entries)return;const now=audioCtx?.currentTime||0;entries.forEach(({node,gain})=>{try{gain?.gain?.cancelScheduledValues(now);gain?.gain?.setValueAtTime(.0001,now)}catch(_){}try{node.stop(now+.005)}catch(_){}});entries.clear()}
@@ -1596,45 +1620,8 @@ async function playGuitarFingering(notes,duration=1.8){const token=++chordSample
 function playFretSelection(){const notes=[];fretSelections.slice().reverse().forEach((fr,i)=>{if(fr===null||fr<0)return;const source=FRET_STRINGS[5-i];notes.push({midi:source.midi+fr,stringMidi:source.midi})});return playGuitarFingering(notes)}
 function safeStorage(){try{localStorage.setItem('__audio_test','1');localStorage.removeItem('__audio_test');return localStorage}catch{return null}}const storage=safeStorage();
 function loadCustom(){try{return JSON.parse(storage?.getItem('musicToolboxCustomV1')||'[]')}catch{return[]}}function saveCustom(v){if(!storage)throw Error('当前浏览器禁止本地存储');storage.setItem('musicToolboxCustomV1',JSON.stringify(v))}
-/* [原有界面恢复] 琴钮调音器 · YIN 精准检测 + 内嵌表盘 */
-const PITCH={A3:220,Bb3:233.08,C3:130.81,D3:146.83,F3:174.61,G3:196,C4:261.63,D4:293.66,E4:329.63,F4:349.23,G4:392,A4:440};
-const GUITAR_TUNING=[{note:'E2',freq:82.41,label:'⑥弦'},{note:'A2',freq:110,label:'⑤弦'},{note:'D3',freq:146.83,label:'④弦'},{note:'G3',freq:196,label:'③弦'},{note:'B3',freq:246.94,label:'②弦'},{note:'E4',freq:329.63,label:'①弦'}];
-let tunerTarget=82.41,tunerWasInTune=false,tunerNeedleAngle=0,tunerNeedleTarget=0;
-let tunerMode='manual';
-let tunerDetector=null,tunerAnalyser=null,tunerSampleRate=48000,tunerBuffer=null,tunerHistory=[],tunerLastAnalysis=0;
-let autoCandidate=null,autoCandidateFrames=0;
-let tunerPage='guitar';
-const TUNER_CAP={note:'Note',string:'String',target:'Target',freq:'Freq',status:'Status',detected:'Detected'};
-function tunerEl(key,val){const el=document.getElementById((tunerPage==='erhu'?'erhuTuner':'tuner')+TUNER_CAP[key]);if(el)el.textContent=val}
-function tunerStatusEl(text,cls){const el=document.getElementById(tunerPage==='erhu'?'erhuTunerStatus':'tunerStatus');if(el){el.textContent=text;el.className='tuner-status'+(cls?' '+cls:'')}}
-function playTunerSuccess(){stopAudioScope('tunerSuccess');const c=getAudio(),t=c.currentTime+.02;[[76,0],[81,.11],[88,.22]].forEach(([m,d],i)=>voice(m,t+d,.42,'piano',i===2?.22:.16,'tunerSuccess'))}
-function stopMic(){if(micRAF)cancelAnimationFrame(micRAF);micRAF=0;if(micStream)micStream.getTracks().forEach(t=>t.stop());micStream=null;tunerAnalyser=null}
-window.HetianCore?.audio?.registerStopper('tuner',stopMic);
-function getTunerDetector(sampleRate){if(!tunerDetector||tunerDetector.sampleRate!==sampleRate)tunerDetector=new window.MusicVocal.YinPitchDetector(sampleRate);return tunerDetector}
-function detectPitch(buffer,sampleRate){const r=getTunerDetector(sampleRate).detect(buffer);return r.frequency>0&&r.confidence>=.5?r.frequency:-1}
-function stablePitch(f){tunerHistory.push(f);if(tunerHistory.length>7)tunerHistory.shift();const sorted=[...tunerHistory].sort((a,b)=>a-b);const med=sorted[Math.floor(sorted.length/2)];if(tunerMode==='auto')autoSelectGuitarString(med);return med}
-function tunerItemButton(item){return document.querySelector(`[data-tune^="${item.note},"]`)}
-function updateTunerTarget(item,button=tunerItemButton(item)){tunerTarget=item.freq;tunerEl('note',item.note);tunerEl('string',item.label+' · '+item.freq.toFixed(1)+' Hz');tunerEl('target','目标 '+item.freq.toFixed(2)+' Hz');document.querySelectorAll('#guitar .peg').forEach(p=>p.classList.toggle('active',p===button));localStorage.setItem('jadeTunerLastTarget',item.note)}
-function autoSelectGuitarString(freq){let best=GUITAR_TUNING[0],distance=Infinity;GUITAR_TUNING.forEach(item=>{const d=Math.abs(1200*Math.log2(freq/item.freq));if(d<distance){distance=d;best=item}});if(distance<=150){if(autoCandidate===best.note)autoCandidateFrames++;else{autoCandidate=best.note;autoCandidateFrames=1}if(autoCandidateFrames>=6&&Math.abs(tunerTarget-best.freq)>.01)updateTunerTarget(best)}else{autoCandidate=null;autoCandidateFrames=0}}
-function displayPitchName(midi){return midiName(midi).replace('#','♯')}
-function parseTunerTarget(value){const match=String(value).trim().match(/^([A-Ga-g])([#b♯♭]?)([2-6])$/);if(!match)return null;const name=match[1].toUpperCase(),acc=match[2].replace('♯','#').replace('♭','b'),midi=(Number(match[3])+1)*12+({C:0,D:2,E:4,F:5,G:7,A:9,B:11}[name])+(acc==='#'?1:acc==='b'?-1:0);if(midi<36||midi>84)return null;return{midi,note:name+acc+match[3],freq:midiFreq(midi)}}
-function applyFreeTunerTarget(){const input=$('tunerFreeTarget'),target=parseTunerTarget(input.value);input.setCustomValidity(target?'':'请输入 C2–C6 范围内的音，例如 E2、D2、F#3、Bb2');input.setAttribute('aria-invalid',String(!target));if(!target){input.reportValidity();return false}input.value=target.note;tunerTarget=target.freq;tunerEl('note',target.note);tunerEl('string','自由调音 · 固定目标');tunerEl('target','目标 '+target.freq.toFixed(2)+' Hz');tunerHistory=[];tunerWasInTune=false;tunerNeedleAngle=tunerNeedleTarget=0;tunerEl('detected','偏低 ← 目标 → 偏高');localStorage.setItem('jadeTunerFreeTarget',target.note);return true}
-function renderTunerControls(){const input=$('tunerFreeTarget');if(input){input.hidden=tunerMode!=='free';$('tunerNote').hidden=tunerMode==='free'}[['guitarAutoMode','auto','智能弦识别'],['guitarFreeMode','free','自由调音']].forEach(([id,mode,label])=>{const button=$(id);if(!button)return;const on=tunerMode===mode;button.textContent=label+'：'+(on?'ON':'OFF');button.classList.toggle('primary',on);button.classList.toggle('outline',!on);button.setAttribute('aria-pressed',String(on))})}
-function setTunerMode(mode){tunerMode=['auto','free'].includes(mode)?mode:'manual';renderTunerControls()}
-function restoreManualGuitarTarget(){const item=GUITAR_TUNING.find(x=>x.note===(localStorage.getItem('jadeTunerLastTarget')||'E2'))||GUITAR_TUNING[0];selectTunerString(item.note,item.freq,item.label,tunerItemButton(item),false)}
-function startAutoTuner(){setTunerMode('auto');const item=GUITAR_TUNING.find(x=>x.note===(localStorage.getItem('jadeTunerLastTarget')||'E2'))||GUITAR_TUNING[0];selectTunerString(item.note,item.freq,'智能弦识别',tunerItemButton(item),false)}
-function startFreeTuner(){setTunerMode('free');tunerPage='guitar';autoCandidate=null;autoCandidateFrames=0;document.querySelectorAll('#guitar .peg').forEach(p=>p.classList.remove('active'));applyFreeTunerTarget();tunerEl('freq','--.- Hz');tunerStatusEl('点击中间目标音可修改；等待收音','');$('tunerFreeTarget').focus({preventScroll:true});$('tunerFreeTarget').select();if(!micStream)ensureMic().catch(e=>tunerStatusEl(e.message,'sharp'))}
-function drawTunerMeter(canvas,angle=0){if(!canvas)return;const x=canvas.getContext('2d'),W=canvas.width,H=canvas.height,cx=W/2,cy=H-14,r=165,center=Math.PI*1.5,start=Math.PI+Math.PI/6,end=2*Math.PI-Math.PI/6;x.clearRect(0,0,W,H);const arc=(a,b,color,w)=>{x.beginPath();x.arc(cx,cy,r-6,a,b);x.strokeStyle=color;x.lineWidth=w;x.stroke()};arc(start,center-Math.PI/6,'rgba(248,113,113,.28)',12);arc(center-Math.PI/6,center+Math.PI/6,'rgba(74,222,128,.35)',12);arc(center+Math.PI/6,end,'rgba(248,113,113,.28)',12);for(let cents=-50;cents<=50;cents+=10){const a=center+cents/50*Math.PI/3,ir=r-(cents%50===0?22:16);x.beginPath();x.moveTo(cx+ir*Math.cos(a),cy+ir*Math.sin(a));x.lineTo(cx+(r+2)*Math.cos(a),cy+(r+2)*Math.sin(a));x.strokeStyle=cents%50===0?'#888':'#3a3a40';x.lineWidth=cents%50===0?2:1;x.stroke()}x.font='10px system-ui';x.fillStyle='#666';x.textAlign='center';[-50,-25,0,25,50].forEach(v=>{const a=center+v/50*Math.PI/3;x.fillText(v,cx+(r-30)*Math.cos(a),cy+(r-30)*Math.sin(a))});const a=center+angle,nx=cx+(r-14)*Math.cos(a),ny=cy+(r-14)*Math.sin(a);x.beginPath();x.moveTo(cx,cy);x.lineTo(nx,ny);x.strokeStyle='#ff6b6b';x.lineWidth=2.2;x.stroke();x.beginPath();x.arc(cx,cy,6,0,Math.PI*2);x.fillStyle='#121a16';x.fill();x.fillStyle='#4ade80';x.font='bold 12px system-ui';x.fillText('准 IN TUNE',cx,20)}
-function animateTunerMeter(){tunerNeedleAngle+=(tunerNeedleTarget-tunerNeedleAngle)*.18;drawTunerMeter(document.getElementById('meterCanvas'),tunerNeedleAngle);drawTunerMeter(document.getElementById('erhuMeterCanvas'),tunerNeedleAngle);requestAnimationFrame(animateTunerMeter)}requestAnimationFrame(animateTunerMeter);
-function tunerMicLoop(now=performance.now()){if(!micStream)return;micRAF=requestAnimationFrame(tunerMicLoop);if(now-tunerLastAnalysis<45)return;tunerLastAnalysis=now;tunerAnalyser.getFloatTimeDomainData(tunerBuffer);const raw=detectPitch(tunerBuffer,tunerSampleRate);if(raw>0){const f=stablePitch(raw),cents=1200*Math.log2(f/tunerTarget),abs=Math.abs(cents),midi=Math.round(69+12*Math.log2(f/440));tunerNeedleTarget=Math.max(-1,Math.min(1,cents/50))*Math.PI/3;tunerEl('freq',f.toFixed(1)+' Hz');tunerEl('detected','检测音高：'+midiName(midi).toLowerCase()+' · '+(cents>=0?'+':'')+cents.toFixed(0)+' 音分');tunerStatusEl(abs<3?'✓ 音准正确':cents<0?'偏低 '+abs.toFixed(0)+' 音分':'偏高 '+abs.toFixed(0)+' 音分',abs<3?'intune':cents<0?'flat':'sharp');if(abs<3&&!tunerWasInTune){tunerWasInTune=true;playTunerSuccess()}else if(abs>5)tunerWasInTune=false}}
-async function ensureMic(){if(micStream&&tunerAnalyser)return true;const c=getAudio();if(!navigator.mediaDevices?.getUserMedia)throw Error('请允许浏览器访问麦克风');micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});tunerSampleRate=c.sampleRate;tunerAnalyser=c.createAnalyser();tunerAnalyser.fftSize=4096;tunerAnalyser.smoothingTimeConstant=0;const src=c.createMediaStreamSource(micStream),hp=c.createBiquadFilter(),lp=c.createBiquadFilter();hp.type='highpass';hp.frequency.value=60;lp.type='lowpass';lp.frequency.value=1200;src.connect(hp);hp.connect(lp);lp.connect(tunerAnalyser);tunerBuffer=new Float32Array(tunerAnalyser.fftSize);tunerLastAnalysis=0;micRAF=requestAnimationFrame(tunerMicLoop);return true}
-function selectTunerString(note,freq,label,button,playSample=true){tunerPage=button&&button.closest&&button.closest('#erhu')?'erhu':'guitar';tunerWasInTune=false;tunerHistory=[];autoCandidate=null;autoCandidateFrames=0;document.querySelectorAll('.peg,.erhu-peg').forEach(p=>p.classList.remove('active'));if(button)button.classList.add('active');tunerTarget=+freq;tunerEl('note',note);tunerEl('string',label+' · '+(+freq).toFixed(1)+' Hz');tunerEl('target','目标 '+(+freq).toFixed(2)+' Hz');tunerEl('freq','--.- Hz');tunerEl('detected','--');tunerStatusEl('等待收音…','');tunerNeedleAngle=tunerNeedleTarget=0;localStorage.setItem('jadeTunerLastTarget',note);if(playSample){if(window.HetianGuitar?.NOTES?.includes(note))window.HetianGuitar.play(note);else{const midi=Math.round(69+12*Math.log2(freq/440));voice(midi,getAudio().currentTime+.02,1.2,'guitar',.4)}}if(!micStream)ensureMic().catch(e=>tunerStatusEl(e.message,'sharp'))}
-document.querySelectorAll('[data-tune]').forEach(b=>b.onclick=()=>{setTunerMode('manual');selectTunerString(...b.dataset.tune.split(','),b)});
-function setErhu(a,b){document.querySelectorAll('[data-erhu]').forEach(x=>x.classList.toggle('on',x.dataset.erhu===a+','+b));$('erhuInner').textContent=a+' 内弦';$('erhuOuter').textContent=b+' 外弦';$('erhuInner').onclick=()=>{setTunerMode('manual');selectTunerString(a,PITCH[a],'内弦',$('erhuInner'))};$('erhuOuter').onclick=()=>{setTunerMode('manual');selectTunerString(b,PITCH[b],'外弦',$('erhuOuter'))}}document.querySelectorAll('[data-erhu]').forEach(b=>b.onclick=()=>setErhu(...b.dataset.erhu.split(',')));setErhu('D4','A4');
-document.addEventListener('click',e=>{const manual=e.target.closest?.('[data-tune]'),erhu=e.target.closest?.('[data-erhu],#erhuInner,#erhuOuter');if(manual||erhu)setTunerMode('manual')},true);
-$('guitarAutoMode').onclick=()=>{if(tunerMode==='auto'){setTunerMode('manual');restoreManualGuitarTarget()}else startAutoTuner()};
-const freeTargetInput=document.createElement('input');freeTargetInput.id='tunerFreeTarget';freeTargetInput.className='tuner-target-input';freeTargetInput.type='text';freeTargetInput.maxLength=4;freeTargetInput.autocomplete='off';freeTargetInput.spellcheck=false;freeTargetInput.setAttribute('aria-label','自由调音目标音，含八度，例如 E2 或 D2');freeTargetInput.value=parseTunerTarget(localStorage.getItem('jadeTunerFreeTarget'))?.note||'E2';freeTargetInput.hidden=true;$('tunerNote').before(freeTargetInput);freeTargetInput.onchange=applyFreeTunerTarget;freeTargetInput.oninput=()=>{freeTargetInput.setCustomValidity('');freeTargetInput.removeAttribute('aria-invalid')};freeTargetInput.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();if(applyFreeTunerTarget())freeTargetInput.blur()}};document.querySelector('.guitar-tuner-help').textContent='自由调音：在表盘中央输入目标音（如 E2、D2），偏低在左，偏高在右；目标不会随声音改变。';
-$('guitarFreeMode').onclick=()=>{if(tunerMode==='free'){setTunerMode('manual');restoreManualGuitarTarget()}else startFreeTuner()};renderTunerControls();
+// Tuner input is owned by the shared web/native controller.
+function stopMic(){window.MusicVocal?.tuner?.stop();}
 
 /* [原有界面恢复] 完整节拍器与真人报数 */
 let metroMeter=4,metroTone='wood',metroAccent=true;function paintDots(){const b=$('beatDots');if(b.children.length!==metroMeter){b.innerHTML='';for(let i=0;i<metroMeter;i++){const d=document.createElement('i');d.className='beat-dot';b.appendChild(d)}}[...b.children].forEach((d,i)=>d.classList.toggle('on',!!metroTimer&&i===metroBeat))}
@@ -2031,9 +2018,6 @@ document.addEventListener('keydown',event=>{if($('midiStudio').classList.contain
 document.addEventListener('keyup',event=>{if(event.code==='Space'&&!$('midiStudio').classList.contains('hidden')){dawSetSustain(false);return}const key=String(event.key||'').toLowerCase();if(dawKeyboardDown.has(key)){dawKeyboardDown.delete(key);dawNoteOff('daw-kbd-'+key)}});
   /* Studio One / mobile permission reliability layer */
   let sharedMidiAccessPromise=null,studioAudioUrl='',studioAudioSource=null,studioAudioGain=null,studioAudioAnalyser=null,studioAudioMeterRaf=0,studioAudioCutAt=-1,studioSynthLinked=false;
-  function tunerPermissionText(error){const name=error?.name||'';if(!window.isSecureContext)return'麦克风需要 HTTPS：请从 GitHub Pages 打开网页，或使用新版 Windows 软件。';if(name==='NotAllowedError'||name==='SecurityError')return'麦克风权限未开启。请在 iPhone「设置 > Safari > 麦克风」或浏览器地址栏中允许访问后，再点“启用麦克风”。';if(name==='NotFoundError')return'没有找到可用麦克风。请检查手机/声卡是否已连接。';return'麦克风无法启动：'+(error?.message||'请检查系统权限');}
-  const stopMicWithTunerStatus=stopMic;
-  stopMic=function(){stopMicWithTunerStatus();};
   function sharedMidiDispatch(event){if(!$('midiStudio').classList.contains('hidden'))handleMidiMessage(event);if(!$('soundLab').classList.contains('hidden'))handleSynthMidiMessage(event)}
   function attachSharedMidiInput(id){if(!midiAccess)return;const inputs=[...midiAccess.inputs.values()].filter(input=>input.state!=='disconnected');const wanted=inputs.find(input=>input.id===id)||inputs.find(input=>input.id===midiInput?.id)||inputs[0]||null;inputs.forEach(input=>{if(input.onmidimessage===sharedMidiDispatch)input.onmidimessage=null});midiInput=wanted;synthMidiInput=wanted;synthMidiAccess=midiAccess;if(wanted){wanted.onmidimessage=sharedMidiDispatch;if($('midiInputSelect'))$('midiInputSelect').value=wanted.id;$('midiStatusBadge').classList.add('on');$('midiStatusBadge').textContent='MIDI ONLINE';$('synthMidiStatus').classList.add('on');$('synthMidiStatus').textContent='MIDI READY';$('synthMidiBtn').textContent='MIDI 已连接';dawSetMessage('已共享连接：'+((wanted.manufacturer||'')+' '+(wanted.name||'MIDI 设备')).trim(),true)}else{dawSetMessage('MIDI 已授权，但尚未检测到设备。',false);$('synthMidiStatus').classList.remove('on');$('synthMidiStatus').textContent='NO MIDI INPUT'}w25UpdateDeviceState()}
   async function ensureSharedMidi(){if(midiAccess)return midiAccess;if(sharedMidiAccessPromise)return sharedMidiAccessPromise;if(typeof navigator.requestMIDIAccess!=='function')throw Error('当前环境不支持 Web MIDI；请使用 Windows 版 Chrome、Edge 或本软件。');if(!window.isSecureContext)throw Error('当前页面不是安全环境，请不要直接用 file:// 打开网页。');sharedMidiAccessPromise=navigator.requestMIDIAccess({sysex:false}).then(access=>{midiAccess=access;synthMidiAccess=access;access.onstatechange=()=>{refreshMidiDevices();attachSharedMidiInput(midiInput?.id)};refreshMidiDevices();attachSharedMidiInput(midiInput?.id);return access}).finally(()=>{sharedMidiAccessPromise=null});return sharedMidiAccessPromise}
@@ -2055,18 +2039,18 @@ document.addEventListener('keyup',event=>{if(event.code==='Space'&&!$('midiStudi
   function ensureStudioAudioGraph(){const player=$('studioAudioPlayer');if(studioAudioSource)return;const c=getAudio();studioAudioSource=c.createMediaElementSource(player);studioAudioGain=c.createGain();studioAudioAnalyser=c.createAnalyser();studioAudioAnalyser.fftSize=512;studioAudioSource.connect(studioAudioGain);studioAudioGain.connect(studioAudioAnalyser);studioAudioAnalyser.connect(c.destination);studioAudioGain.gain.value=+$('studioAudioMaster').value/100}
   function loadStudioAudio(file){if(!file||!/^audio\//.test(file.type)){ $('studioAudioState').textContent='请选择音频文件';return }const player=$('studioAudioPlayer');if(studioAudioUrl)URL.revokeObjectURL(studioAudioUrl);studioAudioUrl=URL.createObjectURL(file);player.src=studioAudioUrl;player.load();$('studioAudioName').textContent=file.name;$('studioAudioLed').classList.add('loaded');$('studioAudioState').textContent='LOADED · '+Math.round(file.size/1024)+' KB';studioAudioCutAt=-1;player.onended=()=>{$('studioAudioPlayBtn').textContent='▶ 播放';studioAudioStopMeter()};player.ontimeupdate=()=>{if(studioAudioCutAt>=0&&player.currentTime>=studioAudioCutAt){player.pause();$('studioAudioState').textContent='CUT MARK · '+studioAudioCutAt.toFixed(2)+'s'}}}
   $('studioAudioImportBtn').onclick=()=>$('studioAudioFile').click();$('studioAudioFile').onchange=event=>loadStudioAudio(event.target.files?.[0]);$('studioAudioPlayBtn').onclick=async()=>{const player=$('studioAudioPlayer');if(!player.src){$('studioAudioState').textContent='请先导入音频';return}try{ensureStudioAudioGraph();await getAudio().resume();if(player.paused){await player.play();$('studioAudioPlayBtn').textContent='Ⅱ 暂停';studioAudioMeter()}else{player.pause();$('studioAudioPlayBtn').textContent='▶ 播放'}}catch(error){$('studioAudioState').textContent='无法播放：'+error.message}};$('studioAudioMuteBtn').onclick=()=>{const player=$('studioAudioPlayer');player.muted=!player.muted;$('studioAudioMuteBtn').classList.toggle('on',player.muted);$('studioAudioMuteBtn').textContent=player.muted?'M 已静音':'M 静音'};$('studioAudioCutBtn').onclick=()=>{const player=$('studioAudioPlayer');if(!player.src){$('studioAudioState').textContent='请先导入音频';return}studioAudioCutAt=Math.max(.01,player.currentTime);$('studioAudioState').textContent='已在 '+studioAudioCutAt.toFixed(2)+' 秒创建非破坏性切点'};$('studioAudioMaster').oninput=event=>{if(studioAudioGain)studioAudioGain.gain.setTargetAtTime(+event.target.value/100,getAudio().currentTime,.01)};
-  window.addEventListener('unhandledrejection',event=>{if(event.reason?.name==='NotAllowedError'&&(!$('guitar').classList.contains('hidden')||!$('erhu').classList.contains('hidden')))tunerStatusEl(tunerPermissionText(event.reason),'sharp')});
   initChordFinder();window.addEventListener('error',e=>{const b=$('runtimeError');b.style.display='block';b.textContent='页面运行错误：'+e.message});window.addEventListener('unhandledrejection',e=>{const b=$('runtimeError');b.style.display='block';b.textContent='功能启动失败：'+(e.reason?.message||e.reason)});
 })();
 </script>
 <script src="vocal-pitch/constants.js"></script>
 <script src="vocal-pitch/note-converter.js"></script>
-<script src="vocal-pitch/pitch-detector.js"></script>
+<script src="vocal-pitch/pitch-detector.js?v=20261007-4"></script>
 <script src="vocal-pitch/note-stability-tracker.js"></script>
-<script src="vocal-pitch/audio-input-manager.js"></script>
-<script src="vocal-pitch/native-tuner.js"></script>
+<script src="vocal-pitch/audio-input-manager.js?v=20261007-9"></script>
+<script src="vocal-pitch/tuner-engine.js?v=20261007-9"></script>
+<script src="vocal-pitch/tuner.js?v=20261007-9"></script><script src="vocal-pitch/tuner-experience.js?v=1"></script>
 <script src="vocal-pitch/staff-renderer.js"></script>
-<script src="vocal-pitch/vocal-pitch-page.js"></script>
+<script src="vocal-pitch/vocal-pitch-page.js?v=20261007-9"></script>
 <script src="score/score-model.js"></script>
 <script src="score/score-storage.js"></script>
 <script src="score/score-renderers.js"></script>
@@ -2075,19 +2059,19 @@ document.addEventListener('keyup',event=>{if(event.code==='Space'&&!$('midiStudi
 <script src="studio-one/studio-project.js"></script>
 <script src="studio-one/midi-file.js"></script>
 <script src="studio-one/studio-one-page.js"></script>
-<script src="education/education-state.js"></script>
-<script src="education/license-manager.js"></script>
+<script src="education/education-state.js?v=20261007-4"></script>
+<script src="education/license-manager.js?v=20261007-4"></script>
 <script src="education/education-learning.js"></script>
-<script src="education/education-ui.js"></script>
+<script src="education/education-ui.js?v=20261007-5"></script>
 <script src="education/question-bank.js"></script>
 <script src="education/theory.js"></script>
 <script src="sight-singing/sight-singing-state.js"></script>
-<script src="sight-singing/omr-provider.js"></script>
+<script src="sight-singing/omr-provider.js?v=20261007-4"></script>
 <script src="sight-singing/feature-access.js"></script>
 <script src="sight-singing/piano-sampler.js"></script>
 <script src="guitar-sampler.js"></script>
 <script src="sight-singing/score-layout.js"></script>
-<script src="sight-singing/sight-singing-page.js"></script>
+<script src="sight-singing/sight-singing-page.js?v=20261007-4"></script>
 <script src="gaokao_system/database/theory-bank.js"></script>
 <script src="gaokao_system/database/guangdong-bank.js"></script>
 <script src="gaokao_system/database/extra-theory-bank.js"></script>
@@ -2095,7 +2079,7 @@ document.addEventListener('keyup',event=>{if(event.code==='Space'&&!$('midiStudi
 <script src="quality/question-quality.js"></script>
 <script src="gaokao_system/exam-blueprints.js"></script>
 <script src="gaokao_system/gaokao-state.js"></script>
-<script src="gaokao_system/gaokao-app.js"></script>
+<script src="gaokao_system/gaokao-app.js?v=20261007-4"></script>
 <script src="gaokao_system/gaokao-dictation.js"></script>
 <script src="music_theory_database/guitar/guitar-bank.js"></script>
 <script src="education/guitar-theory.js"></script>
@@ -2161,8 +2145,9 @@ document.addEventListener('keyup',event=>{if(event.code==='Space'&&!$('midiStudi
 })();
 </script>
 <script src="product-context.js" defer></script>
-<script src="auth.js" defer></script>
-<script src="offline-first.js" defer></script>
+<script src="auth.js?v=20261007-14" defer></script>
+<script src="offline-first.js?v=20261007-4" defer></script>
 <script src="product-entry.js" defer></script>
+<script>document.getElementById('menuHomeworkEntry').addEventListener('click',()=>{if(window.HAITANG_OFFLINE){window.HetianEducationUI?.showToast?.('老师作业需要连接账号服务，请联网后登录。',true);return;}if(!window.HetianAuth?.getUser?.()){window.HetianAuth?.openLogin?.();return;}window.MusicHomework?.openAssignments?.(window.HaitangProduct?.product==='exam'?'gaokao':'hobby');});</script>
 </body>
 </html>

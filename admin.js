@@ -20,6 +20,6 @@
   $('banRows').onclick = async (event) => { const id = event.target.dataset.unban; if (!id) return; await api(`/api/admin/banned-ips/${id}`, { method:'DELETE' }); loadBans(); };
   $('logout').onclick = async () => { await api('/api/admin/logout', { method:'POST' }); location.reload(); };
   api('/api/admin/session').then((body) => body.manager && enter(body.manager)).catch(() => {});
-  import('/admin-homework.js');
-  import('/admin-questions.js');
+  import('/admin-homework.js?v=20261007-12');
+  import('/admin-questions.js?v=20261007-8');
 })();

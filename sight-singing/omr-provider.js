@@ -129,10 +129,16 @@
     return response.result;
   }
 
-  async function recognizeDesktop(payload) {
+  async function recognizeDesktop(payload, cloud = false) {
+    const headers = { 'content-type': 'application/json' };
+    if (cloud) {
+      const csrfResponse = await fetch('/api/csrf', { credentials: 'same-origin', cache: 'no-store' });
+      const csrf = await csrfResponse.json();
+      headers['x-csrf-token'] = csrf.csrfToken || '';
+    }
     const response = await fetch(RECOGNIZE_ENDPOINT, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers,
       body: JSON.stringify(payload)
     });
     const result = await response.json().catch(() => ({}));
@@ -155,8 +161,9 @@
     return result.result;
   }
 
-  async function recognize(payload) {
+  async function recognize(payload, approvedProvider) {
     const report = await diagnose();
+    if (approvedProvider && approvedProvider !== report.provider) throw new Error('识谱处理位置已改变，请重新确认后识别。');
     if (!report.ready) {
       const error = new Error(`${report.message}。当前版本不会用模拟音符代替识别结果。`);
       error.code = 'OMR_NOT_READY';
@@ -166,7 +173,7 @@
     if (report.provider === 'android-native-homr') return recognizeAndroid(payload);
     if (report.provider === 'windows-local-homr') return recognizeDesktop(payload);
     if (report.provider === 'personal-remote-homr') return recognizeRemote(payload);
-    if (report.provider === 'cloud-homr') return recognizeDesktop(payload);
+    if (report.provider === 'cloud-homr') return recognizeDesktop(payload, true);
     throw new Error('没有可用的离线识谱执行器');
   }
 

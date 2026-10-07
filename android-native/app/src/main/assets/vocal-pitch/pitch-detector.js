@@ -41,9 +41,10 @@
       );
 
       this.difference.fill(0, 0, maxTau + 1);
-      for (let tau = minTau; tau <= maxTau; tau++) {
+      for (let tau = 1; tau <= maxTau; tau++) {
         let difference = 0;
-        const limit = buffer.length - tau;
+        // Every lag needs the same comparison window for unbiased CMND.
+        const limit = buffer.length - maxTau;
         for (let i = 0; i < limit; i++) {
           const delta = buffer[i] - buffer[i + tau];
           difference += delta * delta;
@@ -64,8 +65,13 @@
       const threshold = 0.15;
       for (let tau = minTau; tau <= maxTau; tau++) {
         if (this.cmnd[tau] < threshold) {
-          while (tau + 1 <= maxTau && this.cmnd[tau + 1] < this.cmnd[tau]) tau++;
+          // Noise can create small local dips before the true period. Search
+          // the entire below-threshold valley instead of stopping at the first dip.
           tauEstimate = tau;
+          while (tau + 1 <= maxTau && this.cmnd[tau + 1] < threshold) {
+            tau++;
+            if (this.cmnd[tau] < this.cmnd[tauEstimate]) tauEstimate = tau;
+          }
           break;
         }
       }

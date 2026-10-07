@@ -18,6 +18,8 @@
   let cropPointerStart = null;
   let locatingNoteId = '';
   let staffGeometry = [];
+  let playbackFrame = 0;
+  let followMap = new Map();
 
   function uid(prefix = 'note') {
     return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -544,6 +546,8 @@
       ? 'Windows 远程识谱已连接'
       : report.provider === 'cloud-homr' ? '云端识谱已连接' : '本地识谱引擎已就绪';
     setText('sightEngineTitle', report.message || (report.ready ? connectedText : '识谱引擎尚未连接'));
+    const remote = ['personal-remote-homr', 'cloud-homr'].includes(report.provider);
+    setText('sightEngineDetail', remote ? (report.provider === 'cloud-homr' ? '云端识别：裁剪后的图片会发送到识谱服务，需登录；每天有调用限额。原图与校对稿保存在本机。' : '远程识别：裁剪后的图片会发送到你配置的远程电脑。原图与校对稿保存在本机。') : report.ready ? '本机识别：图片由当前设备上的识谱引擎处理，不发送到云端。' : '手动校对：当前没有可用识谱引擎，可保留图片并自行录入音符。');
     $('sightRecognizeButton').disabled = !report.ready;
     $('sightRecognizeButton').textContent = report.provider === 'personal-remote-homr' || report.provider === 'cloud-homr' ? '开始远程识别' : '开始本地识别';
     $('sightRecognizeButton').title = report.ready ? '' : '当前平台尚未接通本机识谱桥，可先使用人工校对稿';
@@ -584,8 +588,11 @@
       showStatus('sightScanStatus', '请先导入一张印刷五线谱图片。', true);
       return;
     }
-    showStatus('sightScanStatus', '正在本机处理谱面，请稍候…');
     try {
+      const report = await diagnoseEngine();
+      const remote = ['personal-remote-homr', 'cloud-homr'].includes(report.provider);
+      if (remote && !window.confirm(report.provider === 'cloud-homr' ? '本次将把裁剪后的图片发送到云端识谱服务处理，消耗一次今日识谱额度。是否继续？' : '本次将把裁剪后的图片发送到你配置的远程电脑处理。是否继续？')) return;
+      showStatus('sightScanStatus', remote ? '正在远程识别谱面，请稍候…' : '正在本机识别谱面，请稍候…');
       const canvas = $('sightSourceCanvas');
       if (!hasScoreInk(canvas)) {
         throw new Error('当前裁剪区域几乎是空白，未开始识别。请先把裁剪框调整到实际五线谱区域，并适当降低去灰度。');
@@ -593,7 +600,7 @@
       const result = await window.HetianOMR.recognize({
         imageDataUrl: canvas.toDataURL('image/png'),
         preprocessing: project.preprocessing
-      });
+      }, report.provider);
       project.score.notes = (result.notes || []).map(normalizeNote);
       project.score.questions = Array.isArray(result.questionMarkers) ? result.questionMarkers : [];
       if (result.clef) project.score.clef = result.clef;
@@ -685,6 +692,8 @@
 
   function stopPlayback() {
     playbackToken += 1;
+    cancelAnimationFrame(playbackFrame);
+    playbackFrame = 0;
     playbackTimers.forEach(timer => clearTimeout(timer));
     playbackTimers = [];
     playbackVoices.forEach(voice => {
@@ -770,28 +779,32 @@
     return blankStaffDataUrl();
   }
 
-  function followPosition(note, globalIndex, notes) {
-    if (note.position?.manual) return { x: Number(note.position.xPct), y: Number(note.position.yPct), row: 0, column: 0, rows: 1, perLine: 1, manual: true, globalIndex };
-    const perLine = Math.max(2, Number($('sightMeasuresPerLine')?.value) || 4);
-    const measure = Math.max(1, Number(note.measure) || 1);
-    const maxMeasure = notes.reduce((max, item) => Math.max(max, Number(item.measure) || 1), 1);
-    const rows = Math.max(1, Math.ceil(maxMeasure / perLine));
-    const row = Math.min(rows - 1, Math.floor((measure - 1) / perLine));
-    const column = (measure - 1) % perLine;
-    const inMeasure = notes.filter(item => Number(item.measure) === measure);
-    const localIndex = Math.max(0, inMeasure.findIndex(item => item.id === note.id));
-    const leftMargin = 6;
-    const usableWidth = 88;
-    const x = leftMargin + usableWidth * ((column + (localIndex + .5) / Math.max(1, inMeasure.length)) / perLine);
-    let y = rows === 1 ? 50 : 10 + 80 * ((row + .5) / rows);
-    if (!note.rest && staffGeometry.length) {
-      const staff = staffGeometry[Math.min(staffGeometry.length - 1, Math.round(row * (staffGeometry.length - 1) / Math.max(1, rows - 1)))];
-      const diatonicIndex = Number(note.octave) * 7 + ['C', 'D', 'E', 'F', 'G', 'A', 'B'].indexOf(note.name);
-      const bottomReference = project.score.clef === 'bass' ? 2 * 7 + 4 : project.score.clef === 'alto' ? 3 * 7 + 3 : 4 * 7 + 2;
-      y = staff.bottomPct - (diatonicIndex - bottomReference) * staff.gapPct / 2;
-      y = Math.max(staff.topPct - staff.gapPct * 4, Math.min(staff.bottomPct + staff.gapPct * 4, y));
+  function rebuildFollowMap() {
+    const canvas = $('sightSourceCanvas'), engine = window.HetianScoreLayout;
+    if (!project || !engine) return;
+    let image = null, layout;
+    if (project.source.dataUrl && canvas?.width && canvas?.height) {
+      image = canvas.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, canvas.width, canvas.height);
+      layout = engine.detect(image);
+    } else {
+      const rowCount = blankStaffRows(), perLine = Number(project.practice.measuresPerLine) || 4;
+      const count = Math.max(1, ...project.score.notes.map(n => Number(n.measure) || 1));
+      layout = { width: 1600, height: 160 + 340 * rowCount, rows: [] };
+      for (let row = 0; row < rowCount; row++) {
+        const center = 80 + 340 * (row + .5), columns = Math.min(perLine, count - row * perLine);
+        layout.rows.push({ top: center - 52, bottom: center + 52, gap: 26,
+          measures: Array.from({ length: columns }, (_, i) => ({ left: 90 + 1420 * i / columns, right: 90 + 1420 * (i + 1) / columns })) });
+      }
     }
-    return { x, y, row, column, rows, perLine, globalIndex };
+    const result = engine.mapNotes(image, layout, project.score.notes, project.score.clef);
+    followMap = result.positions;
+    // Internal geometry is saved with the project; no bar numbers are painted over the score.
+    project.score.layout = { ...layout, matched: result.exact, rowCounts: result.rowCounts };
+    const approximate = [...followMap.values()].some(position => position.source === 'measure-estimate');
+    setText('sightFollowHelp', !result.exact
+      ? '小节边界与校对稿数量不一致：只跟随已定位音符。请在校对页定位缺失音符，避免光点跳错行。'
+      : approximate ? '已按实际谱行和小节定位；部分音符仍为小节内估算，可在校对页点击谱面精确定位。页面不会自动滚动。'
+      : '已按谱行、小节与音符位置跟随；页面保持不动，可自行滑动查看。');
   }
 
   function moveFollowMarker(note, index, notes) {
@@ -800,28 +813,13 @@
     const sheet = $('sightPracticeScoreSheet');
     const stage = $('sightPracticeScoreStage');
     if (!orb || !band || !sheet || !stage) return;
-    const position = followPosition(note, index, notes);
+    const position = followMap.get(note.id);
+    band.classList.remove('active');
+    if (!position) { orb.classList.remove('active'); return; }
     orb.style.left = `${position.x}%`;
     orb.style.top = `${position.y}%`;
     orb.classList.toggle('resting', Boolean(note.rest));
     orb.classList.add('active');
-    if (!position.manual) {
-      const rowHeight = 80 / position.rows;
-      band.style.left = `${6 + 88 * position.column / position.perLine}%`;
-      band.style.width = `${88 / position.perLine}%`;
-      band.style.top = `${10 + rowHeight * position.row}%`;
-      band.style.height = `${rowHeight}%`;
-      band.classList.add('active');
-    } else {
-      band.classList.remove('active');
-    }
-    const targetX = sheet.offsetWidth * position.x / 100;
-    const targetY = sheet.offsetHeight * position.y / 100;
-    stage.scrollTo({
-      left: Math.max(0, targetX - stage.clientWidth / 2),
-      top: Math.max(0, targetY - stage.clientHeight / 2),
-      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
-    });
   }
 
   function selectedNotes() {
@@ -869,6 +867,8 @@
     const beatsPerMeasure = Math.max(1, meter[0] || 4);
     const clickBeatQuarter = 4 / Math.max(1, meter[1] || 4);
     const countInBeats = $('sightCountInToggle')?.checked ? beatsPerMeasure * clickBeatQuarter : 0;
+    rebuildFollowMap();
+    const startedAt = context.currentTime;
     let offset = .08 + countInBeats * beatSeconds;
 
     const noteBeatTotal = notes.reduce((sum, note) => sum + Number(note.duration) * (note.dotted ? 1.5 : 1) * (note.triplet ? 2 / 3 : 1), 0);
@@ -876,27 +876,38 @@
       const totalQuarterBeats = countInBeats + noteBeatTotal;
       for (let beat = 0, ordinal = 0; beat < totalQuarterBeats - .0001; beat += clickBeatQuarter, ordinal += 1) {
         const inCountIn = beat < countInBeats;
-        if (inCountIn || $('sightMetronomeToggle')?.checked) playMetronomeClick(context, context.currentTime + .08 + beat * beatSeconds, ordinal % beatsPerMeasure === 0);
+        if (inCountIn || $('sightMetronomeToggle')?.checked) playMetronomeClick(context, startedAt + .08 + beat * beatSeconds, ordinal % beatsPerMeasure === 0);
       }
     }
 
+    const events = [];
     notes.forEach((note, index) => {
       const durationBeats = Number(note.duration) * (note.dotted ? 1.5 : 1) * (note.triplet ? 2 / 3 : 1);
       const duration = Math.max(.08, durationBeats * beatSeconds);
-      if (!note.rest) playTone(noteMidi(note), context.currentTime + offset, duration);
-      const timer = setTimeout(() => {
-        if (token !== playbackToken) return;
-        setText('sightNowNote', noteLabel(note));
-        setText('sightPlayProgress', `${index + 1} / ${notes.length}`);
-        document.querySelectorAll('.sight-timeline-note').forEach(node => node.classList.toggle('active', node.dataset.noteId === note.id));
-        moveFollowMarker(note, index, project.score.notes);
-      }, offset * 1000);
-      playbackTimers.push(timer);
+      if (!note.rest) playTone(noteMidi(note), startedAt + offset, duration);
+      events.push({ start: startedAt + offset, end: startedAt + offset + duration, note, index });
       offset += duration;
     });
 
-    playbackTimers.push(setTimeout(() => {
+    let activeIndex = -1;
+    const syncFrame = () => {
       if (token !== playbackToken) return;
+      const timestamp = context.getOutputTimestamp?.();
+      const time = timestamp?.performanceTime > 0
+        ? Math.min(context.currentTime, timestamp.contextTime + (performance.now() - timestamp.performanceTime) / 1000)
+        : context.currentTime - (context.outputLatency || 0);
+      const next = window.HetianScoreLayout.eventAtTime(events, time);
+      if (next !== activeIndex) {
+        activeIndex = next;
+        if (next >= 0) {
+          const { note, index } = events[next];
+          setText('sightNowNote', noteLabel(note));
+          setText('sightPlayProgress', `${index + 1} / ${notes.length}`);
+          document.querySelectorAll('.sight-timeline-note').forEach(node => node.classList.toggle('active', node.dataset.noteId === note.id));
+          moveFollowMarker(note, index, project.score.notes);
+        } else $('sightFollowOrb')?.classList.remove('active');
+      }
+      if (time < startedAt + offset + .08) { playbackFrame = requestAnimationFrame(syncFrame); return; }
       const looping = $('sightLoopToggle').classList.contains('active');
       stopPlayback();
       if (looping) startPlayback();
@@ -905,7 +916,8 @@
         project.practice.lastPracticedAt = Date.now();
         persist(false);
       }
-    }, (offset + .08) * 1000));
+    };
+    playbackFrame = requestAnimationFrame(syncFrame);
   }
 
   function renderPractice() {
@@ -916,6 +928,7 @@
     $('sightMetronomeToggle').checked = project.practice.metronomeEnabled !== false;
     $('sightCountInToggle').checked = Boolean(project.practice.countInEnabled);
     $('sightMeasuresPerLine').value = String(project.practice.measuresPerLine || 4);
+    $('sightMeasuresPerLine').closest('label').hidden = Boolean(project.source.dataUrl);
     $('sightPracticeZoom').value = String(project.practice.zoom || 145);
     $('sightPracticeScoreSheet').style.width = `${project.practice.zoom || 145}%`;
     const practiceImage = $('sightPracticeImage');
@@ -936,6 +949,7 @@
       timeline.appendChild(item);
     });
     setText('sightPlayProgress', `0 / ${project.score.notes.length}`);
+    rebuildFollowMap();
   }
 
   async function saveFromPractice() {
@@ -1117,6 +1131,8 @@
   });
   $('sightMeasuresPerLine').addEventListener('change', () => {
     if (project) project.practice.measuresPerLine = Number($('sightMeasuresPerLine').value) || 4;
+    if (!project?.source?.dataUrl) $('sightPracticeImage').src = blankStaffDataUrl();
+    rebuildFollowMap();
     const activeId = document.querySelector('.sight-timeline-note.active')?.dataset.noteId;
     const index = project?.score?.notes?.findIndex(note => note.id === activeId) ?? -1;
     if (index >= 0) moveFollowMarker(project.score.notes[index], index, project.score.notes);

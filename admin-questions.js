@@ -13,22 +13,23 @@
   async function api(url,options={}){const method=options.method||'GET',headers={...(options.headers||{})};if(!['GET','HEAD'].includes(method))headers['x-csrf-token']=await csrf();const r=await fetch(url,{...options,headers});const body=r.status===204?null:await r.json().catch(()=>({}));if(!r.ok)throw Error(body?.message||body?.error||'请求失败');return body}
   const statusName={draft:'草稿',submitted:'待审',in_review:'审题中',changes_requested:'需修改',approved:'已通过',published:'已发布',archived:'已归档'};
   async function load(next=page){page=next;const query=new URLSearchParams({page,pageSize:25,systemCode:qSystem.value,subject:qSubject.value,status:qStatus.value,search:qSearch.value});const data=await api(`/api/admin/questions?${query}`);qRows.innerHTML=data.items.map(q=>`<tr><td class="q-prompt"><b>${esc(q.content.prompt||q.content.question)}</b><div class="q-meta">${esc(q.source_id)} · v${q.version_no}</div></td><td>${q.system_code==='hobby'?'爱好者':'高考'} / ${q.subject==='theory'?'乐理':q.subject==='dictation'?'听写':'视唱'}</td><td>${esc(q.knowledge_id)}</td><td>${statusName[q.status]||esc(q.status)}</td><td><button data-edit="${q.id}">查看/编辑</button></td></tr>`).join('')||'<tr><td colspan="5">没有符合条件的题目</td></tr>';const pages=Math.max(1,data.pagination.pages);qPager.innerHTML=`<button data-page="${page-1}" ${page<=1?'disabled':''}>上一页</button><span>${page} / ${pages}（${data.pagination.total}题）</span><button data-page="${page+1}" ${page>=pages?'disabled':''}>下一页</button>`}
-  function fill(question){current=question||null;const f=dialog.querySelector('form'),c=question?.content||{},manager=window.CONTENT_MANAGER||{platform:true,systems:[]},role=manager.platform?'admin':manager.systems.find(x=>x.system_code===question?.system_code)?.role;f.elements.systemCode.value=question?.system_code||manager.systems?.[0]?.system_code||'hobby';f.elements.subject.value=question?.subject||'theory';f.elements.instrument.value=question?.instrument||'';f.elements.difficulty.value=question?.difficulty||1;f.elements.knowledgeId.value=question?.knowledge_id||'';f.elements.questionType.value=question?.question_type||'single_choice';f.elements.sourceLabel.value=question?.source_label||'';f.elements.prompt.value=c.prompt||c.question||'';f.elements.options.value=Array.isArray(c.options)?c.options.join('\n'):'';f.elements.answer.value=Array.isArray(c.answer)?c.answer.join('\n'):c.answer??'';f.elements.explanation.value=c.explanation||c.analysis||'';f.elements.audioScript.value=c.audioScript||'';f.elements.reviewNotes.value='';f.querySelectorAll('[data-review]').forEach(x=>x.hidden=!question||(x.dataset.review==='submit'?role!=='teacher':role!=='admin'));f.querySelector('[data-save]').textContent=question?'保存新版本':'创建草稿';f.querySelector('.editor-message').textContent='';
+  function fill(question){current=question||null;const f=dialog.querySelector('form'),c=question?.content||{},manager=window.CONTENT_MANAGER||{platform:true,systems:[]},role=manager.platform?'admin':manager.systems.find(x=>x.system_code===question?.system_code)?.role;f.elements.systemCode.value=question?.system_code||manager.systems?.[0]?.system_code||'hobby';f.elements.subject.value=question?.subject||'theory';f.elements.instrument.value=question?.instrument||'';f.elements.difficulty.value=question?.difficulty||1;f.elements.knowledgeId.value=question?.knowledge_id||'';f.elements.questionType.value=question?.question_type||'single_choice';f.elements.sourceLabel.value=question?.source_label||'';f.elements.prompt.value=c.prompt||c.question||'';f.elements.options.value=Array.isArray(c.options)?c.options.join('\n'):'';f.elements.answer.value=Array.isArray(c.answer)?c.answer.join(' | '):c.answer??'';f.elements.explanation.value=c.explanation||c.analysis||'';f.elements.audioScript.value=c.audioScript||'';f.elements.reviewNotes.value='';f.querySelectorAll('[data-review]').forEach(x=>x.hidden=!question||(x.dataset.review==='submit'?role!=='teacher':role!=='admin'));f.querySelector('[data-save]').textContent=question?'保存新版本':'创建草稿';f.querySelector('.editor-message').textContent=c.reviewReason ? '待校对：'+c.reviewReason : '';
     // 音乐编辑器：仅听写科目显示
     const meContainer=document.getElementById('meContainer');
-    function syncME(notes,keySig,meter,bpm,category){
+    function syncME(notes,keySig,meter,bpm,category,clef){
       if(f.elements.subject.value==='dictation'){
         meContainer.style.display='block';
-        if(window.MusicEditor)window.MusicEditor.mount(meContainer,{notes:notes||[],keySignature:keySig||'C',meter:meter||'4/4',bpm:bpm||100,category:category||'single'});
+        if(window.MusicEditor)window.MusicEditor.mount(meContainer,{notes:notes||[],keySignature:keySig||'C',meter:meter||'4/4',bpm:bpm||100,category:category||'single',clef:clef==='bass'?'bass':'treble'});
       }else{meContainer.style.display='none';if(window.MusicEditor)window.MusicEditor.destroy();}
     }
     f.elements.subject.onchange=()=>syncME([], 'C', '4/4', 100, 'single');
-    syncME(c.notes,c.keySignature,c.meter,c.bpm,c.category);
+    syncME(c.notes,c.keySignature,c.meter,c.bpm,c.category,c.clef);
     dialog.showModal()}
   function payload(){const f=dialog.querySelector('form'),fd=new FormData(f),base=current?.content||{},options=String(fd.get('options')).split(/\r?\n/).map(x=>x.trim()).filter(Boolean);const content={...base,prompt:fd.get('prompt'),answer:fd.get('answer'),explanation:fd.get('explanation')};delete content.question;delete content.analysis;if(options.length)content.options=options;else delete content.options;if(fd.get('audioScript'))content.audioScript=fd.get('audioScript');else delete content.audioScript;
+    if (fd.get('questionType') === 'multi_choice') content.answer = String(fd.get('answer') || '').split(/[|\n]/).map(value => value.trim()).filter(Boolean);
     // 音乐编辑器数据
     const meVisible=document.getElementById('meContainer')?.style.display!=='none';
-    if(meVisible&&window.MusicEditor?.getState){const ms=window.MusicEditor.getState();content.notes=ms.notes;content.meter=ms.meter;content.bpm=ms.bpm;content.keySignature=ms.keySignature;content.category=ms.category;}
+    if(meVisible&&window.MusicEditor?.getState){const ms=window.MusicEditor.getState();content.notes=ms.notes;content.meter=ms.meter;content.bpm=ms.bpm;content.keySignature=ms.keySignature;content.category=ms.category;content.clef=ms.clef;}
     return{systemCode:fd.get('systemCode'),subject:fd.get('subject'),instrument:fd.get('instrument'),difficulty:Number(fd.get('difficulty')),knowledgeId:fd.get('knowledgeId'),questionType:fd.get('questionType'),sourceLabel:fd.get('sourceLabel'),content}}
   async function openById(id){fill((await api(`/api/admin/questions/${id}`)).question)}
   button.onclick=()=>load(1);qSearchBtn.onclick=()=>load(1);qNewBtn.onclick=()=>fill(null);qRows.onclick=e=>e.target.dataset.edit&&openById(e.target.dataset.edit);qPager.onclick=e=>e.target.dataset.page&&load(Number(e.target.dataset.page));dialog.querySelector('.editor-close').onclick=()=>dialog.close();
@@ -43,7 +44,7 @@
     const meVisible=document.getElementById('meContainer')?.style.display!=='none';
     const musicHTML=meVisible&&Array.isArray(p.notes)&&p.notes.length?`
       <div style="margin:10px 0;background:#fff;border:1px solid #dce5df;border-radius:8px;padding:8px">
-        <div id="qPreviewStaff">${window.MusicEditor?window.MusicEditor.renderStaffPreview?window.MusicEditor.renderStaffPreview(p.notes,p.keySignature,p.meter,p.category):'':''}</div>
+        <div id="qPreviewStaff">${window.MusicEditor?window.MusicEditor.renderStaffPreview?window.MusicEditor.renderStaffPreview(p.notes,p.keySignature,p.meter,p.category,p.clef):'':''}</div>
         <button id="qPreviewPlay" type="button" style="margin-top:6px;padding:6px 14px;background:#4d9b73;color:#fff;border:0;border-radius:7px;cursor:pointer">▶ 试听</button>
       </div>`:'';
     msg.dataset.preview='1';msg.style.color='';msg.innerHTML=`<div class="q-preview"><h5>学生视角预览</h5><p style="font-size:15px;margin:8px 0">${esc(p.prompt||p.question||'(请填写题干)')}</p>${musicHTML}${opts.map(o=>`<div class="q-option">${esc(o)}</div>`).join('')}${ans?`<div class="q-answer">标准答案：${esc(ans)}</div>`:''}${p.explanation?`<div style="margin-top:8px;font-size:13px;color:#687970">解析：${esc(p.explanation)}</div>`:''}</div>`;
@@ -51,7 +52,7 @@
     const playBtn=document.getElementById('qPreviewPlay');
     if(playBtn&&window.MusicEditor)playBtn.onclick=async()=>{
       playBtn.disabled=true;playBtn.textContent='播放中…';
-      try{await window.MusicEditor.playNotes(p.notes,{bpm:p.bpm});}catch(e){alert('播放失败：'+e.message);}
+      try{await window.MusicEditor.playNotes(p.notes,{...p.audioSettings,bpm:p.bpm});}catch(e){alert('播放失败：'+e.message);}
       playBtn.disabled=false;playBtn.textContent='▶ 试听';
     };
   };

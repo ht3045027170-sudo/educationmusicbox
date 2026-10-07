@@ -16,9 +16,9 @@ export async function onRequestGet({ request, env, params }) {
   const row = await env.DB.prepare(
     'SELECT state_json, updated_at FROM user_learning_states WHERE user_id = ? AND system_code = ?'
   ).bind(user.id, code).first();
-  if (!row) return json({ state: null, updatedAt: null });
-  try { return json({ state: JSON.parse(row.state_json), updatedAt: row.updated_at }); }
-  catch { return json({ state: null, updatedAt: row.updated_at }); }
+  if (!row) return json({ state: null, updatedAt: null, revision: null, userId: user.id });
+  try { return json({ state: JSON.parse(row.state_json), updatedAt: row.updated_at, revision: row.updated_at, userId: user.id }); }
+  catch { return json({ state: null, updatedAt: row.updated_at, revision: row.updated_at, userId: user.id }); }
 }
 
 export async function onRequestPut({ request, env, params }) {
@@ -33,11 +33,20 @@ export async function onRequestPut({ request, env, params }) {
   if (!body.state || typeof body.state !== 'object' || Array.isArray(body.state)) {
     return json({ ok: false, error: '学习数据格式不正确。' }, 400);
   }
-  const stateJson = JSON.stringify(body.state);
+  if (String(body.userId || '') !== String(user.id)) return json({ ok: false, error: '登录账号已改变，请重新载入后同步。' }, 409);
+  if (!Object.hasOwn(body, 'expectedRevision')) return json({ ok:false, error:'请刷新页面后同步新版学习数据。' }, 428);
+  const safeState = { ...body.state }; delete safeState.license; delete safeState.unlockState;
+  const stateJson = JSON.stringify(safeState);
   if (stateJson.length > 1500000) return json({ ok: false, error: '学习数据过大，请先导出备份并清理旧记录。' }, 413);
   await ensureStates(env);
-  await env.DB.prepare(
-    'INSERT INTO user_learning_states (user_id, system_code, state_json, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP) ON CONFLICT(user_id, system_code) DO UPDATE SET state_json = excluded.state_json, updated_at = CURRENT_TIMESTAMP'
-  ).bind(user.id, code, stateJson).run();
-  return json({ ok: true });
+  if (body.expectedRevision !== null) {
+    const existing = await env.DB.prepare('SELECT updated_at FROM user_learning_states WHERE user_id=? AND system_code=?').bind(user.id, code).first();
+    if (!existing) return json({ok:false,conflict:true,error:'云端数据已改变，请重新确认后同步。'},409);
+  }
+  const revision = new Date().toISOString() + ':' + crypto.randomUUID();
+  const result = await env.DB.prepare(
+    'INSERT INTO user_learning_states (user_id, system_code, state_json, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(user_id, system_code) DO UPDATE SET state_json=excluded.state_json, updated_at=excluded.updated_at WHERE user_learning_states.updated_at = ?'
+  ).bind(user.id, code, stateJson, revision, body.expectedRevision ?? '').run();
+  if (!result.meta?.changes) return json({ ok:false, conflict:true, error:'另一台设备已更新学习数据，请选择保留哪一份。' }, 409);
+  return json({ ok:true, revision, userId:user.id });
 }

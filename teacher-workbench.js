@@ -148,7 +148,7 @@
         const highestRoot=Math.max(minRoot,Math.min(maxRoot,72-semitones)),root=Math.floor(Math.random()*(highestRoot-minRoot+1))+minRoot,target=mode==='down'?Math.max(36,root-semitones):root+semitones,harmonic=mode==='harmonic';
         const notes=[{midi:root,dur:1,rest:false,...(harmonic?{simultaneous:true}:{})},{midi:target,dur:1,rest:false,...(harmonic?{simultaneous:true}:{})}];
         const distractors=INTERVALS.map(([label])=>label).filter(label=>label!==name).sort(()=>Math.random()-.5).slice(0,3),options=[name,...distractors].sort(()=>Math.random()-.5);
-        await api('/api/admin/questions',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({systemCode:'gaokao',subject:'dictation',difficulty:3,knowledgeId:`dictation-interval-quick-${Date.now()}-${index}`,questionType:'single_choice',sourceLabel:'教师快速出题',saveMode:'draft',content:{prompt:'请听下面两个音，判断它们构成的音程。',options,answer:name,explanation:`这两个音构成${name}。`,musicType:'interval',musicData:{notes,keySignature:'C',meter:'4/4',tempo:100,category:harmonic?'interval':'melody',clef:'treble',parameters:{root,semitones,playMode:harmonic?'harmonic':'melodic',direction:mode==='down'?'down':'up'}},audioSettings:{timbre:'piano-sample',playCount:3,playMode:harmonic?'harmonic':'melodic',direction:mode==='down'?'down':'up'},studentSettings:{score:2,timeLimit:20}}})});
+        await api('/api/admin/questions',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({systemCode:'gaokao',subject:'dictation',difficulty:3,knowledgeId:`dictation-interval-quick-${Date.now()}-${index}`,questionType:'single_choice',sourceLabel:'教师快速出题',saveMode:'draft',content:{prompt:'请听下面两个音，判断它们构成的音程。',options,answer:name,explanation:`这两个音构成${name}。`,musicType:'interval',musicData:{notes,keySignature:'C',meter:'4/4',tempo:100,category:harmonic?'interval':'melody',clef:'treble',parameters:{root,semitones,playMode:harmonic?'harmonic':'melodic',direction:mode==='down'?'down':'up'}},audioSettings:{timbre:'piano-sample',playCount:3,gapBeats:2,playMode:harmonic?'harmonic':'melodic',direction:mode==='down'?'down':'up'},studentSettings:{score:2,timeLimit:20}}})});
         status.textContent=`正在生成 ${index+1} / ${count}…`;
       }
       status.textContent=`已生成 ${count} 道草稿，请在题库中逐题审核。`;await loadBank();setTimeout(()=>quickDialog.close(),900);
@@ -171,18 +171,26 @@
     if(type==='rhythm') return `<label>拍号<select data-info="meter"><option>4/4</option><option>3/4</option><option>2/4</option><option>6/8</option></select></label><label>说明<span>使用下方休止符、时值和附点工具录入。</span></label>`;
     return `<label>答题形式<select><option>单项选择</option><option>判断题</option></select></label><label>谱面<select data-param="showMusic"><option value="no">纯文字</option><option value="yes">附五线谱</option></select></label>`;
   }
+  function setMusicAnswer(answer){
+    form.elements.answer.value=answer;
+    const options=form.elements.options.value.split(/\r?\n/).map(value=>value.trim()).filter(Boolean);
+    if(answer&&!options.includes(answer)){
+      if(options.length) options[0]=answer; else options.push(answer);
+      form.elements.options.value=[...new Set(options)].join('\n');
+    }
+  }
   function autoMusic(){
     const meta=TYPES[currentType], specific=document.getElementById('twSpecific');
     if(currentType==='single_note'){
-      const root=Number(specific.querySelector('[data-param="root"]')?.value||60); form.elements.answer.value=['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][root%12]+(Math.floor(root/12)-1); return [{midi:root,dur:1,rest:false}];
+      const root=Number(specific.querySelector('[data-param="root"]')?.value||60); setMusicAnswer(['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][root%12]+(Math.floor(root/12)-1)); return [{midi:root,dur:1,rest:false}];
     }
     if(currentType==='interval'){
       const root=Number(specific.querySelector('[data-param="root"]')?.value||60), semitones=Number(specific.querySelector('[data-param="interval"]')?.value||3), direction=specific.querySelector('[data-param="direction"]')?.value||'up', harmonic=specific.querySelector('[data-param="playMode"]')?.value==='harmonic';
-      const target=root+(direction==='down'?-semitones:semitones); form.elements.answer.value=INTERVALS.find(([,s])=>s===semitones)?.[0]||''; return [{midi:root,dur:1,rest:false,...(harmonic?{simultaneous:true}:{})},{midi:target,dur:1,rest:false,...(harmonic?{simultaneous:true}:{})}];
+      const target=root+(direction==='down'?-semitones:semitones); setMusicAnswer(INTERVALS.find(([,s])=>s===semitones)?.[0]||''); return [{midi:root,dur:1,rest:false,...(harmonic?{simultaneous:true}:{})},{midi:target,dur:1,rest:false,...(harmonic?{simultaneous:true}:{})}];
     }
     if(currentType==='chord'){
       const root=Number(specific.querySelector('[data-param="root"]')?.value||60), quality=specific.querySelector('[data-param="quality"]')?.value||'major', inversion=Number(specific.querySelector('[data-param="inversion"]')?.value||0), chord=CHORDS[quality]||CHORDS.major, pitches=chord[1].map(x=>root+x);
-      for(let i=0;i<Math.min(inversion,pitches.length-1);i++)pitches[i]+=12; pitches.sort((a,b)=>a-b); form.elements.answer.value=chord[0]; return pitches.map(midi=>({midi,dur:2,rest:false,simultaneous:true}));
+      for(let i=0;i<Math.min(inversion,pitches.length-1);i++)pitches[i]+=12; pitches.sort((a,b)=>a-b); setMusicAnswer(chord[0]); return pitches.map(midi=>({midi,dur:2,rest:false,simultaneous:true}));
     }
     return window.MusicEditor?.getNotes?.()||[];
   }
@@ -207,9 +215,9 @@
     const near=pool.filter(x=>x!==answer).sort(()=>Math.random()-.5).slice(0,3); form.elements.options.value=[answer,...near].sort(()=>Math.random()-.5).join('\n'); setDirty(true); renderPreview();
   }
   function renderPreview(){
-    const prompt=form.elements.prompt.value||'请填写题目指令。', options=form.elements.options.value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean), state=window.MusicEditor?.getState?.(), playCount=form.elements.playCount.value, timeLimit=Number(form.elements.timeLimit.value||0), score=form.elements.score.value, parameters=readParameters();
-    document.getElementById('twStudentPreview').innerHTML=`<span class="student-count">QUESTION 01 / 01</span><h4>${esc(prompt)}</h4>${state?.notes?.length?`<div class="tw-student-score">${window.MusicEditor.renderStaffPreview(state.notes,state.keySignature,state.meter,state.category,state.clef)}</div><button type="button" class="tw-student-play" data-preview-play>▶ 播放题目</button>`:''}<div class="tw-student-options">${options.map((o,i)=>`<div>${String.fromCharCode(65+i)}. ${esc(o)}</div>`).join('')}</div><div class="tw-student-meta"><span>播放 ${playCount} 次</span><span>${timeLimit?`限时 ${timeLimit} 秒`:'不限时'} · ${score} 分</span></div>`;
-    document.querySelector('[data-preview-play]')?.addEventListener('click',()=>window.MusicEditor?.playNotes?.(state.notes,{bpm:state.bpm,simultaneous:currentType==='chord'||parameters.playMode==='harmonic'}));
+    const prompt=form.elements.prompt.value||'请填写题目指令。', options=form.elements.options.value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean), state=window.MusicEditor?.getState?.(), playCount=form.elements.playCount.value, timeLimit=Number(form.elements.timeLimit.value||0), score=form.elements.score.value, parameters=readParameters(), listening=TYPES[currentType]?.subject==='dictation';
+    document.getElementById('twStudentPreview').innerHTML=`<span class="student-count">QUESTION 01 / 01</span><h4>${esc(prompt)}</h4>${state?.notes?.length?`${listening?'<p>先听音作答，提交后显示谱例。</p>':`<div class="tw-student-score">${window.MusicEditor.renderStaffPreview(state.notes,state.keySignature,state.meter,state.category,state.clef)}</div>`}<button type="button" class="tw-student-play" data-preview-play>▶ 播放题目</button>`:''}<div class="tw-student-options">${options.map((o,i)=>`<div>${String.fromCharCode(65+i)}. ${esc(o)}</div>`).join('')}</div><div class="tw-student-meta"><span>播放 ${playCount} 次</span><span>${timeLimit?`限时 ${timeLimit} 秒`:'不限时'} · ${score} 分</span></div>`;
+    document.querySelector('[data-preview-play]')?.addEventListener('click',()=>window.MusicEditor?.playNotes?.(state.notes,{bpm:state.bpm,playCount:Number(playCount),gapBeats:2,simultaneous:currentType==='chord'||parameters.playMode==='harmonic'}));
   }
   function switchType(type, preserve=false){
     currentType=type; const meta=TYPES[type]; renderTypeRail(); document.getElementById('twEditorTitle').textContent=`${current?'编辑':'新建'}：${meta.label}`; document.getElementById('twSpecific').innerHTML=specificHTML(type);
@@ -229,7 +237,7 @@
   function payload(){
     const type=TYPES[currentType], state=window.MusicEditor?.getState?.()||{notes:[],keySignature:'C',meter:'4/4',bpm:100,category:type.category}, options=form.elements.options.value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
     const parameters=readParameters();
-    return {systemCode:'gaokao',subject:type.subject,instrument:currentType==='guitar'?'吉他':'',difficulty:Number(form.elements.difficulty.value),knowledgeId:form.elements.knowledgeId.value,questionType:genericQuestionType(currentType),sourceLabel:current?.source_label||'教师工作台',saveMode:'draft',content:{...(current?.content?.sourceId?{sourceId:current.content.sourceId}:{}),category:current?.content?.category||state.category,prompt:form.elements.prompt.value,options,answer:form.elements.answer.value,explanation:form.elements.explanation.value,musicType:currentType,musicData:{notes:state.notes,keySignature:state.keySignature,meter:state.meter,tempo:state.bpm,category:state.category,clef:state.clef,parameters},audioSettings:{timbre:'piano-sample',playCount:Number(form.elements.playCount.value),playMode:parameters.playMode||'',direction:parameters.direction||''},studentSettings:{score:Number(form.elements.score.value),timeLimit:Number(form.elements.timeLimit.value)},notes:state.notes,keySignature:state.keySignature,clef:state.clef,meter:state.meter,bpm:state.bpm,category:state.category}};
+    return {systemCode:'gaokao',subject:type.subject,instrument:currentType==='guitar'?'吉他':'',difficulty:Number(form.elements.difficulty.value),knowledgeId:form.elements.knowledgeId.value,questionType:genericQuestionType(currentType),sourceLabel:current?.source_label||'教师工作台',saveMode:'draft',content:{...(current?.content?.sourceId?{sourceId:current.content.sourceId}:{}),category:current?.content?.category||state.category,prompt:form.elements.prompt.value,options,answer:form.elements.answer.value,explanation:form.elements.explanation.value,musicType:currentType,musicData:{notes:state.notes,keySignature:state.keySignature,meter:state.meter,tempo:state.bpm,category:state.category,clef:state.clef,parameters},audioSettings:{timbre:'piano-sample',playCount:Number(form.elements.playCount.value),gapBeats:2,playMode:parameters.playMode||'',direction:parameters.direction||''},studentSettings:{score:Number(form.elements.score.value),timeLimit:Number(form.elements.timeLimit.value)},notes:state.notes,keySignature:state.keySignature,clef:state.clef,meter:state.meter,bpm:state.bpm,category:state.category}};
   }
   async function saveDraft(){
     if(!form.reportValidity())throw Error('请先完成必填内容。'); saveState.textContent='正在保存…'; const body=payload(); const result=await api(current?`/api/admin/questions/${current.id}`:'/api/admin/questions',{method:current?'PUT':'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
@@ -245,7 +253,7 @@
   typeDialog.querySelector('[data-close]').onclick=()=>typeDialog.close(); typeDialog.onclick=event=>{const target=event.target.closest('[data-type]');if(target){typeDialog.close();openEditor(target.dataset.type)}};
   quickDialog.querySelector('[data-close]').onclick=()=>quickDialog.close();quickDialog.querySelector('form').onsubmit=generateQuickQuestions;
   document.getElementById('twSearchButton').onclick=loadBank; document.getElementById('twDifficulty').onchange=loadBank; document.getElementById('twStatus').onchange=loadBank;
-  document.getElementById('twSyncBank').onclick=async event=>{const button=event.currentTarget;if(!confirm('把乐理和听记两大板块的全部内置题目同步到云端题库吗？已同步的题目不会重复。'))return;button.disabled=true;button.textContent='正在同步…';try{const result=await api('/api/admin/questions/import-training-bank',{method:'POST'});button.textContent=`完成：新增 ${result.imported} 道`;await loadBank()}catch(error){button.textContent=error.message}finally{setTimeout(()=>{button.disabled=false;button.textContent='同步全部内置题目'},2200)}};
+  document.getElementById('twSyncBank').onclick=async event=>{const button=event.currentTarget;if(!confirm('把乐理和听记两大板块的全部内置题目同步到云端题库吗？已同步的题目不会重复。'))return;button.disabled=true;button.textContent='正在同步…';try{const result=await api('/api/admin/questions/import-training-bank',{method:'POST'});button.textContent=`新增 ${result.imported} 道${result.needsReview ? `，其中${result.needsReview}道待校对` : ''}`;await loadBank()}catch(error){button.textContent=error.message}finally{setTimeout(()=>{button.disabled=false;button.textContent='同步全部内置题目'},2200)}};
   document.getElementById('twTypeRail').onclick=event=>{const target=event.target.closest('[data-type]');if(target&&target.dataset.type!==currentType){if(dirty&&!confirm('切换题型会重置当前音乐内容，继续吗？'))return;switchType(target.dataset.type)}};
   form.addEventListener('input',()=>{if(!loadingEditor){setDirty(true);renderPreview()}}); form.addEventListener('change',()=>{if(!loadingEditor){setDirty(true);renderPreview()}});
   editor.querySelector('[data-play]').onclick=()=>{const parameters=readParameters();window.MusicEditor?.playNotes?.(window.MusicEditor.getNotes(),{bpm:window.MusicEditor.getState().bpm,simultaneous:currentType==='chord'||parameters.playMode==='harmonic'})};

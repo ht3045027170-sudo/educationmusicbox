@@ -23,10 +23,14 @@
       this.last = new Float32Array(fftSize);
     }
     getFloatTimeDomainData(target) {
+      if (this.bridge.isCaptureRunning && !this.bridge.isCaptureRunning()) {
+        target.fill(0);
+        throw Object.assign(new Error('原生麦克风已断开，请重新开始'), { name: 'NotReadableError' });
+      }
       let encoded = '';
       try { encoded = this.bridge.readPcmBase64() || ''; } catch (_) {}
       if (!encoded) {
-        target.set(this.last.subarray(0, target.length));
+        target.fill(0);
         return;
       }
       try {
@@ -43,7 +47,7 @@
         }
         this.last.set(target);
       } catch (_) {
-        target.set(this.last.subarray(0, target.length));
+        target.fill(0);
       }
     }
     disconnect() {}
