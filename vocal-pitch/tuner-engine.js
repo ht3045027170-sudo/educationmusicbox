@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   const root = window.MusicVocal = window.MusicVocal || {};
-  const CONFIG = Object.freeze({ minFrequency: 50, maxFrequency: 1250, analysisMinFrequency: 45, analysisMaxFrequency: 1400, fftSize: 4096, releaseDb: -58 });
+  const CONFIG = Object.freeze({ minFrequency: 25, maxFrequency: 1250, analysisMinFrequency: 22, analysisMaxFrequency: 1400, fftSize: 4096, releaseDb: -58 });
   const names = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
   const frequency = (midi, reference = 440) => reference * 2 ** ((midi - 69) / 12);
   const cents = (actual, target) => 1200 * Math.log2(actual / target);
@@ -43,7 +43,7 @@
       const measured = ordered[Math.floor(ordered.length / 2)];
       const deviation = cents(measured, target);
       if (this.history.length < 3) return { state: 'acquiring', level: result.db };
-      if (Math.abs(deviation) > 200) { this.inTuneSince = null; return { state: 'wrong-note', frequency: measured, cents: deviation, level: result.db }; }
+      if (Math.abs(deviation) > 200) { this.inTuneSince = null; return { state: 'coarse', frequency: measured, cents: deviation, level: result.db, stable: false }; }
       // Raw readings must also be in range: smoothing alone must never grant success.
       const steady = this.history.length >= 3 && Math.abs(deviation) <= 3 && Math.abs(cents(result.frequency, target)) <= 4;
       if (steady) this.inTuneSince ??= now; else this.inTuneSince = null;

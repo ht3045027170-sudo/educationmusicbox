@@ -47,7 +47,7 @@ assert.equal(tracker.update({frequency:0,confidence:0,db:-100,peak:0},440,950).s
 assert.equal(tracker.update(result(440),440,1400).state,'acquiring', 'reacquire after silence');
 tracker.reset();
 for(let time=0;time<600;time+=55) reading=tracker.update(result(220),440,time);
-assert.equal(reading.state,'wrong-note', 'wrong octave must not be coerced into tune');
+assert.equal(reading.state,'coarse', 'far pitch stays visible without granting success');
 tracker.reset();
 for(let time=0;time<600;time+=55) reading=tracker.update(result(445),440,time);
 assert(reading.cents>0 && !reading.stable);
@@ -60,6 +60,12 @@ for(const time of [260,340,420]) {
  tracker.update({frequency:0,confidence:0,db:-25,peak:.4},440,time+40);
 }
 assert.equal(tracker.update(result(440),440,500).state,'settling','clean target should resume without accepting separated octave spikes');
+for (const [hz, expectedSign] of [[41.203444,-1],[110,1]]) {
+ const measured = new YinPitchDetector(48000,E.CONFIG).detect(signal(hz,48000));
+ assert(Math.abs(E.cents(measured.frequency,hz))<4);
+ tracker.reset(); for(let t=0;t<400;t+=55) reading=tracker.update(measured,E.frequency(40),t);
+ assert.equal(reading.state,'coarse'); assert.equal(Math.sign(reading.cents),expectedSign);assert(reading.frequency>0 && !reading.stable);
+}
 for(const name of ['E2','D2','F#3','Bb2','c4','C6']) assert(E.parseTarget(name));
 for(const name of ['','E','H2','C1','D6','E22','82.4']) assert.equal(E.parseTarget(name),null);
 assert.equal(E.parseTarget('A4',442).freq,442);

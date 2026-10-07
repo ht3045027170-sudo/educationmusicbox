@@ -11,10 +11,41 @@
   let running = false, starting = false, generation = 0, raf = 0, lastFrame = 0, detector, buffer;
   let candidate = null, candidateSince = 0, oscillator = null, toneTimer = 0, toneGeneration = 0;
   let erhuNotes = ['D4', 'A4'];
+  let currentReading = null, turnStart = null;
+  const turnCalibrations = new Map();
+  const turnKey = () => page + ':' + target.note;
+  function turnEstimate(reading) {
+    const box = el('TurnEstimate'); if (!box) return;
+    const calibration = turnCalibrations.get(turnKey());
+    if (turnStart?.key === turnKey()) return;
+    if (Math.abs(reading.cents) <= 3) { box.textContent = '已接近目标，停止拧动'; return; }
+    if (!calibration) { box.textContent = '预计旋钮圈数：先校准这根弦'; return; }
+    const turns = Math.abs(reading.cents) / calibration;
+    box.textContent = `局部估算：约${turns.toFixed(2)}圈${reading.cents < 0 ? '收紧' : '放松'} · 分小步拧动并重新测量`;
+  }
+  for (const id of ['tuner', 'erhuTuner']) {
+    const panel = document.createElement('div'); panel.className = 'tuner-turns';
+    panel.innerHTML = `<p id="${id}TurnEstimate" role="status">预计旋钮圈数：先校准这根弦</p><details><summary>校准旋钮圈数</summary><p>只弹当前目标弦，记录音高后拧动小步，再弹弦测量。圈数指旋钮本身转动一整圈；每根弦分别校准。</p><button type="button" id="${id}TurnBegin">记录拧动前音高</button><label>实际转动圈数 <input id="${id}TurnAmount" type="number" min="0.01" max="1" step="0.01" value="0.125"></label><button type="button" id="${id}TurnFinish">已拧动，再次测量</button><p>这是按本次音高变化推算的局部参考，新弦松弛、绕弦和旋钮间隙会改变结果。不要按估算一次拧完；偏高时先放松，接近目标时每次只拧很小一点。</p></details></div>`;
+    $(id + 'Meter').closest('.precision-readout').after(panel);
+    $(id + 'TurnBegin').onclick = () => {
+      if (!currentReading || performance.now() - currentReading.at > 800) { $(id + 'TurnEstimate').textContent = '请先开始收音，弹这根弦，等到音高读数稳定'; return; }
+      turnStart = { frequency:currentReading.frequency, key:turnKey() };
+      $(id + 'TurnEstimate').textContent = '已记录音高。轻拧旋钮后重新弹弦，再点“已拧动，再次测量”';
+    };
+    $(id + 'TurnFinish').onclick = () => {
+      const amount = Number($(id + 'TurnAmount').value);
+      if (!turnStart || turnStart.key !== turnKey() || !currentReading || performance.now() - currentReading.at > 800 || !(amount >= .01 && amount <= 1)) { $(id + 'TurnEstimate').textContent = '请记录当前弦的起始音高，并填写 0.01–1 圈的实际转动量'; return; }
+      const delta = Math.abs(E.cents(currentReading.frequency, turnStart.frequency));
+      if (delta < 8 || delta > 300) { $(id + 'TurnEstimate').textContent = '音高变化过小或过大，暂不能可靠估算。请小步重新校准'; return; }
+      turnCalibrations.set(turnKey(), delta / amount); turnStart = null; turnEstimate(currentReading);
+    };
+  }
   const prefix = () => page === 'erhu' ? 'erhuTuner' : 'tuner';
   const el = suffix => $(prefix() + suffix);
   function status(text, state = '') { el('Status').textContent = text; el('Status').className = 'tuner-status ' + state; }
   function clearReading() {
+    currentReading = null;
+    const turn = el('TurnEstimate'); if (turn && !turnStart) turn.textContent = '预计旋钮圈数：等待当前弦的音高';
     el('Freq').textContent = '— Hz'; el('Cents').textContent = '—';
     el('Detected').textContent = '等待单音'; el('Needle').hidden = true;
     el('Meter').dataset.state = 'idle';
@@ -31,7 +62,7 @@
   }
   function setTarget(item) {
     target = item;
-    tracker.reset(); candidate = null;
+    tracker.reset(); candidate = null; turnStart = null;
     el('Note').textContent = item.note;
     el('String').textContent = item.label || '固定目标';
     el('Target').textContent = '目标 ' + E.frequency(item.midi, reference).toFixed(2) + ' Hz';
@@ -97,15 +128,12 @@
     autoSelect(result, now);
     const reading = tracker.update(result, E.frequency(target.midi, reference), now);
     el('Level').value = Math.max(0, Math.min(100, (result.db + 70) / 65 * 100));
-    if (!reading.frequency || reading.state === 'wrong-note') {
+    if (!reading.frequency) {
       clearReading();
-      if (reading.state === 'wrong-note') {
-        const midi = Math.round(69 + 12 * Math.log2(reading.frequency / reference));
-        el('Detected').textContent = '听到 ' + E.noteName(midi);
-      }
-      status(({ quiet:'声音较轻，请靠近麦克风并弹一根弦', unclear:'声音不稳定，请止住其他弦后再弹', clipping:'声音过大，请稍远离麦克风', acquiring:'正在确认音高…', 'wrong-note':'与目标音相差较大，请核对琴弦和八度' })[reading.state]);
+      status(({ quiet:'声音较轻，请靠近麦克风并弹一根弦', unclear:'声音不稳定，请止住其他弦后再弹', clipping:'声音过大，请稍远离麦克风', acquiring:'正在确认音高…' })[reading.state]);
       return;
     }
+    currentReading = { ...reading, at: now }; turnEstimate(currentReading);
     const midi = Math.round(69 + 12 * Math.log2(reading.frequency / reference));
     window.dispatchEvent(new CustomEvent('haitang:tuner-reading', { detail: { note: target.note, instrument: page, cents: reading.cents, stable: reading.stable, at: now } }));
     el('Freq').textContent = reading.frequency.toFixed(1) + ' Hz';
@@ -113,9 +141,12 @@
     const rounded = Math.round(reading.cents);
     el('Cents').textContent = (rounded > 0 ? '+' : '') + rounded;
     el('Needle').hidden = false;
-    el('Needle').style.left = (50 + Math.max(-50, Math.min(50, reading.cents))) + '%';
+    const range = Math.abs(reading.cents) > 50 ? Math.max(200, Math.ceil(Math.abs(reading.cents) / 600) * 600) : 50;
+    el('Meter').querySelectorAll('.precision-ticks span').forEach((tick, index) => tick.textContent = String((index - 2) * range / 2));
+    el('Meter').style.setProperty('--needle-angle', Math.max(-65, Math.min(65, reading.cents / range * 65)) + 'deg');
+    el('Needle').style.left = (50 + Math.max(-50, Math.min(50, reading.cents / range * 50))) + '%';
     el('Meter').dataset.state = reading.state;
-    status(reading.stable ? '✓ 已调准，音高稳定' : reading.state === 'settling' ? '接近准确，请保持…' : reading.cents < 0 ? '偏低 · 缓慢调高' : '偏高 · 缓慢调低', reading.stable ? 'intune' : '');
+    status(reading.stable ? '✓ 已调准，音高稳定' : reading.state === 'settling' ? '接近准确，请保持…' : reading.state === 'coarse' ? `当前${E.noteName(midi)}，比目标${target.note}${reading.cents < 0 ? '低' : '高'}约${Math.abs(reading.cents / 100).toFixed(1)}个半音 · ${reading.cents < 0 ? '逐步收紧' : '先放松'}` : reading.cents < 0 ? '偏低 · 缓慢调高' : '偏高 · 缓慢调低', reading.stable ? 'intune' : '');
   }
   async function referenceTone() {
     stop();
