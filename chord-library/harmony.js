@@ -189,11 +189,13 @@
     return { fingers, barres: best.bars.map(({fret, from, to, unit}) => ({fret, from, to, finger: unit + 1})), span: max - min };
   }
 
-  function validate(root, type, rootString, frets) {
-    const rootIndex = 6 - rootString;
+  function validate(root, type, bassString, frets, bassInterval = '1') {
+    const rootIndex = 6 - bassString;
     if (!groups[rootIndex] || !type || !root || frets.length !== 6 ||
         frets.some((fret, i) => !Number.isInteger(fret) || fret < -1 || fret > 20 || (i < rootIndex && fret !== -1))) return null;
-    if (frets[rootIndex] < 0 || mod(tuning[rootIndex] + frets[rootIndex]) !== root.pc) return null;
+    const bassTone = type.tones.find(tone => tone.interval === bassInterval);
+    if (!bassTone || frets[rootIndex] < 0 ||
+        mod(tuning[rootIndex] + frets[rootIndex] - root.pc) !== bassTone.pitch) return null;
     const notes = [];
     for (const [i, fret] of frets.entries()) {
       if (fret < 0) continue;
@@ -217,7 +219,8 @@
     if (!position) return null;
     const omitted = type.tones.filter(tone => !intervals.has(tone.interval) &&
       (type.id !== '7alt' || !altTones.includes(tone.interval))).map(tone => tone.interval);
-    return { frets, notes, rootString, changes, omitted, thirdlessEleventh, ...position };
+    return { frets, notes, rootString: notes.find(note => note.interval === '1').string,
+      bassString, changes, omitted, thirdlessEleventh, ...position };
   }
 
   function gripScore(shape) {
@@ -232,7 +235,8 @@
   }
 
   const cache = new Map();
-  function voicings(root, type, rootString) {
+  function voicings(root, type, rootString, layout = 'common', inversion = 0) {
+    if (layout !== 'common' || inversion !== 0) return arrangedVoicings(root, type, rootString, layout, inversion);
     const rootIndex = 6 - rootString;
     if (!groups[rootIndex]) return [];
     const lookup = [root.name, type.id, rootString].join(':');
@@ -271,18 +275,119 @@
         }
       }
     }
-    const ranked = [...found.values()].sort((a,b) => a.score - b.score);
+    const result = rankedShapes(found, rootIndex);
+    cache.set(lookup, result);
+    return result;
+  }
+
+  function rankedShapes(found, bassIndex) {
     const selected = [];
     const seen = new Set();
-    for (const shape of ranked) {
-      const anchor = shape.frets[rootIndex];
+    for (const shape of [...found.values()].sort((a,b) => a.score - b.score)) {
+      const anchor = shape.frets[bassIndex];
       const signature = shape.frets.map(fret => fret < 0 ? 'x' : fret - anchor).join(',');
       if (seen.has(signature)) continue;
       seen.add(signature);
       selected.push(shape);
       if (selected.length === 3) break;
     }
-    const result = selected.sort((a,b) => Number(a.frets.includes(0)) - Number(b.frets.includes(0)));
+    return selected.sort((a,b) => Number(a.frets.includes(0)) - Number(b.frets.includes(0)));
+  }
+
+  function subsets(items, size, start = 0) {
+    if (!size) return [[]];
+    return items.slice(start, items.length - size + 1).flatMap((item, index) =>
+      subsets(items, size - 1, start + index + 1).map(rest => [item, ...rest]));
+  }
+
+  function droppedPatterns(type, drop, bassTone) {
+    const required = type.tones.filter(tone => !tone.optional);
+    if (required.length > 4) return [];
+    const quartets = subsets(type.tones.filter(tone => tone.optional), 4 - required.length)
+      .map(optional => [...required, ...optional].sort((a,b) => a.pitch - b.pitch));
+    const patterns = new Map();
+    for (const quartet of quartets) {
+      for (let inversion = 0; inversion < quartet.length; inversion++) {
+        const closed = [...quartet.slice(inversion).map(tone => tone.pitch),
+          ...quartet.slice(0, inversion).map(tone => tone.pitch + 12)];
+        // Drop numbers count from the highest of the four close-position voices.
+        closed[4 - drop] -= 12;
+        closed.sort((a,b) => a - b);
+        if (mod(closed[0]) !== bassTone.pitch) continue;
+        const offsets = closed.map(pitch => pitch - closed[0]);
+        patterns.set(offsets.join(','), offsets);
+      }
+    }
+    return [...patterns.values()];
+  }
+
+  function arrangedVoicings(root, type, bassString, layout, inversion) {
+    const bassIndex = 6 - bassString;
+    const bassTone = type?.tones[inversion];
+    if (!groups[bassIndex] || !root || !bassTone) return [];
+    const lookup = [root.name, type.id, bassString, layout, inversion].join(':');
+    if (cache.has(lookup)) return cache.get(lookup);
+    const upper = Array.from({length: 5 - bassIndex}, (_, i) => bassIndex + i + 1);
+    const found = new Map();
+    const minNotes = type.tones.filter(tone => !tone.optional).length;
+    const anchors = [];
+    for (let fret = mod(root.pc + bassTone.pitch - tuning[bassIndex]); fret <= 20; fret += 12) anchors.push(fret);
+
+    function add(frets) {
+      const pattern = frets.join(',');
+      if (found.has(pattern)) return;
+      const shape = validate(root, type, bassString, frets, bassTone.interval);
+      if (shape) found.set(pattern, { ...shape, layout, inversion,
+        id: [root.pc, type.id, bassString, pattern].join(':'), score: gripScore(shape) });
+    }
+
+    const drop = { drop2: 2, drop3: 3, drop4: 4 }[layout];
+    if (drop) {
+      for (const offsets of droppedPatterns(type, drop, bassTone)) {
+        for (const strings of subsets(upper, 3)) {
+          for (const anchor of anchors) {
+            const frets = [-1,-1,-1,-1,-1,-1];
+            frets[bassIndex] = anchor;
+            const bassMidi = tuning[bassIndex] + anchor;
+            strings.forEach((index, i) => { frets[index] = bassMidi + offsets[i + 1] - tuning[index]; });
+            if (strings.every(index => frets[index] >= 0)) add(frets);
+          }
+        }
+      }
+    } else {
+      const shell = type.tones.filter(tone => [1,3,7].includes(degree(tone.interval)));
+      const allowed = layout === 'shell' ? shell : type.tones;
+      const sizes = layout === 'shell' ? [2]
+        : Array.from({length: upper.length}, (_, i) => i + 1).filter(size => size + 1 >= minNotes);
+      if (layout !== 'shell' || (shell.length === 3 && shell.includes(bassTone))) {
+        const stringGroups = sizes.flatMap(size => subsets(upper, size));
+        for (const anchor of anchors) {
+          const bassMidi = tuning[bassIndex] + anchor;
+          for (let start = Math.max(0, anchor - 3); start <= anchor; start++) {
+            const choices = upper.map(index => Array.from({length: 4}, (_, i) => start + i).filter(fret =>
+              tuning[index] + fret >= bassMidi && allowed.some(tone => tone.pitch === mod(tuning[index] + fret - root.pc))));
+            for (const strings of stringGroups) {
+              const frets = [-1,-1,-1,-1,-1,-1];
+              frets[bassIndex] = anchor;
+              function fill(i) {
+                if (i === strings.length) {
+                  if (layout !== 'shell' || new Set(frets.flatMap((fret, index) =>
+                    fret >= 0 ? [mod(tuning[index] + fret)] : [])).size === 3) add(frets.slice());
+                  return;
+                }
+                const index = strings[i];
+                for (const fret of choices[index - bassIndex - 1]) {
+                  frets[index] = fret;
+                  fill(i + 1);
+                }
+              }
+              fill(0);
+            }
+          }
+        }
+      }
+    }
+    const result = rankedShapes(found, bassIndex);
     cache.set(lookup, result);
     return result;
   }

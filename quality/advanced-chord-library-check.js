@@ -145,6 +145,54 @@ assert.match(index, /data-page="chordFinder"/);
 assert.match(index, /id="fretboard"/);
 assert.match(index, /id="chordPiano"/);
 
+const majorSeventh = h.types.get('maj7');
+const shellWithSeventh = h.voicings(C, majorSeventh, 6, 'shell', 3);
+assert.ok(shellWithSeventh.length > 0);
+for (const shape of shellWithSeventh) assert.deepEqual([...new Set(shape.notes.map(note => note.interval))].sort(), ['1','3','7']);
+assert.deepEqual(h.voicings(C, majorSeventh, 4, 'shell', 2), []);
+assert.deepEqual(h.voicings(C, h.types.get('13b9'), 6, 'drop2'), []);
+assert.ok(h.voicings(C, majorSeventh, 4, 'drop2', 1).some(shape =>
+  shape.frets.join(',') === '-1,-1,2,4,1,3'));
+assert.ok(h.voicings(C, majorSeventh, 6, 'drop3').some(shape =>
+  shape.frets.join(',') === '8,-1,9,9,8,-1'));
+assert.ok(h.voicings(C, majorSeventh, 6, 'drop4').some(shape =>
+  shape.frets.join(',') === '8,-1,-1,9,8,7'));
+assert.deepEqual(h.voicings(C, majorSeventh, 4, 'drop4'), []);
+
+const layoutCounts = { shell: 0, drop2: 0, drop3: 0, drop4: 0 };
+for (const key of h.keys) for (const type of h.types.values()) {
+  const root = h.readRoot(key);
+  for (const string of [6, 5, 4]) for (const [inversion, tone] of type.tones.entries()) {
+    const ordinary = h.voicings(root, type, string, 'common', inversion);
+    for (const shape of ordinary) {
+      assert.equal(shape.notes[0].interval, tone.interval);
+      assert.equal(shape.bassString, string);
+    }
+    for (const [layout, drop] of [['shell',0],['drop2',2],['drop3',3],['drop4',4]]) {
+      for (const shape of h.voicings(root, type, string, layout, inversion)) {
+        layoutCounts[layout]++;
+        assert.equal(shape.notes[0].interval, tone.interval);
+        assert.equal(shape.notes[0].string, string);
+        assert.equal(shape.bassString, string);
+        assert.equal(shape.inversion, inversion);
+        assert.ok(h.validate(root, type, string, shape.frets, tone.interval));
+        if (!drop) {
+          assert.equal(shape.notes.length, 3);
+          assert.deepEqual(shape.notes.map(note => Number(note.interval.replace(/[^0-9]/g,''))).sort(), [1,3,7]);
+          continue;
+        }
+        assert.equal(shape.notes.length, 4);
+        const [bass, ...higher] = shape.notes.map(note => note.midi).sort((a,b) => a - b);
+        const closed = [bass + 12, ...higher].sort((a,b) => a - b);
+        assert.ok(closed[3] - closed[0] < 12);
+        assert.equal(closed[4 - drop], bass + 12);
+      }
+    }
+  }
+}
+for (const count of Object.values(layoutCounts)) assert.ok(count > 0);
+console.log('Verified exact arrangement and bass for:', layoutCounts);
+
 console.log(`Validated ${h.types.size} chord types × ${h.keys.length} roots × 3 strings.`);
 console.log(`${allIds.size} voicings (${chart} from reference grips); ${empty} combinations have no supported grip.`);
 console.log('Voicings by root string:', counts);

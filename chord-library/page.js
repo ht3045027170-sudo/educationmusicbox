@@ -23,7 +23,16 @@
   panel.className = 'cl-panel';
   const button = (action, title, value = '') =>
     `<button type="button" data-cl-action="${action}" data-value="${value}">${title}</button>`;
-  const rootStrings = [6, 5, 4];
+  const bassStrings = [6, 5, 4];
+  const layouts = [
+    ['common', '常用'], ['shell', 'Shell Voicing'], ['drop2', 'Drop 2'],
+    ['drop3', 'Drop 3'], ['drop4', 'Drop 4'],
+  ];
+  const inversionNames = ['原位', '第一转位', '第二转位', '第三转位', '第四转位', '第五转位', '第六转位'];
+  const layoutOptions = value => layouts.map(([id, label]) =>
+    `<option value="${id}" ${value === id ? 'selected' : ''}>${label}</option>`).join('');
+  const inversionOptions = (count, selected) => inversionNames.slice(0, Math.max(count, selected + 1))
+    .map((label, i) => `<option value="${i}" ${selected === i ? 'selected' : ''}>${label}</option>`).join('');
   const attacks = [
     { id: 'strum', label: '扫弦', spacing: .038 },
     { id: 'block', label: '柱式和弦', spacing: 0 },
@@ -47,7 +56,7 @@
       <div class="cl-controls">
         <label><span data-cl="key-label">根音</span><select data-cl="key">${harmony.keys.map(key => `<option>${key}</option>`).join('')}</select></label>
         <label data-cl="mode-field">调式<select data-cl="mode"><option value="major">大调</option><option value="minor">小调</option></select></label>
-        <fieldset class="cl-strings"><legend class="cl-sr">根音所在琴弦</legend>
+        <fieldset class="cl-strings"><legend class="cl-sr">最低音所在琴弦</legend>
           ${button('string', '全部', '0')}${button('string', '六弦', '6')}${button('string', '五弦', '5')}${button('string', '四弦', '4')}
         </fieldset>
       </div>
@@ -56,6 +65,8 @@
       <div class="cl-options">
         <label>和弦类别<select data-cl="family"><option value="">全部类别</option>${harmony.families.map(([family]) => `<option>${family}</option>`).join('')}</select></label>
         <label>和弦类型<select data-cl="type"><option value="all">全部类型</option>${[...harmony.types].map(([id]) => `<option value="${id}">${id ? harmony.suffixLabel(id) : "Major"}</option>`).join('')}</select></label>
+        <label>排列<select data-cl="atlas-layout">${layoutOptions('common')}</select></label>
+        <label>转位<select data-cl="atlas-inversion">${inversionOptions(inversionNames.length, 0)}</select></label>
         <label>图上标记<select data-cl="labels"><option value="interval">相对音程</option><option value="name">音名</option><option value="finger">指号</option></select></label>
         <label>学习记录<select data-cl="filter"><option value="">全部指型</option><option value="fav">已收藏</option><option value="learned">已掌握</option></select></label>
         ${button('layout', '单列大图')}
@@ -69,6 +80,10 @@
         <li>十一和弦以 11 为特征。属十一的无三音指型保留 ♭7、9、11，和 9sus4 可以共用按法。挂留和弦用 2 或 4 替代三音。</li>
         <li>十三和弦保留七音和 13；普通 13 可省 9、11。后缀点名的 ♭9、♯9 或 ♯11 要保留。</li>
         <li>用 CAGED 先认七和弦骨架，再找不同根音弦上的扩展音。六个品位数字从六弦读到一弦。</li></ul>
+      </details>
+      <details class="cl-rules"><summary>Shell、Drop 和转位怎么选</summary>
+        <p>Shell 使用根音、三音和七音。Drop 从四个不同和弦音的密集排列开始，从最高音往下数，把指定声部降一个八度。</p>
+        <p>转位按实际最低音确定。六、五、四弦指最低音的琴弦。带斜杠的名字右边是最低音，例如 Cmaj7/E。</p>
       </details>
       <p class="cl-muted" data-cl="count" role="status"></p>
       <div data-cl="atlas"></div>
@@ -130,6 +145,7 @@
   let activePicture = null, dialogTrigger = null, generation = 0, timer = 0;
   let conversion = null, practice = null, practiceRows = [];
   let preset = 0;
+  let sampledContext = null;
   const conversionChoices = new Map(), practiceChoices = new Map();
   const currentChoices = () => tab === 'convert' ? conversionChoices : practiceChoices;
   function changeChoice(index, change) {
@@ -177,12 +193,15 @@
     return entries.join(' / ');
   }
 
+  const shapeName = (shape, name) => shape.inversion ? `${name}/${shape.notes[0].name}` : name;
+  const bassLabel = shape => `${shape.bassString}弦低音 · ${inversionNames[shape.inversion || 0]}`;
   function card(shape, name, practiceStyle = null, index = 0) {
     const key = 'shape:' + shape.id;
+    name = shapeName(shape, name);
     shapes.set(key, { shape, name });
     return `<article class="cl-card">
-      <button class="cl-picture" type="button" data-cl-action="zoom" data-value="${key}" aria-label="放大 ${name} ${shape.rootString}弦根音">
-        <b>${name}</b><small>${shape.rootString}弦根音</small>${diagram(shape, get('labels').value)}
+      <button class="cl-picture" type="button" data-cl-action="zoom" data-value="${key}" aria-label="放大 ${name} ${bassLabel(shape)}">
+        <b>${name}</b><small>${bassLabel(shape)}</small>${diagram(shape, get('labels').value)}
       </button>
       <p>${shapeSummary(shape) || '完整构成音'}</p>
       <div class="cl-frets" aria-label="六弦至一弦实际品位">${shape.frets.map(fret => fret < 0 ? '×' : fret).join(' · ')}</div>
@@ -199,21 +218,23 @@
     </article>`;
   }
 
-  const strings = () => rootString ? [rootString] : rootStrings;
+  const strings = () => rootString ? [rootString] : bassStrings;
   function catalogue() {
     const root = atlasRoot;
     const family = get('family').value;
     const filter = get('filter').value;
     const typeFilter = get('type').value;
+    const layout = get('atlas-layout').value;
+    const inversion = Number(get('atlas-inversion').value);
     let count = 0, countTypes = 0;
     const output = harmony.families.filter(([name]) => typeFilter !== 'all' || !family || name === family).map(([name, entries]) => {
       const tiles = entries.filter(([id]) => typeFilter === 'all' || typeFilter === id).map(([id]) => {
         const type = harmony.types.get(id);
         const name = root.name + harmony.suffixLabel(id);
-        const options = strings().flatMap(string => harmony.voicings(root, type, string))
+        const options = strings().flatMap(string => harmony.voicings(root, type, string, layout, inversion))
           .filter(shape => !filter || records[filter].has(shape.id));
         if (filter && !options.length) return '';
-        const missing = strings().filter(string => !options.some(shape => shape.rootString === string));
+        const missing = strings().filter(string => !options.some(shape => shape.bassString === string));
         count += options.length;
         countTypes++;
         return `<section class="cl-type">
@@ -221,7 +242,7 @@
             ? '1 · 3 · ♭7 + 变化五音或九音'
             : type.tones.map(tone => harmony.suffixLabel(tone.interval)).join(' · ')}</span></div>
           <div class="cl-grid">${options.map(shape => card(shape, name)).join('')}</div>
-          ${missing.length && !filter ? `<p class="cl-muted">${missing.join('、')}弦根音暂无合适指型</p>` : ''}
+          ${missing.length && !filter ? `<p class="cl-muted">${missing.join('、')}弦低音 · 这个和弦不能按（当前排列和转位）</p>` : ''}
         </section>`;
       }).join('');
       return tiles ? `<section class="cl-family"><h4>${name}</h4>${tiles}</section>` : '';
@@ -233,7 +254,7 @@
   function detail(entry) {
     const { shape, name } = entry;
     const key = 'shape:' + shape.id;
-    dialog.querySelector('h3').textContent = `${name} · ${shape.rootString}弦根音`;
+    dialog.querySelector('h3').textContent = `${name} · ${bassLabel(shape)}`;
     get('detail').innerHTML = `${diagram(shape, get('labels').value, true)}
       <p class="cl-muted">${shapeSummary(shape) || '完整构成音'}</p>
       <div class="cl-detail-notes">${shape.notes.map(note => `<button type="button" class="cl-${cls(note.interval)}" data-cl-action="note" data-value="${note.string}">
@@ -256,36 +277,43 @@
     let previous = null;
     return (items || []).map((item, index) => {
       const chord = harmony.resolve(item, tonic, mode);
-      const byString = new Map(rootStrings.map(string => [string, harmony.voicings(chord.root, chord.type, string)]));
       const choice = choices.get(index);
+      const layout = choice?.layout ?? 'common';
+      const inversion = choice?.inversion ?? 0;
+      const byString = new Map(bassStrings.map(string =>
+        [string, harmony.voicings(chord.root, chord.type, string, layout, inversion)]));
       const wanted = choice?.string ?? rootString;
       const options = wanted ? byString.get(wanted) : [...byString.values()].flat();
       const hand = options.find(shape => shape.id === choice?.shape) || preferred(options, previous);
       const position = shape => Math.min(...shape.frets.filter(fret => fret >= 0));
       const movement = previous && hand ? Math.abs(position(hand) - position(previous)) : null;
       if (practiceMode) previous = hand;
-      return { chord, byString, options, hand, wanted, movement, attack: choice?.attack || 'strum' };
+      return { chord, byString, options, hand, wanted, movement, layout, inversion, attack: choice?.attack || 'strum' };
     });
   }
 
-  function progressionCard({chord, byString, options, hand, wanted, movement, attack}, i, practiceMode) {
-    const shown = hand?.rootString ?? wanted;
+  function progressionCard({chord, byString, options, hand, wanted, movement, layout, inversion, attack}, i, practiceMode) {
+    const shown = hand?.bassString ?? wanted;
     const name = `${i + 1}. ${chord.name}`;
     return `<section class="cl-step" data-cl-step="${i}">
       <div class="cl-notation"><b>${practiceMode ? name : chord.name}</b><span>${chord.numeric} · ${chord.roman}</span></div>
-      <div class="cl-step-strings" role="group" aria-label="${name} 的根音弦">
-        ${rootStrings.map((string, j) => {
+      <div class="cl-voicing-controls">
+        <label>排列<select data-cl-layout="${i}" aria-label="${name} 的排列">${layoutOptions(layout)}</select></label>
+        <label>转位<select data-cl-inversion="${i}" aria-label="${name} 的转位">${inversionOptions(chord.type.tones.length, inversion)}</select></label>
+      </div>
+      <div class="cl-step-strings" role="group" aria-label="${name} 的低音弦">
+        ${bassStrings.map((string, j) => {
           const playable = byString.get(string).length > 0;
           return `<button type="button" data-cl-action="step-string" data-value="${string}"
-            aria-pressed="${shown === string}" ${playable ? '' : 'disabled title="此弦暂无合适指型"'}>${['六','五','四'][j]}弦</button>`;
+            aria-pressed="${shown === string}" ${playable ? '' : 'data-cl-unavailable title="当前排列和转位在此弦不能按"'}>${['六','五','四'][j]}弦</button>`;
         }).join('')}
       </div>
       ${hand ? `${card(hand, chord.name, practiceMode ? attack : null, i)}
         <label class="cl-choice">换用指型<select data-cl-choice="${i}" aria-label="${name} 换用指型">
-          ${options.map(shape => `<option value="${shape.id}" ${shape === hand ? 'selected' : ''}>${shape.rootString}弦 · ${shape.frets.map(fret => fret < 0 ? '×' : fret).join(' ')}</option>`).join('')}
+          ${options.map(shape => `<option value="${shape.id}" ${shape === hand ? 'selected' : ''}>${shape.bassString}弦 · ${shape.frets.map(fret => fret < 0 ? '×' : fret).join(' ')}</option>`).join('')}
         </select></label>
         ${movement === null ? '' : `<small class="cl-muted">${movement ? `换把 ${movement} 品` : '同把位连接'}</small>`}`
-        : `<p class="cl-muted">暂无合适指型${practiceMode ? ' · 播放时保留拍点' : ''}</p>`}
+        : `<p class="cl-muted">这个和弦不能按 · 当前排列、转位与低音弦没有可用指型${practiceMode ? ' · 播放时保留拍点' : ''}</p>`}
     </section>`;
   }
 
@@ -326,7 +354,7 @@
     try {
       practice = harmony.parse(source, tonic, mode);
       preset = selectedPreset;
-      status.textContent = `${practice.length} 个和弦 · 可逐个切换根音弦、指型和演奏方式`;
+      status.textContent = `${practice.length} 个和弦 · 可逐个切换低音弦、排列、转位和演奏方式`;
     } catch (error) {
       practice = null;
       preset = null;
@@ -378,19 +406,19 @@
     stop();
     const current = generation;
     const audio = getAudio();
-    try { await audio.resume(); }
+    try { if (audio.state !== 'running') await audio.resume(); }
     catch (_) { return null; }
     if (current !== generation) return null;
-    let sampled = Boolean(window.HetianGuitar);
-    try { if (sampled) await window.HetianGuitar.prepareSamples(audio); }
-    catch (_) { sampled = false; }
-    return current === generation ? { audio, sampled, current } : null;
+    if (window.HetianGuitar && sampledContext !== audio) {
+      window.HetianGuitar.prepareSamples(audio).then(() => { sampledContext = audio; }).catch(() => {});
+    }
+    return { audio, current };
   }
 
   function playNotes(sound, notes, time, spacing, duration) {
     notes.forEach((note, i) => {
       const start = time + i * spacing;
-      if (sound.sampled) window.HetianGuitar.playSample(sound.audio, note.midi, start, duration, notes.length > 1 ? .37 : .65, note.stringMidi);
+      if (sampledContext === sound.audio) window.HetianGuitar.playSample(sound.audio, note.midi, start, duration, notes.length > 1 ? .37 : .65, note.stringMidi);
       else voice(note.midi, start, duration, 'guitar', .20, scope);
     });
   }
@@ -429,7 +457,7 @@
         const { chord, hand, attack } = practiceRows[index];
         panel.querySelector('.cl-step.cl-playing')?.classList.remove('cl-playing');
         panel.querySelector(`[data-cl-step="${index}"]`)?.classList.add('cl-playing');
-        get('practice-status').textContent = `第 ${index + 1}/${practiceRows.length} 个和弦 · ${chord.name}`;
+        get('practice-status').textContent = `第 ${index + 1}/${practiceRows.length} 个和弦 · ${hand ? shapeName(hand, chord.name) : chord.name}`;
         if (hand) {
           const window = beat * beats * .84;
           const target = attack === 'strum' ? .022 : attacks.find(option => option.id === attack).spacing;
@@ -469,7 +497,15 @@
   panel.addEventListener('change', event => {
     const control = event.target;
     const kind = control.dataset.cl;
-    if (control.dataset.clChoice !== undefined) {
+    if (control.dataset.clLayout !== undefined || control.dataset.clInversion !== undefined) {
+      const layoutChanged = control.dataset.clLayout !== undefined;
+      const index = Number(control.dataset.clLayout ?? control.dataset.clInversion);
+      changeChoice(index, { ...(layoutChanged ? { layout: control.value } : { inversion: Number(control.value) }), shape: null });
+      stop();
+      paint();
+      const field = layoutChanged ? 'layout' : 'inversion';
+      panel.querySelector(`[data-cl-view="${tab}"] [data-cl-${field}="${index}"]`)?.focus({preventScroll:true});
+    } else if (control.dataset.clChoice !== undefined) {
       const index = Number(control.dataset.clChoice);
       changeChoice(index, { shape: control.value });
       stop();
@@ -492,7 +528,7 @@
       if (kind === 'family') get('type').value = 'all';
       else if (control.value !== 'all') get('family').value = harmony.types.get(control.value).family;
       paint();
-    } else if (['labels', 'filter'].includes(kind)) paint();
+    } else if (['labels', 'filter', 'atlas-layout', 'atlas-inversion'].includes(kind)) paint();
     else if (kind === 'format') parseConversion();
     else if (kind === 'bpm' || kind === 'beats') stop();
   });
