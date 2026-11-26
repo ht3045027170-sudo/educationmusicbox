@@ -266,6 +266,21 @@
 .cl-card-actions button:nth-child(n+2) {
   min-width: 31px;
 }
+.cl-voicing-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  margin-bottom: 6px;
+}
+.cl-panel .cl-voicing-controls select {
+  width: 100%;
+  min-width: 0;
+  font-size: 12px;
+  padding-inline: 3px;
+}
+.cl-step-strings button[data-cl-unavailable]:not([aria-pressed="true"]) {
+  opacity: .62;
+}
 .cl-step-strings {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
