@@ -82,7 +82,7 @@
         <li>用 CAGED 先认七和弦骨架，再找不同根音弦上的扩展音。六个品位数字从六弦读到一弦。</li></ul>
       </details>
       <details class="cl-rules"><summary>Shell、Drop 和转位怎么选</summary>
-        <p>Shell 使用根音、三音和七音。Drop 从四声部密集排列的最高音往下数，把指定声部降一个八度。</p>
+        <p>Shell 使用根音、三音和七音。Drop 从四个不同和弦音的密集排列开始，从最高音往下数，把指定声部降一个八度。</p>
         <p>转位按实际最低音确定。六、五、四弦指最低音的琴弦。带斜杠的名字右边是最低音，例如 Cmaj7/E。</p>
       </details>
       <p class="cl-muted" data-cl="count" role="status"></p>
@@ -145,6 +145,7 @@
   let activePicture = null, dialogTrigger = null, generation = 0, timer = 0;
   let conversion = null, practice = null, practiceRows = [];
   let preset = 0;
+  let sampledContext = null;
   const conversionChoices = new Map(), practiceChoices = new Map();
   const currentChoices = () => tab === 'convert' ? conversionChoices : practiceChoices;
   function changeChoice(index, change) {
@@ -405,19 +406,19 @@
     stop();
     const current = generation;
     const audio = getAudio();
-    try { await audio.resume(); }
+    try { if (audio.state !== 'running') await audio.resume(); }
     catch (_) { return null; }
     if (current !== generation) return null;
-    let sampled = Boolean(window.HetianGuitar);
-    try { if (sampled) await window.HetianGuitar.prepareSamples(audio); }
-    catch (_) { sampled = false; }
-    return current === generation ? { audio, sampled, current } : null;
+    if (window.HetianGuitar && sampledContext !== audio) {
+      window.HetianGuitar.prepareSamples(audio).then(() => { sampledContext = audio; }).catch(() => {});
+    }
+    return { audio, current };
   }
 
   function playNotes(sound, notes, time, spacing, duration) {
     notes.forEach((note, i) => {
       const start = time + i * spacing;
-      if (sound.sampled) window.HetianGuitar.playSample(sound.audio, note.midi, start, duration, notes.length > 1 ? .37 : .65, note.stringMidi);
+      if (sampledContext === sound.audio) window.HetianGuitar.playSample(sound.audio, note.midi, start, duration, notes.length > 1 ? .37 : .65, note.stringMidi);
       else voice(note.midi, start, duration, 'guitar', .20, scope);
     });
   }
@@ -456,7 +457,7 @@
         const { chord, hand, attack } = practiceRows[index];
         panel.querySelector('.cl-step.cl-playing')?.classList.remove('cl-playing');
         panel.querySelector(`[data-cl-step="${index}"]`)?.classList.add('cl-playing');
-        get('practice-status').textContent = `第 ${index + 1}/${practiceRows.length} 个和弦 · ${chord.name}`;
+        get('practice-status').textContent = `第 ${index + 1}/${practiceRows.length} 个和弦 · ${hand ? shapeName(hand, chord.name) : chord.name}`;
         if (hand) {
           const window = beat * beats * .84;
           const target = attack === 'strum' ? .022 : attacks.find(option => option.id === attack).spacing;
