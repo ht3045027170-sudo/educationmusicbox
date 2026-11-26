@@ -2,6 +2,10 @@
   'use strict';
 
   const harmony = window.HetianChordLibrary;
+  const app = window.HetianApp;
+  if (!app?.chordAudio) return;
+  const { getAudio, stopAllAudio } = app;
+  const { stopChordProgression, stopAudioScope, voice, clickSound } = app.chordAudio;
   const shell = document.querySelector('#chordFinder .chord-shell');
   if (!harmony || !shell) return;
 
@@ -406,7 +410,7 @@
   }
 
   function toggle(open) {
-    if (open) stopAllAppAudio('chord-library');
+    if (open) stopAllAudio('chord-library');
     else {
       stop();
       if (dialog.open) dialog.close();
