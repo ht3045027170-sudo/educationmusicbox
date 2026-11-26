@@ -73,7 +73,7 @@
         <ul>${offer.map(item=>`<li><b>${escape(item.scale.zh)}</b> · ${item.exact?'保留必需和弦音':'作为风格色彩，有音需要解决'} ·
           ${item.fit>.85?'大多与当前调内音重合':'含调外色彩'} · ${escape(item.scale.usage)}</li>`).join('')}</ul>
         ${next&&parsed.length>1?`<p>下一小节 ${escape(next.name)}。试听时可以把三音或七音接到下一和弦的近邻目标音。</p>`:''}`:''}
-      ${fretboard(area,chord.root,activeScale,{orientation:'horizontal',labels:config.difficulty===1?'target':'interval',targets,compact:true})}
+      ${fretboard(area,chord.root,activeScale,{labels:config.difficulty===1?'target':'interval',targets})}
       <div class="ss-row">${action('improv-arp','试听琶音')}${action('improv-lick','抽一条个人乐句')}</div>
       <p>${licks.length?`匹配乐句 ${licks.slice(0,4).map(item=>escape(item.name)).join(' · ')}`:'可在个人乐句里为这类和弦建立乐句。'}</p>
       ${activeLick?`<p><b>${escape(activeLick.name)}</b> · 用在第 ${index+1} 小节 ${escape(chord.name)}。保留落点，改一次节奏或改一次收尾。 ${action('improv-lick-play','按此调试听')}</p>`:''}</article>`;

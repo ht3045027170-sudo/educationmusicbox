@@ -48,44 +48,85 @@
     return { label, from, to, cells };
   }
 
+  // Open-position chord forms, transposed as a unit to anchor each scale shape.
+  const cagedForms = [
+    {name:'C', root:0, major:[null,3,2,0,1,0], minor:[null,3,1,0,1,null]},
+    {name:'A', root:9, major:[null,0,2,2,2,0], minor:[null,0,2,2,1,0]},
+    {name:'G', root:7, major:[3,2,0,0,0,3], minor:[3,1,0,0,null,3]},
+    {name:'E', root:4, major:[0,2,2,1,0,0], minor:[0,2,2,0,0,0]},
+    {name:'D', root:2, major:[null,null,0,2,3,2], minor:[null,null,0,2,3,1]},
+  ];
+
+  function chordAnchor(form, minor, notes, shift) {
+    return form[minor?'minor':'major'].flatMap((fret,i) => {
+      if (fret === null) return [];
+      const cell = coordinate(6-i,fret+shift);
+      const tone = notes.find(note=>note.pc===scales.mod(cell.midi));
+      return cell.fret >= 0 && cell.fret <= 24 && tone ? [{...cell,tone}] : [];
+    });
+  }
+
+  function anchorForBox(box, root, notes, minor, name) {
+    const positions = new Set(box.cells.filter(cell=>cell.tone).map(key));
+    return cagedForms.filter(form=>!name || form.name===name).flatMap(form=>{
+      const start = scales.mod(root.pc-form.root);
+      return [start-12,start,start+12].map(shift=>({
+        name:form.name, skeleton:chordAnchor(form,minor,notes,shift).filter(cell=>positions.has(key(cell))),
+      }));
+    }).filter(item=>new Set(item.skeleton.map(cell=>cell.tone.pc)).size===3)
+      .sort((a,b)=>b.skeleton.length-a.skeleton.length)[0];
+  }
+
   function pentatonicBoxes(root, notes) {
     const patterns = [
-      ['E', [[0,3],[0,2],[0,2],[0,2],[0,3],[0,3]]],
-      ['D', [[3,5],[2,5],[2,5],[2,4],[3,5],[3,5]]],
-      ['C', [[5,7],[5,7],[5,7],[4,7],[5,8],[5,7]]],
-      ['A', [[7,10],[7,10],[7,9],[7,9],[8,10],[7,10]]],
-      ['G', [[10,12],[10,12],[9,12],[9,12],[10,12],[10,12]]],
+      ['E','G', [[0,3],[0,2],[0,2],[0,2],[0,3],[0,3]]],
+      ['D','E', [[3,5],[2,5],[2,5],[2,4],[3,5],[3,5]]],
+      ['C','D', [[5,7],[5,7],[5,7],[4,7],[5,8],[5,7]]],
+      ['A','C', [[7,10],[7,10],[7,9],[7,9],[8,10],[7,10]]],
+      ['G','A', [[10,12],[10,12],[9,12],[9,12],[10,12],[10,12]]],
     ];
-    const bassPc = notes.some(note => note.interval === 'b3') ? root.pc : scales.mod(root.pc + 9);
+    const minor = !notes.some(note=>note.interval==='3');
+    const bassPc = minor ? root.pc : scales.mod(root.pc+9);
     const anchor = scales.mod(bassPc-open[0]);
-    return patterns.map(([name, offsets])=>{
+    const blue = minor ? 'b5' : 'b3';
+    return patterns.map(([minorName,majorName,offsets])=>{
       let base = anchor;
       if(base + Math.max(...offsets.flat()) > 24)base -= 12;
       const frets = offsets.map(pair=>pair.map(offset=>offset+base));
       const from=Math.min(...frets.flat()), to=Math.max(...frets.flat());
+      const name=minor ? minorName : majorName;
       const box=region(notes,from,to,name+' 型');
-      box.cells=box.cells.map(cell=>frets[6-cell.string].includes(cell.fret)?cell:{...cell,tone:undefined});
+      box.cells=box.cells.map(cell=>frets[6-cell.string].includes(cell.fret) || cell.tone?.interval===blue ?
+        cell : {...cell,tone:undefined});
+      box.skeleton=(anchorForBox(box,root,notes,minor,name) || anchorForBox(box,root,notes,minor))?.skeleton || [];
       return box;
     }).sort((a,b)=>a.from-b.from);
   }
 
   function caged(root, notes, reference = null) {
     const formula = notes.map(n=>n.pitch).join(',');
-    if (formula === '0,3,5,7,10' || formula === '0,2,4,7,9') return pentatonicBoxes(root,notes);
-    const pitch = reference?.pc ?? root.pc;
-    const minor = notes.some(note => note.interval === 'b3') && !notes.some(note => note.interval === '3');
-    const fixed = minor
-      ? [{name:'E', string:6, left:0, width:3}, {name:'D', string:4, left:0, width:3},
-        {name:'C', string:5, left:3, width:3}, {name:'A', string:5, left:0, width:3},
-        {name:'G', string:6, left:2, width:3}]
-      : [{name:'C', string:5, left:3, width:4}, {name:'A', string:5, left:1, width:4},
-        {name:'G', string:6, left:2, width:4}, {name:'E', string:6, left:1, width:4},
-        {name:'D', string:4, left:1, width:4}];
-    return fixed.map(({name,string,left,width}) => {
-      let from = scales.mod(pitch - open[6 - string]) - left;
-      if (from < 0) from += 12;
-      return region(notes, from, from + width, name + ' 型');
-    }).sort((a,b) => a.from - b.from);
+    if (['0,3,5,7,10','0,2,4,7,9','0,3,5,6,7,10','0,2,3,4,7,9'].includes(formula)) {
+      return pentatonicBoxes(root,notes);
+    }
+    const tonic = reference || root;
+    const has = pitch => notes.some(note=>note.pc===scales.mod(tonic.pc+pitch));
+    const minor = !has(4) && has(3);
+    if ((!has(4) && !minor) || !has(0) || !has(7)) return [];
+    return cagedForms.map(form=>{
+      const shape = form[minor?'minor':'major'];
+      const shift = scales.mod(tonic.pc-form.root);
+      const skeleton = chordAnchor(form,minor,notes,shift);
+      const from = Math.min(...skeleton.map(cell=>cell.fret));
+      const to = from + Math.max(3,Math.max(...shape.filter(fret=>fret!==null)));
+      const box = region(notes,from,to,form.name+' 型');
+      const skeletonByString = new Map(skeleton.map(cell=>[cell.string,cell.fret]));
+      // Keep scale notes within reach of the frets in the chord grip.
+      box.cells = box.cells.map(cell=>{
+        const guide = skeletonByString.get(cell.string);
+        return guide === undefined || Math.abs(cell.fret-guide)<=3 ? cell : {...cell,tone:undefined};
+      });
+      return {...box,skeleton};
+    }).sort((a,b)=>a.from-b.from);
   }
 
   function perString(notes, count, anchorString = 6) {

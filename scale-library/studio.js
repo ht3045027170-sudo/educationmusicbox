@@ -2,8 +2,9 @@
   'use strict';
   const shell = document.getElementById('scaleStudio');
   const H = window.HetianChordLibrary, S = window.HetianScales, I = window.HetianScaleInstrument;
+  const board = window.HetianGuitarFretboard;
   const app = window.HetianApp;
-  if (!shell || !I || !app?.chordAudio) return;
+  if (!shell || !I || !board || !app?.chordAudio) return;
 
   const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({
     '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;',
@@ -77,8 +78,19 @@
   function updatePalette() {
     Object.entries(store.palette).forEach(([name, color]) => shell.style.setProperty('--ss-' + name,color));
   }
-  const state = { page:'atlas', key:'A', scale:'minor-pent', labels:'interval', sol:'relative', layout:'caged',
-    direction:'up', from:5, to:9, string:6, orientation:'vertical', single:false, color:true, chord:'m7' };
+  const displayKey = 'haitang-guitar-fretboard-display-v1';
+  const defaults = {orientation:'horizontal', mirror:false, emphasis:true, color:true, inlays:true,
+    fingers:false, overlaps:true, chordOnly:false};
+  function displayPreferences() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(displayKey));
+      return Object.fromEntries(Object.entries(defaults).map(([key,value])=>[key, key==='orientation' ?
+        (saved?.orientation==='vertical'?'vertical':'horizontal') :
+        (typeof saved?.[key]==='boolean'?saved[key]:value)]));
+    } catch (_) { return defaults; }
+  }
+  const state = { ...displayPreferences(),page:'atlas', key:'A', scale:'minor-pent', labels:'interval', sol:'relative', layout:'caged',
+    direction:'up', from:5, to:9, string:6, single:false, chord:'m7' };
   const get = name => shell.querySelector(`[data-ss="${name}"]`);
   const status = message => { get('status').textContent = message; };
   const modules = new Map();
@@ -210,47 +222,24 @@
 
   function fretboard(region, root, scale, opts = {}) {
     const display = opts.labels || state.labels;
-    const vertical = opts.orientation === 'vertical';
-    const quiz = opts.quiz || false;
-    const {from,to,cells} = region;
-    const strings = [...new Set(cells.map(cell => cell.string))].sort((a,b) => vertical ? b-a : a-b);
-    const count = to - from + 1;
-    const long = count > 9 && !vertical;
-    const target = new Set(opts.targets || []);
-    const structure = opts.kind || 'point';
-    const axis = Array.from({length:count},(_,i)=>from+i);
-    const decorate = (cell, code) => {
-      const d = cell.tone && S.degree(cell.tone.interval);
-      const hint = display !== 'hide' && (!quiz || opts.reveal);
-      const shown = (cell.tone && hint && display !== 'root' && display !== 'target') ||
-        (hint && display === 'root' && d === 1) || (hint && display === 'target' && target.has(S.mod(cell.midi)));
-      let tone = 'other';
-      if (d === 1) tone='root';
-      else if (cell.tone?.featured) tone='feature';
-      else if (d === 3) tone='third';
-      else if (d === 5) tone='fifth';
-      else if (d === 7) tone='seventh';
-      const choice = opts.picks?.has(code);
-      const marked = opts.common?.has(S.mod(cell.midi));
-      const title = `${cell.string} 弦 ${cell.fret} 品${shown ? ' · '+(cell.tone?.name || I.noteName(cell.midi)) : ''}`;
-      const available = shown || quiz || !opts.compact;
-      return available ? `<button type="button" data-ss-action="${structure}" data-value="${code}"
-        class="ss-cell ${shown ? 'hit ' + tone : ''} ${choice ? 'pick' : ''} ${marked ? 'shared' : ''}"
-        aria-label="${escape(title)}">${shown ? escape(label(cell,root,scale,display) || '•') : quiz ? '·' : ''}</button>` :
-        '<span class="ss-cell empty"></span>';
-    };
-    const items = new Map(cells.map(cell => [I.key(cell),cell]));
-    const cell = (string,fret) => {
-      const code = `${string}:${fret}`;
-      return decorate(items.get(code) || I.coordinate(string,fret),code);
-    };
-    return `<div class="ss-board-frame ${long ? 'ss-long' : ''}"><div class="ss-board ${vertical ? 'vertical' : ''}"
-      style="--ss-cols:${vertical ? strings.length+1 : count+1}">
-      <span class="ss-axis">${vertical ? '品' : '弦'}</span>
-      ${(vertical ? strings : axis).map(n => `<span class="ss-axis">${n}</span>`).join('')}
-      ${(vertical ? axis : strings).map(n => `<span class="ss-axis">${n}</span>${
-        (vertical ? strings : axis).map(m => vertical ? cell(m,n) : cell(n,m)).join('')}`).join('')}
-    </div></div>`;
+    const targets = new Map((opts.targets || []).map(target=>typeof target==='number' ? [target,null] : [target.pc,target]));
+    const targetOnly = display==='target' || (opts.useAtlasOptions && state.chordOnly);
+    return board.render(region,{orientation:state.orientation, mirror:state.mirror, inlays:state.inlays, ...opts},cell=>{
+      const pitch = S.mod(cell.midi);
+      const hint = display!=='hide' && (!opts.quiz || opts.reveal);
+      const note = targetOnly ? (targets.get(pitch) || cell.tone) : cell.tone;
+      const shown = hint && (targetOnly ? targets.has(pitch) : note && (display!=='root' || note.interval==='1'));
+      if (!shown && !opts.quiz) return {};
+      const degree = note && S.degree(note.interval);
+      const tone = degree===1?'root':note?.featured?'feature':degree===3?'third':
+        degree===5?'fifth':degree===7?'seventh':'other';
+      const position = I.key(cell);
+      const finger = shown && display!=='finger' && opts.useAtlasOptions && state.fingers ? cell.finger : '';
+      return {action:opts.kind || 'point', tone:shown?tone:null, root:shown&&degree===1&&state.emphasis,
+        marked:shown&&(opts.common?.has(pitch) || opts.shared?.has(position)), picked:opts.picks?.has(position),
+        finger, label:shown && note ? label({...cell,tone:note},root,scale,display) : '',
+        name:`${cell.string} 弦 ${cell.fret} 品${shown ? ' · ' + (note?.name || I.noteName(cell.midi)) : ''}`};
+    });
   }
 
   const root = () => H.readRoot(state.key);
@@ -263,9 +252,16 @@
     if (layout === 'custom') return [I.region(notes,from,to,from+'–'+to+' 品')];
     if (layout === 'start') return I.starts(tonic,notes,state.string);
     if (layout === 'three' || layout === 'two') return I.perString(notes,layout==='three'?3:2,state.string);
-    if (descriptor && !S.relative(descriptor)) return [];
-    return I.caged(tonic,notes);
+    if (descriptor && !S.relative(descriptor) && !['harmonic-minor','jazz-minor','classical-minor'].includes(descriptor.id)) return [];
+    const shapes = I.caged(tonic,notes);
+    if (shapes.length || descriptor?.id!=='locrian') return shapes;
+    return I.caged(tonic,notes,H.readRoot(H.spell(tonic,'b2')));
   }
+
+  let auxOpen = false;
+  const atlasBoardOptions = tonic => ({useAtlasOptions:true,
+    targets:I.material(tonic,H.types.get(state.chord))});
+  const coordinates = cells => cells.map(n=>`${n.string}弦${n.fret}品`).join('、');
 
   function catalogue() {
     const meta = scale(), noteList = currentNotes(), tonic = root();
@@ -274,18 +270,28 @@
     const intervals = pitches.map((pitch,i)=>(pitches[i+1] ?? 12)-pitch)
       .map(n=>n===1?'半':n===2?'全':n===3?'增二':n+'半音');
     const shown = collectionPositions(noteList);
-    const opts = {orientation:state.orientation, targets:I.material(tonic,H.types.get(state.chord)).map(n=>n.pc), compact:true};
+    const opts = atlasBoardOptions(tonic);
     const hidden = state.labels === 'hide';
-    return `<div class="ss-row">${select('layout','指型',shapes.map(([id,zh])=>option(id,zh,state.layout)).join(''))}
-      ${select('labels','标记',labels.map(([id,zh])=>option(id,zh,state.labels)).join(''))}
-      ${select('sol','首调基准',option('relative','关系大调',state.sol)+option('tonic','当前主音 Do / 1',state.sol))}
-      ${select('orientation','图形',option('vertical','纵向',state.orientation)+option('horizontal','横向',state.orientation))}
-      ${select('string','起始 / 单弦', [6,5,4,3,2,1].map(n=>option(n,`${n}弦`,state.string)).join(''))}
+    const toggle = (name,title) => `<label><input type="checkbox" data-ss="${name}" ${state[name]?'checked':''}>${title}</label>`;
+    return `<div class="ss-atlas-controls" aria-label="指板显示设置">
+    <div class="ss-row">
+      ${select('orientation','显示方向',option('horizontal','横向',state.orientation)+option('vertical','纵向',state.orientation))}
+      ${select('labels','显示内容',labels.map(([id,zh])=>option(id,zh,state.labels)).join(''))}
+      ${select('layout','显示范围',shapes.map(([id,zh])=>option(id,zh,state.layout)).join(''))}
+      ${action('columns',state.single?'双列':'单列大图')}${action('scale-play','试听音阶')}
+    </div><details ${auxOpen?'open':''} data-ss="atlas-assist"><summary>辅助显示</summary>
+    <div class="ss-row">
+      ${toggle('mirror','上下镜像')}${toggle('emphasis','主音强调')}${toggle('color','音阶颜色')}
+      ${toggle('inlays','指板定位点')}${toggle('fingers','推荐指法')}${toggle('overlaps','相邻指型重叠音')}
+      ${toggle('chordOnly','仅显示和弦音')}
+      ${state.labels==='sol'||state.labels==='degree' ? select('sol','首调基准',option('relative','关系大调',state.sol)+option('tonic','当前主音 Do / 1',state.sol)) : ''}
+    </div></details>
+    <div class="ss-row ss-atlas-context">
+      ${['start','single','two','three'].includes(state.layout) ? select('string','起始 / 单弦',[6,5,4,3,2,1].map(n=>option(n,`${n}弦`,state.string)).join('')) : ''}
       ${state.layout==='custom' ? `<label>起品<input type="number" min="0" max="24" value="${state.from}" data-ss="from"></label><label>止品<input type="number" min="0" max="24" value="${state.to}" data-ss="to"></label>` : ''}
-      ${state.labels==='target' ? select('chord','目标和弦',chordOptions(state.chord)) : ''}
-      ${meta.id==='classical-minor' ? select('direction','方向',option('up','上行',state.direction)+option('down','下行',state.direction)) : ''}
-      ${action('columns',state.single?'双列':'单列大图')}${action('color',state.color?'关闭颜色':'开启颜色')}${action('scale-play','试听音阶')}
-    </div>
+      ${state.chordOnly||state.labels==='target' ? select('chord','目标和弦',chordOptions(state.chord)) : ''}
+      ${meta.id==='classical-minor' ? select('direction','旋律小调',option('up','上行',state.direction)+option('down','下行',state.direction)) : ''}
+    </div></div>
     <article class="ss-card ss-meta"><h3>${escape(tonic.name+' '+meta.zh)} <small>${escape(meta.en)}</small></h3>
       ${!hidden ? `<p><b>公式</b> ${noteList.map(n=>S.printable(n.interval)).join(' · ')}　<b>步距</b> ${intervals.join(' · ')}</p>
       <p><b>构成音</b> ${noteList.map(n=>n.name).join(' · ')}　<b>特征音</b> ${noteList.filter(n=>n.featured).map(n=>n.name).join(' · ')||'—'}</p>
@@ -295,15 +301,24 @@
       ${meta.aliases.length?`<small>别名 ${escape(meta.aliases.join(' / '))}</small>`:''}</p>
       ${progressLevel('scale:'+meta.id)}
     </article>
-    ${state.layout!=='full' ? `<details class="ss-card"><summary>全指板分布 0–24 品</summary>${fretboard(I.region(noteList,0,24,'全指板'),tonic,meta,{...opts,orientation:'horizontal'})}</details>`:''}
+    ${state.layout!=='full' ? `<details class="ss-card"><summary>全指板分布 0–24 品</summary>${fretboard(I.region(noteList,0,24,'全指板'),tonic,meta,opts)}</details>`:''}
+    ${shown.length>1?`<nav class="ss-jumps" aria-label="跳到指型">${shown.map((region,i)=>action('jump',region.label,i)).join('')}</nav>`:''}
     <div class="ss-grid ${state.single?'single':''}">${shown.map((region,i)=>{
-      const next = shown[i+1];
-      const shared = next && (state.layout==='caged'||state.layout==='cross') ? I.overlap(region,next) : [];
+      const next = shown[i+1], previous = shown[i-1];
+      const caged = state.layout==='caged'||state.layout==='cross';
+      const shared = caged && state.overlaps && next ? I.overlap(region,next) : [];
+      const before = caged && state.overlaps && previous ? I.overlap(region,previous) : [];
       const route = next && state.layout==='cross' ? I.crossRoute(region,next) : [];
-      return `<article class="ss-card"><h4>${region.label}<small>${region.from}–${region.to} 品</small></h4>
-        ${fretboard(region,tonic,meta,{...opts,orientation:['full','single'].includes(state.layout)?'horizontal':state.orientation})}
-        ${shared.length&&!hidden?`<p>与下一型重叠 ${[...new Set(shared.map(n=>n.tone.name))].join(' · ')}</p>`:''}
-        ${route.length&&!hidden?`<p>连接 ${route.map(n=>`${n.string}弦${n.fret}品`).join(' → ')} ${action('route','试听',route.map(n=>n.midi).join(','))}</p>`:''}
+      const roots = region.cells.filter(n=>n.tone?.interval==='1');
+      const chord = region.skeleton || [];
+      const boardOptions = {...opts,shared:new Set([...before,...shared].map(I.key))};
+      return `<article class="ss-card" data-ss-shape="${i}" tabindex="-1"><h4>${escape(region.label)}<small>${region.from}–${region.to} 品</small></h4>
+        ${fretboard(region,tonic,meta,boardOptions)}
+        ${!hidden&&roots.length?`<p><b>主音</b> ${coordinates(roots)}</p>`:''}
+        ${!hidden&&chord.length?`<p><b>CAGED 和弦骨架</b> ${chord.map(n=>`${n.string}弦${n.fret}品 ${escape(n.tone.name)}`).join(' · ')}</p>`:''}
+        ${before.length&&!hidden?`<p><b>与 ${escape(previous.label)} 重叠</b> ${coordinates(before)}</p>`:''}
+        ${shared.length&&!hidden?`<p><b>与 ${escape(next.label)} 重叠</b> ${coordinates(shared)}</p>`:''}
+        ${route.length&&!hidden?`<p>连接 ${route.map(n=>`${n.string}弦${n.fret}品`).join(' → ')} ${action('route','试听连接',route.map(n=>n.midi).join(','))}</p>`:''}
         <div class="ss-row">${action('zoom','放大',i)}${action('shape-play','试听指型',i)}</div></article>`;
     }).join('') || '<p class="ss-card">此音阶或音域没有合适的该类指型。可以改用全指板、自定义或单弦。</p>'}</div>`;
   }
@@ -320,6 +335,7 @@
     get('scale').value = state.scale;
     get('global-scale').hidden = !['atlas','compare','memory'].includes(state.page);
     output().innerHTML = state.page === 'atlas' ? catalogue() : modules.get(state.page)?.render() || '';
+    measureHeader();
   }
   function go(page) {
     if (!pages.some(([id])=>id===page)) return;
@@ -337,12 +353,29 @@
     <p data-ss="status" role="status" class="ss-status"></p><div data-ss="output"></div>
     <dialog data-ss="dialog"><button type="button" data-ss-action="close">关闭</button><div data-ss="zoom"></div></dialog></main>`;
   updatePalette();
+  const toolbar = shell.querySelector('.ss-sticky');
+  function measureHeader() {
+    shell.style.setProperty('--ss-sticky-height',`${toolbar.offsetHeight}px`);
+  }
+  if (window.ResizeObserver) new ResizeObserver(measureHeader).observe(toolbar);
+  shell.addEventListener('keydown', event => {
+    const hit = event.target.closest('.gf-hit');
+    if (hit && (event.key==='Enter' || event.key===' ')) {
+      event.preventDefault();
+      hit.dispatchEvent(new MouseEvent('click',{bubbles:true}));
+    }
+  });
   shell.addEventListener('change', event => {
     const input = event.target, name = input.dataset.ss;
     if (input.dataset.ssProgress) { store.progress[input.dataset.ssProgress] = Number(input.value); persist(); return; }
     if (Object.hasOwn(state,name)) {
       stop();
-      state[name] = input.type==='number'||name==='string'?Number(input.value):input.value;
+      auxOpen = get('atlas-assist')?.open ?? auxOpen;
+      state[name] = input.type==='checkbox' ? input.checked : input.type==='number'||name==='string' ? Number(input.value) : input.value;
+      if (Object.hasOwn(defaults,name)) {
+        try { localStorage.setItem(displayKey,JSON.stringify(Object.fromEntries(Object.keys(defaults).map(key=>[key,state[key]])))); }
+        catch (_) {}
+      }
       if (name==='scale') state.direction='up';
       modules.get(state.page)?.reset?.();
       render();
@@ -360,8 +393,9 @@
       play([I.coordinate(string,fret)]); return;
     }
     if (name==='choose-scale') {state.scale=value; state.direction='up'; render(); return;}
-    if (name==='columns' || name==='color') {
-      if (name==='columns') state.single=!state.single; else state.color=!state.color;
+    if (name==='columns') {
+      auxOpen = get('atlas-assist')?.open ?? auxOpen;
+      state.single=!state.single;
       render(); return;
     }
     if (name==='scale-play') {
@@ -370,9 +404,21 @@
       play(notes); return;
     }
     if (name==='route') {play(value.split(',').map(Number));return;}
+    if (name==='jump') {
+      const card = output().querySelector(`[data-ss-shape="${Number(value)}"]`);
+      if (!card) return;
+      card.focus({preventScroll:true});
+      card.scrollIntoView({block:'start'});
+      return;
+    }
     if (name==='shape-play' || name==='zoom') {
-      const region = collectionPositions(currentNotes())[Number(value)];
-      if (name==='zoom') return zoom(region,root(),scale(),{orientation:state.orientation});
+      const index = Number(value), positions = collectionPositions(currentNotes());
+      const region = positions[index];
+      if (name==='zoom') {
+        const shared = new Set(!state.overlaps||!['caged','cross'].includes(state.layout) ? [] :
+          [positions[index-1],positions[index+1]].filter(Boolean).flatMap(other=>I.overlap(region,other).map(I.key)));
+        return zoom(region,root(),scale(),{...atlasBoardOptions(root()),shared});
+      }
       play(region.cells.filter(n=>n.tone).sort((a,b)=>a.midi-b.midi)); return;
     }
     modules.get(state.page)?.action?.(name,value,target);

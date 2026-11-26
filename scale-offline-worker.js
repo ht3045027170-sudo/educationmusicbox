@@ -1,4 +1,4 @@
-const cacheName = 'haitang-guitar-studio-1';
+const cacheName = 'haitang-guitar-studio-2';
 const index = '/index.html';
 const localAsset = /\.(?:js|css|png|json|webmanifest|wav)$/i;
 
