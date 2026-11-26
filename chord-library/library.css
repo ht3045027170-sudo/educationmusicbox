@@ -266,6 +266,33 @@
 .cl-card-actions button:nth-child(n+2) {
   min-width: 31px;
 }
+.cl-step-strings {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  margin-bottom: 6px;
+}
+.cl-step-strings button {
+  font-size: 12px;
+  padding-inline: 2px;
+}
+.cl-play-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  min-width: 0;
+}
+.cl-play-options button,
+.cl-panel .cl-play-options select {
+  flex: 1 1 auto;
+  font-size: 12px;
+  min-height: 36px;
+  padding: 2px 4px;
+}
+.cl-panel .cl-play-options select {
+  width: auto;
+  max-width: 100%;
+}
 .cl-choice {
   margin-top: 7px;
 }
