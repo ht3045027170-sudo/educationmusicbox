@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const H = require('../chord-library/harmony.js');
 const S = require('../scale-library/scales.js');
 const I = require('../scale-library/instrument.js');
+const GuitarFretboard = require('../scale-library/guitar-fretboard.js');
 
 const names = keys => keys.map(note => note.name);
 const tones = (key,id,descending) => S.tones(H.readRoot(key),S.byId.get(id),descending);
@@ -89,3 +90,35 @@ assert.ok(I.compatible(chords[1],tonic,'major').some(({scale,exact})=>scale.id==
 assert.ok(I.nearestTargets(60,chords[2],5,9));
 for (const file of ['index.html','product-entry.js']) assert.doesNotMatch(fs.readFileSync(file,'utf8'),/showExamLogin|id="gaokaoLogin"/);
 console.log(`Scale studio: ${S.collection.length} scales × ${H.keys.length} keys, ${cellsChecked} fret positions, ${H.types.size} chord types × ${H.keys.length} keys, exact TAB transposition and review scheduling.`);
+
+const aBlues = H.readRoot('A');
+const bluesBoxes = I.caged(aBlues,tones('A','minor-blues'));
+const eShape = bluesBoxes.find(box=>box.label==='E 型');
+assert.deepEqual([eShape.from,eShape.to],[5,8]);
+const examples = {'6:5':'1','6:8':'b3','5:6':'b5','5:7':'5','4:7':'1','3:8':'b5','1:5':'1','1:8':'b3'};
+for (const [position,interval] of Object.entries(examples)) {
+  const cell=eShape.cells.find(note=>I.key(note)===position);
+  assert.equal(cell.tone.interval,interval,position);
+  assert.equal(cell.midi,I.coordinate(...position.split(':').map(Number)).midi);
+}
+assert.equal(new Set(eShape.skeleton.map(cell=>cell.tone.pc)).size,3);
+assert.deepEqual(I.overlap(eShape,bluesBoxes[1]).map(I.key),
+  eShape.cells.filter(note=>note.tone&&bluesBoxes[1].cells.some(other=>other.tone&&I.key(note)===I.key(other))).map(I.key));
+const svg = (region,options) => GuitarFretboard.render(region,options,cell=>({
+  action:cell.tone?'point':'',tone:cell.tone?'other':'',label:cell.tone?.interval,
+}));
+const strings = GuitarFretboard.geometry(eShape);
+assert.deepEqual(strings.strings,[1,2,3,4,5,6]);
+assert.ok(strings.point(5,0)[0]<strings.point(8,0)[0]);
+assert.deepEqual(GuitarFretboard.geometry(eShape,{mirror:true}).strings,[6,5,4,3,2,1]);
+assert.deepEqual(GuitarFretboard.geometry(eShape,{orientation:'vertical'}).strings,[6,5,4,3,2,1]);
+for (const options of [{},{orientation:'vertical'},{mirror:true},{orientation:'vertical',mirror:true}]) {
+  const rendered=svg(eShape,options);
+  const buttons=[...rendered.matchAll(/data-value="(\d+:\d+)"/g)].map(match=>match[1]);
+  assert.deepEqual(buttons,eShape.cells.filter(cell=>cell.tone).map(I.key));
+}
+const full = svg(I.region(tones('A','minor-blues'),0,24,'完整指板'),{inlays:true});
+assert.equal((full.match(/class="gf-inlay"/g)||[]).length,12);
+assert.equal((full.match(/class="gf-nut"/g)||[]).length,1);
+assert.equal((full.match(/class="gf-string"/g)||[]).length,6);
+console.log('SVG fretboard: A minor blues E shape, 8 reference positions, 4 view combinations, nut and 12 inlay dots.');

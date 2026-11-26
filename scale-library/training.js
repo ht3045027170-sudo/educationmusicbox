@@ -39,7 +39,9 @@
           <p>${notes.map(n=>`<button type="button" data-ss-action="contrast-note" data-value="${i}:${n.pitch}"
             class="${shared.has(n.pc)?'ss-common':'ss-difference'}" aria-label="试听 ${n.name} ${shared.has(n.pc)?'共同音':'差异音'}">${n.name}${n.featured?' ★':''}</button>`).join(' ')}</p>
           <div class="ss-row">${action('contrast-play','试听音阶',i)}${action('contrast-chord','叠和弦试听',i)}</div>
-          <small>描边为共同音，色块为差异音，★ 为特征音。</small>
+          ${fretboard(I.region(notes,Math.max(0,Math.min(20,state.from)),Math.min(24,Math.max(0,Math.min(20,state.from))+4),'对比把位'),
+            tonic,meta,{labels:'interval',common:shared})}
+          <small>描边为共同音，★ 为特征音。并列指板使用相同品位。</small>
         </article>`).join('')}</div>`;
     },
     change(input) {
@@ -64,7 +66,8 @@
     const notes=I.material(root(),H.types.get(arp.type));
     if (arp.layout==='single') return [I.region(notes,0,24,arp.string+' 弦',[arp.string])];
     if (arp.layout==='custom') return [I.region(notes,arp.from,arp.to,'多弦自定义把位')];
-    const list = I.caged(root(),notes);
+    const anchored = I.caged(root(),notes);
+    const list = anchored.length ? anchored : [I.region(notes,arp.from,arp.to,'琶音把位')];
     if(arp.layout==='cross') return list.map((item,i)=>i===list.length-1?item:{...item,route:I.crossRoute(item,list[i+1])});
     return list;
   };
@@ -82,7 +85,7 @@
         <p class="ss-card">${escape(root().name+H.suffixLabel(arp.type))} · ${notes.map(n=>n.name+' '+S.printable(n.interval)).join('　')}
         ${arp.type==='7alt'?' · 采用 1 3 ♭5 ♭7 ♯9 这个变化组合':''}</p>
         <div class="ss-grid ${state.single?'single':''}">${arpRows().map((item,i)=>`<article class="ss-card"><h4>${item.label}</h4>
-          ${fretboard(item,root(),null,{orientation:arp.layout==='single'?'horizontal':'vertical',labels:'interval',compact:true})}
+          ${fretboard(item,root(),null,{labels:'interval'})}
           <div class="ss-row">${action('arp-zoom','放大',i)}${action('arp-shape','试听指型',i)}
             ${item.route?.length?action('route','试听连接',item.route.map(n=>n.midi).join(',')):''}</div></article>`).join('')}</div>
         <article class="ss-card"><h3>相邻和弦最近目标音</h3><label>和弦进行<input data-ss="arp-progression" value="${escape(arp.progression)}"></label>
@@ -99,7 +102,7 @@
     action(name,value) {
       if(name==='arp-zoom'||name==='arp-shape'){
         const region=arpRows()[Number(value)];
-        if(name==='arp-zoom')return zoom(region,root(),null,{orientation:'vertical',labels:'interval'});
+        if(name==='arp-zoom')return zoom(region,root(),null,{labels:'interval'});
         play(region.cells.filter(n=>n.tone).sort((a,b)=>a.midi-b.midi));return;
       }
       if(name==='arp-play'){
@@ -226,7 +229,7 @@
         ${q.mode==='lick'&&!q.lick?'':needsText?`<form data-ss-answer><label>答案<input name="answer" autocomplete="off" placeholder="${q.mode==='lick'?'如 3:7 2:6 2:8':'如 C E G B'}" ${reveal?'disabled':''}></label><button ${reveal?'disabled':''}>交卷</button></form>`
         :choices?`<div class="ss-row">${q.choices.map(o=>`<button type="button" data-ss-action="quiz-pick" data-value="${o.id}"
           aria-pressed="${picks.has(o.id)}" ${reveal?'disabled':''}>${escape(o.zh)}</button>`).join('')}</div>`
-        :fretboard(area,q.tonic,q.meta,{labels:reveal?'name':'hide',quiz:true,reveal,picks,kind:'quiz-pick',orientation:'horizontal'})}
+        :fretboard(area,q.tonic,q.meta,{labels:reveal?'name':'hide',quiz:true,reveal,picks,kind:'quiz-pick'})}
         <div class="ss-row">${!needsText&&!reveal?action('quiz-grade','交卷'):''}${!reveal?action('quiz-clear','清空'):''}</div>
         ${reveal?`<p role="status">${escape(result)} ${needsText||choices?'正确答案 '+escape(q.answer.map(id=>S.byId.get(id)?.zh||id).join(' · ')):''}</p>`:''}</article>`;
     },
