@@ -97,7 +97,7 @@
       <p class="cl-muted" data-cl="convert-status" role="status"></p>
       <details class="cl-rules"><summary>数字与罗马数字如何解析</summary><ul>${directions.map(line => `<li>${line}</li>`).join('')}</ul></details>
       <div data-cl="conversion"></div>
-      ${button('practice-conversion', '用这组和弦练习')}
+      ${button('practice-conversion', '用这组和弦练习')}${button('open-improv', '用这组和弦即兴', 'convert')}
     </div>
     <div data-cl-view="practice" hidden>
       <div class="cl-presets" aria-label="练习预设">
@@ -112,7 +112,7 @@
         <label>每个和弦<select data-cl="beats"><option value="1">1 拍</option><option value="2">2 拍</option><option selected value="4">4 拍</option></select></label>
         <label><input type="checkbox" data-cl="metro" checked>节拍器</label>
         <label><input type="checkbox" data-cl="loop" checked>循环</label>
-        ${button('play', '▶ 播放')}${button('stop', '■ 停止')}
+        ${button('play', '▶ 播放')}${button('stop', '■ 停止')}${button('open-improv', '用这组和弦即兴', 'practice')}
       </div>
       <p class="cl-muted" data-cl="practice-status" role="status"></p>
       <div data-cl="practice"></div>
@@ -610,6 +610,20 @@
         get('practice-status').textContent = `已载入 ${practice.length} 个和弦`;
         show('practice');
         break;
+      case 'open-improv': {
+        const items = value === 'convert' ? conversion : practice;
+        if (!items?.length) {
+          get(value + '-status').textContent = '请先载入和弦进行';
+          break;
+        }
+        const source = items.map(item => harmony.resolve(item, tonic, mode).numeric).join(' ');
+        stop();
+        app.showPage('scaleStudio');
+        window.dispatchEvent(new CustomEvent('haitang:scale-progression', {
+          detail: {source, key:tonic.name, mode},
+        }));
+        break;
+      }
       case 'play': playPractice(); break;
       case 'stop': stop(); get('practice-status').textContent = '练习已停止'; break;
     }

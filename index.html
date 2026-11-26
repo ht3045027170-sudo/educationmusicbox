@@ -300,32 +300,11 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
 <link rel="stylesheet" href="gaokao_system/exam-art-direction.css">
 <link rel="stylesheet" href="vocal-pitch/tuner.css?v=20261008-1">
 <style>.gk-option.selected{outline:3px solid #d7653a;outline-offset:2px;background:#fff0e4}</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="scale-library/studio.css?v=1">
 </head>
 <body>
 <div id="runtimeError"></div>
-<section id="gaokaoLogin" class="page product-login hidden" aria-labelledby="gaokaoLoginTitle">
-  <main class="product-login-shell">
-    <section class="product-login-copy">
-      <span class="product-login-kicker">HAITANG EXAM · ACCOUNT</span>
-      <h1 id="gaokaoLoginTitle">海棠<br>艺考</h1>
-      <p>登录后进入个人训练主页。学生与教师使用同一套学习界面；教师账号会在主页额外获得“教师中心”入口。</p>
-      <div class="product-login-actions">
-        <button id="gaokaoLoginButton" class="product-login-primary" type="button">登录账号</button>
-        <button id="gaokaoRegisterButton" class="product-login-secondary" type="button">注册学生账号</button>
-      </div>
-      <p><a href="tuner.html">免登录使用免费调音器 →</a></p>
-      <p id="gaokaoLoginStatus" class="product-login-status" role="status">正在确认登录状态…</p>
-    </section>
-    <aside class="product-login-rail" aria-label="海棠艺考功能">
-      <div class="product-login-figure" aria-hidden="true"><span class="product-login-note">𝄞</span><span class="product-login-orb"></span></div>
-      <h2>听见、写下，<br>再把旋律唱准。</h2>
-      <div class="product-login-list"><div><i>01</i><p><b>乐理</b><span>限时训练调式、和声与节奏；进入高考模拟</span></p></div><div><i>02</i><p><b>听记</b><span>听完钢琴写成五线谱；错题会自动收录复习</span></p></div><div><i>03</i><p><b>视唱</b><span>逐音校对并跟随播放；找到不稳的音准位置</span></p></div></div>
-      <small class="product-login-caption">Haitang Exam<br>an ear in practice</small>
-    </aside>
-  </main>
-</section>
-<!-- ===== [原有功能重构：封面、菜单、调音器、节拍器] ===== -->
-<a class="edu-skip" href="#eduWelcomeTitle">跳到主要内容</a>
 <section id="home" class="page education-page education-welcome hidden">
   <main class="edu-welcome-shell" aria-labelledby="eduWelcomeTitle">
     <div class="edu-welcome-copy">
@@ -428,7 +407,7 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
       <button class="gk-tool-card" data-tool="guitar" type="button"><span class="gk-tool-ico">🎸</span><b>吉他调音器</b><span>YIN 精准检测 · 六弦标准调音</span></button>
       <button class="gk-tool-card" data-tool="metro" type="button"><span class="gk-tool-ico">⏱</span><b>节拍器</b><span>速度与拍号 · 真人报数</span></button>
       <button class="gk-tool-card" data-tool="simPiano" type="button"><span class="gk-tool-ico">🎹</span><b>模拟钢琴</b><span>c0–c3 演奏与片段录制</span></button>
-      <button class="gk-tool-card" data-tool="chordFinder" type="button"><span class="gk-tool-ico">🎵</span><b>和弦查询器</b><span>钢琴组成音与吉他指板</span></button>
+      <button class="gk-tool-card" data-tool="chordFinder" type="button"><span class="gk-tool-ico">🎵</span><b>和弦查询器</b><span>钢琴组成音与和弦公式</span></button><button class="gk-tool-card" data-tool="scaleStudio" type="button"><span class="gk-tool-ico">🎸</span><b>吉他音阶与即兴</b><span>音阶、琶音、乐句与即兴训练</span></button>
     </div>
   </main>
 </section>
@@ -1160,9 +1139,10 @@ body.device-tablet .studio-audio-rack{grid-template-columns:minmax(0,1fr) 160px}
 
 <div id="eduToast" class="edu-toast" role="status" aria-live="polite"></div>
 
-<section id="menu" class="page center hidden"><div class="panel"><div class="topbar"><button class="outline" type="button" data-education-home>← 返回</button><h2>音乐学习与工具</h2></div><p class="muted">先调音，再跟节拍练习；课后回看老师的任务。</p><div class="tool-grid"><button class="tool-card" data-page="guitar"><span class="ico">🎸</span><b>吉他调音器</b><span class="muted">六弦标准调音</span></button><button class="tool-card" data-page="metro"><span class="ico">⏱</span><b>节拍器</b><span class="muted">速度与拍号设置</span></button><button class="tool-card" data-page="ear"><span class="ico">🎧</span><b>练耳与听记</b><span class="muted">单音、音程、和弦、节奏与旋律</span></button><button class="tool-card" id="menuHomeworkEntry" type="button"><span class="ico">📝</span><b>老师作业</b><span class="muted">查看本周任务与错题</span></button></div><details class="secondary-tools" style="margin-top:20px"><summary style="cursor:pointer;padding:12px;font-weight:700">更多工具与乐理</summary><div class="tool-grid"><button class="tool-card" data-page="theoryAcademy"><span class="ico">♬</span><b>音乐理论学院</b><span class="muted">音符、谱号、时值与基础节拍</span></button><button class="tool-card" data-page="erhu"><span class="ico">🎻</span><b>二胡调音器</b><span class="muted">多调定弦</span></button><button class="tool-card" data-page="simPiano"><span class="ico">🎹</span><b>模拟钢琴</b><span class="muted">演奏、延音与片段录制</span></button><button class="tool-card" data-page="chordFinder"><span class="ico">🎸</span><b>和弦查询器</b><span class="muted">钢琴组成音与吉他指板</span></button></div></details></div></section>
+<section id="menu" class="page center hidden"><div class="panel"><div class="topbar"><button class="outline" type="button" data-education-home>← 返回</button><h2>音乐学习与工具</h2></div><p class="muted">先调音，再跟节拍练习；课后回看老师的任务。</p><div class="tool-grid"><button class="tool-card" data-page="guitar"><span class="ico">🎸</span><b>吉他调音器</b><span class="muted">六弦标准调音</span></button><button class="tool-card" data-page="metro"><span class="ico">⏱</span><b>节拍器</b><span class="muted">速度与拍号设置</span></button><button class="tool-card" data-page="ear"><span class="ico">🎧</span><b>练耳与听记</b><span class="muted">单音、音程、和弦、节奏与旋律</span></button><button class="tool-card" id="menuHomeworkEntry" type="button"><span class="ico">📝</span><b>老师作业</b><span class="muted">查看本周任务与错题</span></button></div><details class="secondary-tools" style="margin-top:20px"><summary style="cursor:pointer;padding:12px;font-weight:700">更多工具与乐理</summary><div class="tool-grid"><button class="tool-card" data-page="theoryAcademy"><span class="ico">♬</span><b>音乐理论学院</b><span class="muted">音符、谱号、时值与基础节拍</span></button><button class="tool-card" data-page="erhu"><span class="ico">🎻</span><b>二胡调音器</b><span class="muted">多调定弦</span></button><button class="tool-card" data-page="simPiano"><span class="ico">🎹</span><b>模拟钢琴</b><span class="muted">演奏、延音与片段录制</span></button><button class="tool-card" data-page="chordFinder"><span class="ico">🎸</span><b>和弦查询器</b><span class="muted">钢琴组成音与和弦公式</span></button><button class="tool-card" data-page="scaleStudio" type="button"><span class="ico">🎸</span><b>吉他音阶与即兴</b><span class="muted">音阶、琶音与训练</span></button></div></details></div></section>
+<section id="scaleStudio" class="page hidden" aria-label="吉他音阶与即兴"></section>
 <!-- ===== [新增模块：大学音乐生和弦查询器] ===== -->
-<section id="chordFinder" class="page chord-page hidden"><div class="chord-shell"><header class="chord-head"><button class="outline" data-page="menu">← 返回</button><h2>和弦查询器</h2><button id="chordFavorite" class="outline">☆ 收藏</button></header><div class="chord-search"><input id="chordInput" value="Cmaj7" autocomplete="off" autocapitalize="off" placeholder="输入 C、Cm7、C#m7(b5)、Bbmaj7…"><button id="chordSearchBtn" class="primary">查询</button></div><div class="chord-layout"><div><section class="chord-card"><div id="chordName" class="chord-name">Cmaj7</div><div id="chordTones" class="chord-tones"></div><div class="chord-info-grid"><div><small>根音</small><b id="chordRoot">C</b></div><div><small>类型</small><b id="chordType">大七和弦</b></div><div><small>音程结构</small><b id="chordFormula">1 3 5 7</b></div></div><div id="chordMessage" class="muted"></div></section><section class="chord-card" style="margin-top:14px"><h3>钢琴组成音</h3><div class="mini-piano-wrap"><div id="chordPiano" class="chord-piano"><div id="chordWhiteRow" class="chord-white-row"></div></div></div><p class="muted">高亮键为和弦组成音；所有琴键均可触摸发声。</p></section></div><div><section class="chord-card"><h3>常用和弦库</h3><div id="quickChords" class="quick-chords"></div><h3 style="margin-top:15px">最近查询</h3><div id="chordRecent" class="recent-list"></div><h3 style="margin-top:15px">收藏和弦</h3><div id="chordFavorites" class="recent-list"></div></section></div></div><section class="chord-card" style="margin-top:14px"><h3>横向吉他指板 · 0–12 品</h3><p class="muted">每根弦选择一个品位；再次点击取消。点击“×”可设为不弹。</p><div class="fret-scroll"><div id="fretboard" class="fretboard"></div></div><div id="fretResult" class="fret-result">按法：—<br>当前组成音：—<br>可能和弦：—</div><div class="chord-actions"><button id="clearFretboard" class="outline">清空指板</button><button id="playFretboard" class="primary">▶ 播放按法</button></div></section></div></section>
+<section id="chordFinder" class="page chord-page hidden"><div class="chord-shell"><header class="chord-head"><button class="outline" data-page="menu">← 返回</button><h2>和弦查询器</h2><button id="chordFavorite" class="outline">☆ 收藏</button></header><div class="chord-search"><input id="chordInput" value="Cmaj7" autocomplete="off" autocapitalize="off" placeholder="输入 C、Cm7、C#m7(b5)、Bbmaj7…"><button id="chordSearchBtn" class="primary">查询</button></div><div class="chord-layout"><div><section class="chord-card"><div id="chordName" class="chord-name">Cmaj7</div><div id="chordTones" class="chord-tones"></div><div class="chord-info-grid"><div><small>根音</small><b id="chordRoot">C</b></div><div><small>类型</small><b id="chordType">大七和弦</b></div><div><small>音程结构</small><b id="chordFormula">1 3 5 7</b></div></div><div id="chordMessage" class="muted"></div></section><section class="chord-card" style="margin-top:14px"><h3>钢琴组成音</h3><div class="mini-piano-wrap"><div id="chordPiano" class="chord-piano"><div id="chordWhiteRow" class="chord-white-row"></div></div></div><p class="muted">高亮键为和弦组成音；所有琴键均可触摸发声。</p><button type="button" class="outline" id="chordScaleStudio">查看对应音阶与琶音</button></section></div><div><section class="chord-card"><h3>常用和弦库</h3><div id="quickChords" class="quick-chords"></div><h3 style="margin-top:15px">最近查询</h3><div id="chordRecent" class="recent-list"></div><h3 style="margin-top:15px">收藏和弦</h3><div id="chordFavorites" class="recent-list"></div></section></div></div><section class="chord-card legacy-guitar-fretboard" hidden><h3>横向吉他指板 · 0–12 品</h3><p class="muted">每根弦选择一个品位；再次点击取消。点击“×”可设为不弹。</p><div class="fret-scroll"><div id="fretboard" class="fretboard"></div></div><div id="fretResult" class="fret-result">按法：—<br>当前组成音：—<br>可能和弦：—</div><div class="chord-actions"><button id="clearFretboard" class="outline">清空指板</button><button id="playFretboard" class="primary">▶ 播放按法</button></div></section></div></section>
 <section id="guitar" class="page center precision-tuner hidden"><div class="panel"><div class="topbar"><button class="outline" data-page="menu">← 返回菜单</button><h2>吉他调音器</h2></div>
 <p class="precision-kicker">海棠 · 听清每一次变化</p>
 <div class="precision-modes" role="group" aria-label="调音模式"><button id="guitarManualMode" type="button" aria-pressed="true">选弦调音</button><button id="guitarAutoMode" type="button" aria-pressed="false">自动识弦</button><button id="guitarFreeMode" type="button" aria-pressed="false">自定目标</button></div>
@@ -1551,7 +1531,7 @@ window.HetianApp={
   stopAllAudio:stopAllAppAudio,
   getAudio,
   midiFreq,
-  chordAudio: { stopChordProgression, stopAudioScope, voice, clickSound }
+  chordAudio: { stopChordProgression, stopAudioScope, voice, clickSound, currentChordName: () => currentChord?.input }
 };
 window.HetianCore?.router?.setFallback(performPageChange);
 window.HetianCore?.router?.register('vocalPitch',{leave:()=>window.MusicVocal?.vocalPitchPage?.stop?.('页面已切换')});
@@ -2073,7 +2053,14 @@ document.addEventListener('keyup',event=>{if(event.code==='Space'&&!$('midiStudi
 <script src="sight-singing/piano-sampler.js"></script>
 <script src="guitar-sampler.js"></script>
 <script src="chord-library/harmony.js?v=2"></script>
-<script src="chord-library/page.js?v=5"></script>
+<script src="chord-library/page.js?v=6"></script>
+<script src="scale-library/scales.js?v=1"></script>
+<script src="scale-library/instrument.js?v=1"></script>
+<script src="scale-library/studio.js?v=1"></script>
+<script src="scale-library/training.js?v=1"></script>
+<script src="scale-library/licks.js?v=1"></script>
+<script src="scale-library/improvisation.js?v=1"></script>
+<script src="scale-library/offline.js?v=1"></script>
 <script src="sight-singing/score-layout.js"></script>
 <script src="sight-singing/sight-singing-page.js?v=20261007-4"></script>
 <script src="gaokao_system/database/theory-bank.js"></script>
@@ -2151,7 +2138,7 @@ document.addEventListener('keyup',event=>{if(event.code==='Space'&&!$('midiStudi
 <script src="product-context.js" defer></script>
 <script src="auth.js?v=20261007-14" defer></script>
 <script src="offline-first.js?v=20261007-4" defer></script>
-<script src="product-entry.js" defer></script>
+<script src="product-entry.js?v=2" defer></script>
 <script>document.getElementById('menuHomeworkEntry').addEventListener('click',()=>{if(window.HAITANG_OFFLINE){window.HetianEducationUI?.showToast?.('老师作业需要连接账号服务，请联网后登录。',true);return;}if(!window.HetianAuth?.getUser?.()){window.HetianAuth?.openLogin?.();return;}window.MusicHomework?.openAssignments?.(window.HaitangProduct?.product==='exam'?'gaokao':'hobby');});</script>
 </body>
 </html>

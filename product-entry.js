@@ -15,12 +15,6 @@
   const settingsContext = $('settingsContext');
   if (settingsContext) settingsContext.textContent = product === 'exam' ? 'HAITANG EXAM · SETTINGS' : 'HAITANG MUSIC · SETTINGS';
 
-  function showExamLogin(message = '请登录海棠艺考账号后继续。') {
-    window.HetianApp?.showPage?.('gaokaoLogin');
-    const status = $('gaokaoLoginStatus');
-    if (status) status.textContent = window.HAITANG_OFFLINE ? '当前无法连接账号服务，请联网后再登录海棠艺考。' : message;
-  }
-
   function syncTeacherEntry(user) {
     const canTeach = ['teacher', 'admin'].includes(user?.role);
     document.querySelectorAll('.gk-teacher-entry').forEach((entry) => {
@@ -37,17 +31,17 @@
       return;
     }
     syncTeacherEntry(user);
-    if (!user) {
-      showExamLogin();
-      return;
+    const current = window.HetianApp?.getCurrentPage?.();
+    if (user && current === 'gkTools') window.GaokaoApp?.enterGaokao?.();
+    if (!user && (current === 'gaokaoStudentClass' || current === 'gaokaoTeacher')) {
+      window.HetianApp?.showPage?.('gkTools');
     }
-    window.GaokaoApp?.enterGaokao?.();
   }
 
-  $('gaokaoLoginButton')?.addEventListener('click', () => window.HetianAuth?.openLogin?.());
-  $('gaokaoRegisterButton')?.addEventListener('click', () => window.HetianAuth?.openRegister?.());
+  if (product === 'exam') window.HetianApp?.showPage?.('gkTools');
+  else enterProduct(null);
   window.addEventListener('hetian:auth-changed', (event) => enterProduct(event.detail?.user || null));
-
-  if (product === 'exam') showExamLogin('正在确认登录状态…');
-  window.HetianAuth?.whenReady?.().then(enterProduct);
+  window.HetianAuth?.whenReady?.().then(user => {
+    if (product === 'exam') enterProduct(user);
+  });
 })();
